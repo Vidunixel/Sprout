@@ -11,7 +11,8 @@ import SwiftUI
 struct p9_custom_appApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .tint(.green)
         }
     }
 }
