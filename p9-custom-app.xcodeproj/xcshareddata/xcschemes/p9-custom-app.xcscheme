@@ -50,18 +50,6 @@
             ReferencedContainer = "container:p9-custom-app.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "SUPABASE_PUBLISHABLE_KEY"
-            value = "sb_publishable_eyR1ZGb_rx6f1g2nmBYEDA_m_E8jH2E"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "SUPABASE_URL"
-            value = "https://ucjxcrmfkkujjdgtbjuz.supabase.co"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

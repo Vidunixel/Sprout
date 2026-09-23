@@ -9,8 +9,8 @@ import SwiftUI
 import Supabase
 
 let supabase = SupabaseClient(
-    supabaseURL: URL(string: ProcessInfo.processInfo.environment["SUPABASE_URL"]!)!,
-    supabaseKey: ProcessInfo.processInfo.environment["SUPABASE_PUBLISHABLE_KEY"]!
+    supabaseURL: URL(string: "https://ucjxcrmfkkujjdgtbjuz.supabase.co")!,
+    supabaseKey: "sb_publishable_eyR1ZGb_rx6f1g2nmBYEDA_m_E8jH2E"
 )
 
 @main
