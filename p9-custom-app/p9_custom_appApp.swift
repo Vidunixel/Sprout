@@ -6,6 +6,12 @@
 //
 
 import SwiftUI
+import Supabase
+
+let supabase = SupabaseClient(
+    supabaseURL: URL(string: ProcessInfo.processInfo.environment["SUPABASE_URL"]!)!,
+    supabaseKey: ProcessInfo.processInfo.environment["SUPABASE_PUBLISHABLE_KEY"]!
+)
 
 @main
 struct p9_custom_appApp: App {

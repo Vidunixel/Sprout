@@ -7,20 +7,16 @@
 
 import Foundation
 
-enum AppError: LocalizedError {
-    case invalidForm(String)
+struct AppError: LocalizedError {
+    var description: String
+    var errorCode: String? = nil
     
     var errorDescription: String? {
-        switch self {
-            case .invalidForm(let message): message
-        }
+        return description
     }
     
-    var nsError: NSError {
-        NSError(
-            domain: "Sprout",
-            code: 1,
-            userInfo: [NSLocalizedDescriptionKey: errorDescription ?? "An unknown error occured."]
-        )
+    init(_ description: String, _ errorCode: String? = nil) {
+        self.description = description
+        self.errorCode = errorCode
     }
 }
