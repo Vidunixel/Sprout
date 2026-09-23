@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyB7UbQdh_ODp7z8lC0VMcIOayleO4xD4GA</string>
+	<string>AIzaSyDr_mA8ZeCFTtDku0bSeSuEhlsjqlRoviU</string>
 	<key>GCM_SENDER_ID</key>
-	<string>693511668737</string>
+	<string>520444114947</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>vher0007.p9-custom-app</string>
 	<key>PROJECT_ID</key>
-	<string>p9-custom-app</string>
+	<string>sprout-67</string>
 	<key>STORAGE_BUCKET</key>
-	<string>p9-custom-app.firebasestorage.app</string>
+	<string>sprout-67.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:693511668737:ios:5c5971e93fd20145cf2c00</string>
+	<string>1:520444114947:ios:1f3890eb1977f747f17636</string>
 </dict>
 </plist>
