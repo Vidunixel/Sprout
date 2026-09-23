@@ -40,7 +40,7 @@ struct SignUpView: View {
                         
                         let fullName = TextField("Enter your full name", text: $fullName)
                             .textContentType(.username)
-                            .padding(.vertical, 16)
+                            .frame(height: 54)
                             .padding(.horizontal, 16)
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(999)
@@ -76,7 +76,7 @@ struct SignUpView: View {
                             .textContentType(.emailAddress)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                            .padding(.vertical, 16)
+                            .frame(height: 54)
                             .padding(.horizontal, 16)
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(999)
@@ -109,7 +109,7 @@ struct SignUpView: View {
                         
                         let passwordField = SecureField("Create a password", text: $password)
                             .textContentType(.password)
-                            .padding(.vertical, 16)
+                            .frame(height: 54)
                             .padding(.horizontal, 16)
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(999)
@@ -142,7 +142,7 @@ struct SignUpView: View {
                         
                         let confirmPasswordField = SecureField("Re-enter password", text: $confirmPassword)
                             .textContentType(.password)
-                            .padding(.vertical, 16)
+                            .frame(height: 54)
                             .padding(.horizontal, 16)
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(999)
