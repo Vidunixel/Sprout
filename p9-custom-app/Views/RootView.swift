@@ -12,7 +12,11 @@ struct RootView: View {
     
     var body: some View {
         Group {
-            AuthenticationView()
+            if (authService.session != nil) {
+                TasksView()
+            } else {
+                AuthenticationView()
+            }
         }
         .environmentObject(authService)
     }

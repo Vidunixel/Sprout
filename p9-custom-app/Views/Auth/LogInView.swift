@@ -6,65 +6,31 @@
 //
 
 import SwiftUI
-import Auth
 
-struct SignUpView: View {
-    
+struct LogInView: View {
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject private var authService: AuthService
-    @State private var fullName = ""
     @State private var email = ""
     @State private var password = ""
-    @State private var confirmPassword = ""
     @State private var isLoading = false
     @State private var errors: [AppError] = []
     @State private var feedbackTrigger = false
+    
+    let emailRegex = #/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/#
+    let passwordRegex = #/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-.]).{8,}$/#
     
     var body: some View {
         ScrollView {
             VStack (spacing: 48) {
                 VStack(spacing: 8) {
-                    Text("Sign Up")
+                    Text("Log In")
                         .font(.largeTitle.bold())
-                    Text("Unlock smarter, simpler plant care.")
+                    Text("Welcome back, fellow gardener.")
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                 }
                 
-                
                 VStack(spacing: 14) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Full Name")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.secondary)
-                            .padding(.bottom, 2)
-                        
-                        let fullName = TextField("Enter your full name", text: $fullName)
-                            .textContentType(.username)
-                            .frame(height: 54)
-                            .padding(.horizontal, 16)
-                            .background(Color(uiColor: .systemBackground))
-                            .cornerRadius(999)
-                        
-                        let targetErrors = ["full_name_empty"]
-                        if let fullNameError = errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
-                            fullName
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 999)
-                                        .stroke(Color(uiColor: .systemRed), lineWidth: 2)
-                                )
-                            
-                            Text("*\(fullNameError.localizedDescription)")
-                                .font(.caption.bold())
-                                .foregroundColor(.red)
-                        } else {
-                            fullName
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 999)
-                                        .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
-                                )
-                        }
-                    }
-                    
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Email")
                             .font(.subheadline.bold())
@@ -81,7 +47,7 @@ struct SignUpView: View {
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(999)
                         
-                        let targetErrors = ["email_empty"]
+                        let targetErrors = ["email_empty", "email_invalid"]
                         if let emailError = errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
                             emailField
                                 .overlay(
@@ -107,14 +73,14 @@ struct SignUpView: View {
                             .foregroundStyle(.secondary)
                             .padding(.bottom, 2)
                         
-                        let passwordField = SecureField("Create a password", text: $password)
+                        let passwordField = SecureField("Enter your password", text: $password)
                             .textContentType(.password)
                             .frame(height: 54)
                             .padding(.horizontal, 16)
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(999)
                         
-                        let targetErrors = ["password_empty", "password_mismatch"]
+                        let targetErrors = ["password_empty", "password_weak"]
                         if let passwordError = errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
                             passwordField
                                 .overlay(
@@ -133,61 +99,26 @@ struct SignUpView: View {
                                 )
                         }
                     }
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Confirm Password")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.secondary)
-                            .padding(.bottom, 2)
-                        
-                        let confirmPasswordField = SecureField("Re-enter password", text: $confirmPassword)
-                            .textContentType(.password)
-                            .frame(height: 54)
-                            .padding(.horizontal, 16)
-                            .background(Color(uiColor: .systemBackground))
-                            .cornerRadius(999)
-                        
-                        let targetErrors = ["confirm_password_empty", "password_mismatch"]
-                        if let confirmPasswordError = errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
-                            confirmPasswordField
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 999)
-                                        .stroke(Color(uiColor: .systemRed), lineWidth: 2)
-                                )
-                            
-                            Text("*\(confirmPasswordError.localizedDescription)")
-                                .font(.caption.bold())
-                                .foregroundColor(.red)
-                        } else {
-                            confirmPasswordField
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 999)
-                                        .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
-                                )
-                        }
-                    }
                 }
-                .frame(maxWidth: 520)
                 
                 VStack(spacing: 14) {
-                    Button(action: signUp) {
+                    Button(action: logIn) {
                         HStack {
                             if isLoading { ProgressView().tint(.white) }
-                            Text("Create Account").frame(maxWidth: .infinity)
+                            Text("Log In").frame(maxWidth: .infinity)
                         }
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .disabled(isLoading)
                 }
-                .frame(maxWidth: 520)
             }
             .padding(28)
             .frame(maxWidth: .infinity)
             .frame(maxHeight: .infinity)
         }
         .appBackground()
-        .navigationTitle("Sign Up")
+        .navigationTitle("Log In")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -196,30 +127,37 @@ struct SignUpView: View {
         }
         .defaultScrollAnchor(.center, for: .alignment)
         .sensoryFeedback(.success, trigger: feedbackTrigger)
-//        .alert("Authentication Error", isPresented: errorIsPresented) {
-//            Button("OK", role: .cancel) { error = nil }
-//        } message: {
-//            Text(error?.localizedDescription ?? "Please try again.")
-//        }
+        .alert("Error", isPresented: errorIsPresented) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            let alertError = errors.first(where: { $0.showAlert })
+            Text(alertError?.localizedDescription ?? "An unknown error occured.")
+        }
     }
     
-//    private var errorIsPresented: Binding<Bool> {
-//        Binding(get: { error != nil }, set: { if !$0 { error = nil } })
-//    }
+    private var errorIsPresented: Binding<Bool> {
+        Binding(
+            get: { errors.contains(where: { $0.showAlert }) },
+            set: { if !$0 { errors.removeAll { $0.showAlert } } }
+        )
+    }
     
-    private func signUp() {
+    private func logIn() {
         isLoading = true
         Task {
             defer { isLoading = false }
             validateErrors()
             if (errors.isEmpty) {
                 do {
-                    try await authService.signUp(
-                        username: fullName,
+                    try await authService.signIn(
                         email: email,
-                        password: password,
-                        confirmPassword: confirmPassword
+                        password: password
                     )
+                    
+                    // Dismiss if email not verified
+                    if (authService.awaitingVerificationEmail != nil) {
+                        dismiss()
+                    }
                 } catch let error as AppError {
                     errors.append(error)
                 }
@@ -233,33 +171,21 @@ struct SignUpView: View {
     
     private func validateErrors() {
         errors = []
-        validateFullName()
         validateEmail()
         validatePassword()
-        validateConfirmPassword()
-    }
-    
-    private func validateFullName() {
-        if fullName.isEmpty {
-            errors.append(AppError("Full name is required.", "full_name_empty"))
-        }
     }
     
     private func validateEmail() {
         if email.isEmpty {
             errors.append(AppError("Email is required.", "email_empty"))
+        }  else if email.wholeMatch(of: emailRegex) == nil {
+            errors.append(AppError("Invalid email address.", "email_invalid"))
         }
     }
     
     private func validatePassword() {
         if password.isEmpty {
             errors.append(AppError("Password is required.", "password_empty"))
-        }
-    }
-    
-    private func validateConfirmPassword() {
-        if confirmPassword.isEmpty {
-            errors.append(AppError("Confirm password is required.", "confirm_password_empty"))
         }
     }
 }

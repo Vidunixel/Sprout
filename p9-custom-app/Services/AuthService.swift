@@ -9,6 +9,8 @@ final class AuthService: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    @Published var awaitingVerificationEmail: String? = nil
+    
     init() {
         Task {
             for await (_, session) in supabase.auth.authStateChanges {
@@ -17,14 +19,25 @@ final class AuthService: ObservableObject {
         }
     }
     
-    func signUp(username: String, email: String, password: String, confirmPassword: String) async throws {
+    func signUp(fullName: String, email: String, password: String) async throws {
         isLoading = true
         defer { isLoading = false }
         
         do {
-            let _ = try await supabase.auth.signUp(email: email, password: password)
+            let response = try await supabase.auth.signUp(
+                email: email,
+                password: password,
+                data: ["display_name": .string(fullName)]
+            )
+            
+            print(response)
+            
+            if response.user.emailConfirmedAt == nil {
+                self.awaitingVerificationEmail = email
+            }
         } catch let error as AuthError {
-            throw AppError(error.localizedDescription, error.errorCode.rawValue)
+            print(error)
+            throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
         }
     }
     
@@ -33,9 +46,13 @@ final class AuthService: ObservableObject {
         defer { isLoading = false }
         
         do {
-            let _ = try await supabase.auth.signIn(email: email, password: password)
+            let response = try await supabase.auth.signIn(email: email, password: password)
+            
+            if response.user.emailConfirmedAt == nil {
+                self.awaitingVerificationEmail = email
+            }
         } catch let error as AuthError {
-            throw AppError(error.localizedDescription, error.errorCode.rawValue)
+            throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
         }
     }
     
@@ -43,7 +60,18 @@ final class AuthService: ObservableObject {
         do {
             try await supabase.auth.signOut()
         } catch let error as AuthError {
-            throw AppError(error.localizedDescription, error.errorCode.rawValue)
+            throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
+        }
+    }
+    
+    func resendVerificationEmail(email: String) async throws {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            try await supabase.auth.resend(email: email, type: .signup)
+        } catch let error as AuthError {
+            throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
         }
     }
 }
