@@ -17,7 +17,6 @@ struct LogInView: View {
     @State private var feedbackTrigger = false
     
     let emailRegex = #/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/#
-    let passwordRegex = #/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-.]).{8,}$/#
     
     var body: some View {
         ScrollView {
@@ -47,7 +46,7 @@ struct LogInView: View {
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(999)
                         
-                        let targetErrors = ["email_empty", "email_invalid"]
+                        let targetErrors = ["email_empty", "email_invalid", "invalid_credentials"]
                         if let emailError = errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
                             emailField
                                 .overlay(
@@ -55,9 +54,13 @@ struct LogInView: View {
                                         .stroke(Color(uiColor: .systemRed), lineWidth: 2)
                                 )
                             
-                            Text("*\(emailError.localizedDescription)")
-                                .font(.caption.bold())
-                                .foregroundColor(.red)
+                            // Don't show error message if its a invalid_credentials.
+                            if !["invalid_credentials"].contains(emailError.errorCode) {
+                                Text("*\(emailError.localizedDescription)")
+                                    .font(.caption.bold())
+                                    .foregroundColor(.red)
+                            }
+                            
                         } else {
                             emailField
                                 .overlay(
@@ -80,7 +83,7 @@ struct LogInView: View {
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(999)
                         
-                        let targetErrors = ["password_empty", "password_weak"]
+                        let targetErrors = ["password_empty", "password_weak", "invalid_credentials"]
                         if let passwordError = errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
                             passwordField
                                 .overlay(
@@ -111,6 +114,14 @@ struct LogInView: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .disabled(isLoading)
+                    
+                    NavigationLink(destination: ForgotPassword()) {
+                        HStack {
+                            Text("Forgot Password?")
+                        }
+                    }
+                    .font(.body)
+                    .underline()
                 }
             }
             .padding(28)
@@ -131,7 +142,7 @@ struct LogInView: View {
             Button("OK", role: .cancel) { }
         } message: {
             let alertError = errors.first(where: { $0.showAlert })
-            Text(alertError?.localizedDescription ?? "An unknown error occured.")
+            Text(alertError?.localizedDescription ?? "An unknown error occurred.")
         }
     }
     

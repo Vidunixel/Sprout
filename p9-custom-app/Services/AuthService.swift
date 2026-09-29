@@ -52,7 +52,20 @@ final class AuthService: ObservableObject {
                 self.awaitingVerificationEmail = email
             }
         } catch let error as AuthError {
-            throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
+            var description: String
+            var showAlert: Bool
+            
+            // Customise errors.
+            switch error.errorCode.rawValue {
+            case "invalid_credentials":
+                showAlert = false
+                description = "Email or password is incorrect."
+            default:
+                showAlert = true
+                description = error.localizedDescription
+            }
+            
+            throw AppError(description, error.errorCode.rawValue, showAlert: showAlert)
         }
     }
     
@@ -64,12 +77,41 @@ final class AuthService: ObservableObject {
         }
     }
     
+    func sendPasswordResetEmail(email: String) async throws {
+        let edgeFunctionURL = URL(string: "https://ucjxcrmfkkujjdgtbjuz.supabase.co/functions/v1/auth?action=reset-password")!
+        
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            try await supabase.auth.resetPasswordForEmail(
+                email,
+                redirectTo: edgeFunctionURL
+            )
+        } catch let error as AuthError {
+            throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
+        }
+    }
+    
     func resendVerificationEmail(email: String) async throws {
         isLoading = true
         defer { isLoading = false }
         
         do {
             try await supabase.auth.resend(email: email, type: .signup)
+        } catch let error as AuthError {
+            throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
+        }
+    }
+    
+    func updatePassword(newPassword: String) async throws {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            try await supabase.auth.update(
+                user: UserAttributes(password: newPassword)
+            )
         } catch let error as AuthError {
             throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
         }

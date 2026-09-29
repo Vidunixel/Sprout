@@ -20,7 +20,7 @@ struct SignUpView: View {
     @State private var feedbackTrigger = false
     
     let emailRegex = #/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/#
-    let passwordRegex = #/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-.]).{8,}$/#
+    let passwordRegex = #/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-.]).{6,}$/#
     
     var body: some View {
         ScrollView {
@@ -205,7 +205,7 @@ struct SignUpView: View {
             Button("OK", role: .cancel) { }
         } message: {
             let alertError = errors.first(where: { $0.showAlert })
-            Text(alertError?.localizedDescription ?? "An unknown error occured.")
+            Text(alertError?.localizedDescription ?? "An unknown error occurred.")
         }
     }
     
@@ -273,7 +273,7 @@ struct SignUpView: View {
             errors.append(
                 AppError("""
                     Password must contain at least:
-                    • 8 characters
+                    • 6 characters
                     • 1 upper case letter
                     • 1 lower case letter
                     • 1 number

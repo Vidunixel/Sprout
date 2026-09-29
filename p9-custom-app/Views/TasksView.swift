@@ -8,11 +8,13 @@
 import SwiftUI
 
 struct TasksView: View {
+    @EnvironmentObject private var authService: AuthService
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Button(action: { Task{ try? await authService.signOut() }}) {
+            HStack {
+                Text("Log out").frame(maxWidth: .infinity)
+            }
+        }
     }
-}
-
-#Preview {
-    TasksView()
 }

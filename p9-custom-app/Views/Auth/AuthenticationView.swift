@@ -19,7 +19,7 @@ struct AuthenticationView: View {
                     VStack (spacing: 48) {
                         VStack(spacing: 24) {
                             Image(systemName: "leaf.fill")
-                                .font(.system(size: 54))
+                                .font(.system(size: 70))
                                 .foregroundStyle(.tint)
                             
                             VStack(spacing: 8) {

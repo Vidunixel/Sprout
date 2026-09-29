@@ -17,9 +17,22 @@
 		C2499C6130624106001E82B6 /* p9-custom-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "p9-custom-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C28F3F59306B774C0000DB26 /* Exceptions for "p9-custom-app" folder in "p9-custom-app" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C2499C6030624106001E82B6 /* p9-custom-app */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C2499C6330624106001E82B6 /* p9-custom-app */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C28F3F59306B774C0000DB26 /* Exceptions for "p9-custom-app" folder in "p9-custom-app" target */,
+			);
 			path = "p9-custom-app";
 			sourceTree = "<group>";
 		};
@@ -282,6 +295,8 @@
 				DEVELOPMENT_TEAM = 8543449AW3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "p9-custom-app/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Sprout;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -292,7 +307,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "vher0007.p9-custom-app";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vidun.sprout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -314,6 +329,8 @@
 				DEVELOPMENT_TEAM = 8543449AW3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "p9-custom-app/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Sprout;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -324,7 +341,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "vher0007.p9-custom-app";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vidun.sprout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

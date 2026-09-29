@@ -83,7 +83,7 @@ struct VerifyEmail: View {
             Button("OK", role: .cancel) { }
         } message: {
             let alertError = errors.first(where: { $0.showAlert })
-            Text(alertError?.localizedDescription ?? "An unknown error occured.")
+            Text(alertError?.localizedDescription ?? "An unknown error occurred.")
         }
         .onReceive(timer) { _ in
             if timeRemaining > 0 {

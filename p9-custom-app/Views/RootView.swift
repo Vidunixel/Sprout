@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import Supabase
 
 struct RootView: View {
     @StateObject private var authService = AuthService()
+    @State private var showResetPasswordView = false
     
     var body: some View {
         Group {
@@ -19,5 +21,25 @@ struct RootView: View {
             }
         }
         .environmentObject(authService)
+        .sheet(isPresented: $showResetPasswordView) {
+            ResetPasswordView()
+        }
+        .onOpenURL { url in
+            // Catch deeplink for supabase auth redirect.
+            if (url.host == "auth") {
+                Task {
+                    do {
+                        // Log user in
+                        try await supabase.auth.session(from: url)
+                        
+                        if url.path == "/reset-password" {
+                            showResetPasswordView = true
+                        }
+                    } catch {
+                        print("Auth error: \(error.localizedDescription)")
+                    }
+                }
+            }
+        }
     }
 }
