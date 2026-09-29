@@ -113,7 +113,8 @@ final class AuthService: ObservableObject {
                 user: UserAttributes(password: newPassword)
             )
         } catch let error as AuthError {
-            throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
+            print(error)
+//            throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
         }
     }
 }

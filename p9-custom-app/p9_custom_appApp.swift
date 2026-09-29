@@ -15,10 +15,13 @@ let supabase = SupabaseClient(
 
 @main
 struct p9_custom_appApp: App {
+    @StateObject private var authService = AuthService()
+    
     var body: some Scene {
         WindowGroup {
             RootView()
                 .tint(.green)
+                .environmentObject(authService)
         }
     }
 }

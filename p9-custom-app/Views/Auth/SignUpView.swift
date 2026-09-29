@@ -288,7 +288,7 @@ struct SignUpView: View {
     private func validateConfirmPassword() {
         if confirmPassword.isEmpty {
             errors.append(AppError("Confirm password is required.", "confirm_password_empty"))
-        } else if !password.isEmpty && password != confirmPassword {
+        } else if !password.isEmpty && password.wholeMatch(of: passwordRegex) != nil && password != confirmPassword {
             errors.append(AppError("Passwords do not match.", "password_mismatch"))
         }
     }

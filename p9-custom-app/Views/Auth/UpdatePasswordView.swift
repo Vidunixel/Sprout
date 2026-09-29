@@ -8,7 +8,7 @@
 import SwiftUI
 import Auth
 
-struct ResetPasswordView: View {
+struct UpdatePasswordView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject private var authService: AuthService
     @State private var password = ""
@@ -22,9 +22,15 @@ struct ResetPasswordView: View {
     var body: some View {
         ScrollView {
             VStack (spacing: 48) {
-                VStack(spacing: 8) {
-                    Text("Reset Password")
-                        .font(.largeTitle.bold())
+                VStack(spacing: 24) {
+                    Image(systemName: "key.horizontal.fill")
+                        .font(.system(size: 70))
+                        .foregroundStyle(.tint)
+                    
+                    VStack(spacing: 8) {
+                        Text("Update Password")
+                            .font(.largeTitle.bold())
+                    }
                 }
                 
                 VStack(spacing: 14) {
@@ -100,10 +106,10 @@ struct ResetPasswordView: View {
                 }
                 
                 VStack(spacing: 14) {
-                    Button(action: signUp) {
+                    Button(action: updatePassword) {
                         HStack {
                             if isLoading { ProgressView().tint(.white) }
-                            Text("Create Account").frame(maxWidth: .infinity)
+                            Text("Update").frame(maxWidth: .infinity)
                         }
                     }
                     .buttonStyle(.borderedProminent)
@@ -140,7 +146,7 @@ struct ResetPasswordView: View {
         )
     }
     
-    private func signUp() {
+    private func updatePassword() {
         isLoading = true
         Task {
             defer { isLoading = false }
@@ -190,7 +196,7 @@ struct ResetPasswordView: View {
     private func validateConfirmPassword() {
         if confirmPassword.isEmpty {
             errors.append(AppError("Confirm password is required.", "confirm_password_empty"))
-        } else if !password.isEmpty && password != confirmPassword {
+        } else if !password.isEmpty && password.wholeMatch(of: passwordRegex) != nil && password != confirmPassword {
             errors.append(AppError("Passwords do not match.", "password_mismatch"))
         }
     }

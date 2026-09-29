@@ -11,10 +11,21 @@ struct TasksView: View {
     @EnvironmentObject private var authService: AuthService
     
     var body: some View {
-        Button(action: { Task{ try? await authService.signOut() }}) {
-            HStack {
-                Text("Log out").frame(maxWidth: .infinity)
+        ScrollView {
+            Button(action: { Task{ try? await authService.signOut() }}) {
+                HStack {
+                    Text("Log out").frame(maxWidth: .infinity)
+                }
             }
         }
+        .navigationTitle("Tasks")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("")
+            }
+        }
+        .defaultScrollAnchor(.center, for: .alignment)
+        .appBackground()
     }
 }

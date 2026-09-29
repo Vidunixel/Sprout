@@ -9,6 +9,7 @@ import SwiftUI
 internal import Combine
 
 struct ForgotPassword: View {
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var authService: AuthService
     @State var email = ""
     @State private var isLoading = false
@@ -100,10 +101,7 @@ struct ForgotPassword: View {
                     .controlSize(.large)
                     .disabled(timeRemaining > 0 || isLoading)
                     
-                    Button(action: {
-                        authService.awaitingVerificationEmail = nil
-                        Task { try? await authService.signOut()}
-                    }) {
+                    Button(action: {dismiss()}) {
                         HStack {
                             Text("Back to Log In").frame(maxWidth: .infinity)
                         }
