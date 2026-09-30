@@ -18,9 +18,14 @@ struct AuthenticationView: View {
                 ScrollView {
                     VStack (spacing: 48) {
                         VStack(spacing: 24) {
-                            Image(systemName: "leaf.fill")
-                                .font(.system(size: 70))
-                                .foregroundStyle(.tint)
+                            if let appIcon = UIImage(named: "AppIconImage") {
+                                Image(uiImage: appIcon)
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .antialiased(true)
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 100, height: 100)
+                            }
                             
                             VStack(spacing: 8) {
                                 Text("Sprout")

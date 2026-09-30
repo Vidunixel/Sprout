@@ -1,0 +1,50 @@
+{
+  "fill" : {
+    "solid" : "extended-gray:1.00000,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "srgb:0.18824,0.81961,0.34510,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "display-p3:0.18824,0.81961,0.34510,1.00000"
+              }
+            }
+          ],
+          "glass" : true,
+          "image-name" : "sprout.png",
+          "name" : "sprout",
+          "position" : {
+            "scale" : 0.56,
+            "translation-in-points" : [
+              12.599999999999909,
+              102.20000000000005
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : [
+      "iOS"
+    ]
+  }
+}
