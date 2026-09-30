@@ -78,7 +78,7 @@ struct VerifyEmail: View {
             }
         }
         .defaultScrollAnchor(.center, for: .alignment)
-        .sensoryFeedback(.success, trigger: feedbackTrigger)
+        .sensoryFeedback(.error, trigger: feedbackTrigger)
         .alert("Error", isPresented: errorIsPresented) {
             Button("OK", role: .cancel) { }
         } message: {

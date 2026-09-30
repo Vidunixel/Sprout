@@ -11,22 +11,22 @@ struct MainTabView: View {
     var body: some View {
         TabView {
             NavigationStack {
-                TasksView()
-            }
-            .tabItem { Label("Tasks", systemImage: "checklist") }
-            
-            NavigationStack {
                 GardenView()
             }
             .tabItem { Label("Garden", systemImage: "carrot") }
             
             NavigationStack {
-                GardenView()
+                TasksView()
+            }
+            .tabItem { Label("Tasks", systemImage: "checklist") }
+            
+            NavigationStack {
+                HistoryView()
             }
             .tabItem { Label("History", systemImage: "clock") }
             
             NavigationStack {
-                GardenView()
+                AccountView()
             }
             .tabItem { Label("Account", systemImage: "person") }
         }

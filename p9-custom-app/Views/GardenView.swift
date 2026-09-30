@@ -9,6 +9,7 @@ import SwiftUI
 
 struct GardenView: View {
     @EnvironmentObject private var authService: AuthService
+    @State private var showAddPlantView = false
     
     var body: some View {
         ScrollView {
@@ -18,11 +19,20 @@ struct GardenView: View {
                 }
             }
         }
+        .sheet(isPresented: $showAddPlantView) {
+            AddPlantView()
+        }
         .navigationTitle("Garden")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("")
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: { showAddPlantView.toggle() }) {
+                    Image(systemName: "plus")
+                }
             }
         }
         .defaultScrollAnchor(.center, for: .alignment)
