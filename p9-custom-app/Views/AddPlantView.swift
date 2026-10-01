@@ -135,7 +135,7 @@ struct AddPlantView: View {
         case .photo:
             return "Upload a photo of your plant"
         case .species:
-            return "Select species"
+            return "Select plant species"
         default:
             return ""
         }
@@ -209,59 +209,97 @@ private struct PhotoPage: View {
 }
 
 private struct SpeciesPage: View {
-    var viewModel: AddPlantViewModel
+    @Bindable var viewModel: AddPlantViewModel
     
     var body: some View {
         PageView {
             VStack(alignment: .leading, spacing: 14) {
-                ForEach(viewModel.identifiedPlants, id: \.self) { plant in
-                    Button(action: {}) {
-                        HStack(alignment: .top, spacing: 12) {
-                            if let url = plant.images.first?.url.m {
-                                AsyncImage(url: url) { phase in
-                                    switch phase {
-                                    case let .success(image):
-                                        image
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 70, height: 70)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                Section {
+                    ForEach(viewModel.identifiedPlants, id: \.self) { plant in
+                        Button(action: { viewModel.selectPlantSpecies(plant: plant) }) {
+                            HStack(alignment: .top, spacing: 12) {
+                                if let url = plant.images.first?.url.m {
+                                    AsyncImage(url: url) { phase in
+                                        switch phase {
+                                        case let .success(image):
+                                            image
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 70, height: 70)
+                                                .clipShape(RoundedRectangle(cornerRadius: 8))
                                             
-                                    case .empty:
-                                        ProgressView()
-                                            .frame(width: 100, height: 100)
+                                        case .empty:
+                                            ProgressView()
+                                                .frame(width: 100, height: 100)
                                             
-                                    case .failure:
-                                        coverPlaceholder
+                                        case .failure:
+                                            coverPlaceholder
                                             
-                                    @unknown default:
-                                        coverPlaceholder
+                                        @unknown default:
+                                            coverPlaceholder
+                                        }
+                                    }
+                                } else {
+                                    coverPlaceholder
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(plant.species.scientificNameWithoutAuthor)
+                                        .font(.headline)
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    
+                                    if !plant.species.commonNames.isEmpty {
+                                        Text(plant.species.commonNames.joined(separator: ", "))
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
-                            } else {
-                                coverPlaceholder
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(plant.species.scientificNameWithoutAuthor)
-                                    .font(.headline)
-                                    .multilineTextAlignment(.leading)
-                                    .fixedSize(horizontal: false, vertical: true)
                                 
-                                if !plant.species.commonNames.isEmpty {
-                                    Text(plant.species.commonNames.joined(separator: ", "))
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
-                                }
+                                Spacer()
+                                
+                                Image(systemName: viewModel.selectedSpecies?.id == plant.id ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(viewModel.selectedSpecies?.id == plant.id ? Color.accentColor : Color.secondary)
                             }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                } header: {
+                    Text("Select")
+                        .font(.headline.bold())
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom, 2)
+                }
+                
+                Divider().padding(.vertical, 8)
+                
+                Section {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 4) {
+                            TextField("e.g., Lavender", text: $viewModel.species)
+                                .frame(height: 54)
+                                .padding(.horizontal, 16)
+                                .background(Color(uiColor: .systemBackground))
+                                .cornerRadius(999)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 999)
+                                        .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
+                                )
+                                .onChange(of: viewModel.species) { oldValue, newValue in
+                                    if !newValue.isEmpty {
+                                        viewModel.selectedSpecies = nil
+                                    }
+                                }
                             
-                            Spacer()
-                            
-//                                                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-//                                                    .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+                            Image(systemName: !viewModel.species.isEmpty ? "checkmark.circle.fill" : "circle")
+                                .foregroundStyle(!viewModel.species.isEmpty ? Color.accentColor : Color.secondary)
                         }
                     }
-                    .buttonStyle(.plain)
+                } header: {
+                    Text("Enter Manually")
+                        .font(.headline.bold())
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom, 2)
                 }
             }
         }

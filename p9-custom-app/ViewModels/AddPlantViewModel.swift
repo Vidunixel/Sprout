@@ -12,13 +12,16 @@ import Observation
 @MainActor
 class AddPlantViewModel {
     var currentStage: FormStage = .photo
-    var photoImage: UIImage?
     var isLoading = false
     var identifiedPlants: [PlantNetResult] = []
     var errors: [AppError] = []
     var feedbackTrigger = false
     
-    private let plantNetService = PlantNetService()
+    var photoImage: UIImage?
+    var selectedSpecies: PlantNetResult?
+    var species = ""
+    
+    private var plantNetService = PlantNetService()
     
     func uploadPlantPhoto() async throws {
         // Compress image.
@@ -81,5 +84,23 @@ class AddPlantViewModel {
     
     private func validateErrors() {
         errors = []
+        
+        switch currentStage {
+        case .species:
+            validateSpecies()
+        default:
+            break
+        }
+    }
+    
+    private func validateSpecies() {
+        if species.isEmpty && selectedSpecies == nil {
+            errors.append(AppError("Please select or manually enter a species.", showAlert: true))
+        }
+    }
+    
+    func selectPlantSpecies(plant: PlantNetResult) {
+        selectedSpecies = plant
+        species = ""
     }
 }
