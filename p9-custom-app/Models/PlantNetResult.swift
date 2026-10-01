@@ -6,7 +6,33 @@
 //
 
 import Foundation
-struct PlantNetData: Decodable, Identifiable, Hashable {
-    let id: String
+
+nonisolated struct PlantNetResponse: Decodable, Sendable {
+    let bestMatch: String
+    let results: [PlantNetResult]
+}
+
+nonisolated struct PlantNetResult: Decodable, Identifiable, Hashable, Sendable {
+    let score: Double
+    let species: Species
+    let images: [PlantImage]
     
+    var id: String {
+        species.scientificNameWithoutAuthor
+    }
+}
+
+nonisolated struct PlantImage: Decodable, Hashable, Sendable {
+    let url: ImageSize
+}
+
+nonisolated struct ImageSize: Decodable, Hashable, Sendable {
+    let o: URL?
+    let m: URL?
+    let s: URL?
+}
+
+nonisolated struct Species: Decodable, Hashable, Sendable {
+    let scientificNameWithoutAuthor: String
+    let commonNames: [String]
 }

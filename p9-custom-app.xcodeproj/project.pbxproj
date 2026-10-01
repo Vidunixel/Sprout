@@ -11,6 +11,7 @@
 		C2684C413063C3000081E70A /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C2684C403063C3000081E70A /* PostgREST */; };
 		C2684C433063C3000081E70A /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C2684C423063C3000081E70A /* Storage */; };
 		C2684C6B3063C91A0081E70A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C2684C6A3063C91A0081E70A /* Supabase */; };
+		C2694758306E31490095B6BD /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = C2694757306E31490095B6BD /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2694758306E31490095B6BD /* Alamofire in Frameworks */,
 				C2684C6B3063C91A0081E70A /* Supabase in Frameworks */,
 				C2684C413063C3000081E70A /* PostgREST in Frameworks */,
 				C2684C433063C3000081E70A /* Storage in Frameworks */,
@@ -101,6 +103,7 @@
 				C2684C403063C3000081E70A /* PostgREST */,
 				C2684C423063C3000081E70A /* Storage */,
 				C2684C6A3063C91A0081E70A /* Supabase */,
+				C2694757306E31490095B6BD /* Alamofire */,
 			);
 			productName = "p9-custom-app";
 			productReference = C2499C6130624106001E82B6 /* p9-custom-app.app */;
@@ -132,6 +135,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				C2684C3D3063C3000081E70A /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				C2694756306E31490095B6BD /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C2499C6230624106001E82B6 /* Products */;
@@ -298,6 +302,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "p9-custom-app/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Sprout;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This application requires the camera to take photos of plants.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This application requires the photo library to select photos of plants.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -333,6 +339,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "p9-custom-app/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Sprout;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This application requires the camera to take photos of plants.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This application requires the photo library to select photos of plants.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -387,6 +395,14 @@
 				minimumVersion = 2.5.1;
 			};
 		};
+		C2694756306E31490095B6BD /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.12.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -409,6 +425,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C2684C3D3063C3000081E70A /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
+		};
+		C2694757306E31490095B6BD /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C2694756306E31490095B6BD /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
