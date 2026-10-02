@@ -17,9 +17,20 @@ class AddPlantViewModel {
     var errors: [AppError] = []
     var feedbackTrigger = false
     
+    enum PlantLightExposure: String, CaseIterable, Identifiable {
+        case Low = "LOW"
+        case Medium = "MEDIUM"
+        case High = "HIGH"
+        
+        var id: Self { self }
+    }
+    
     var photoImage: UIImage?
     var selectedSpecies: PlantNetResult?
-    var species = ""
+    var species: String = ""
+    var name: String = ""
+    var isIndoors: Bool = true
+    var lightExposure: PlantLightExposure = .Medium
     
     private var plantNetService = PlantNetService()
     
@@ -59,6 +70,14 @@ class AddPlantViewModel {
                             
                             try await uploadPlantPhoto()
                             currentStage = next
+                        case .species:
+                            if selectedSpecies == nil {
+                                name = species
+                            } else {
+                                name = selectedSpecies?.species.scientificNameWithoutAuthor ?? ""
+                            }
+                            
+                            currentStage = next
                         default:
                             currentStage = next
                         }
@@ -88,6 +107,8 @@ class AddPlantViewModel {
         switch currentStage {
         case .species:
             validateSpecies()
+        case .name:
+            validateName()
         default:
             break
         }
@@ -96,6 +117,12 @@ class AddPlantViewModel {
     private func validateSpecies() {
         if species.isEmpty && selectedSpecies == nil {
             errors.append(AppError("Please select or manually enter a species.", showAlert: true))
+        }
+    }
+    
+    private func validateName() {
+        if name.isEmpty {
+            errors.append(AppError("Name is required.", "name_empty"))
         }
     }
     

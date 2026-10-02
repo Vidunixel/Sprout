@@ -12,11 +12,9 @@ enum FormStage: Int, CaseIterable {
     case photo = 0
     case species = 1
     case name = 2
-    case location = 3
-    case light = 4
-    case age = 5
-    case pot = 6
-    case geoLocation = 7
+    case locationLight = 3
+    case pot = 4
+    case garden = 5
 }
 
 struct AddPlantView: View {
@@ -57,6 +55,10 @@ struct AddPlantView: View {
                         PhotoPage(viewModel: viewModel, showCamera: $showCamera, photoItem: $photoItem)
                     case .species:
                         SpeciesPage(viewModel: viewModel)
+                    case .name:
+                        NamePage(viewModel: viewModel)
+                    case .locationLight:
+                        LocationLightPage(viewModel: viewModel)
                     default:
                         Text("Test")
                     }
@@ -74,7 +76,7 @@ struct AddPlantView: View {
                     .controlSize(.large)
                 }
                 
-                if viewModel.currentStage == .geoLocation {
+                if viewModel.currentStage == .garden {
                     Button(action: {}) {
                         HStack(spacing: 8) {
                             if viewModel.isLoading { ProgressView().tint(.white) }
@@ -136,6 +138,10 @@ struct AddPlantView: View {
             return "Upload a photo of your plant"
         case .species:
             return "Select plant species"
+        case .name:
+            return "Give your plant a name"
+        case .locationLight:
+            return "What's your plant’s environment?"
         default:
             return ""
         }
@@ -268,7 +274,6 @@ private struct SpeciesPage: View {
                     Text("Select")
                         .font(.headline.bold())
                         .foregroundStyle(.secondary)
-                        .padding(.bottom, 2)
                 }
                 
                 Divider().padding(.vertical, 8)
@@ -299,7 +304,6 @@ private struct SpeciesPage: View {
                     Text("Enter Manually")
                         .font(.headline.bold())
                         .foregroundStyle(.secondary)
-                        .padding(.bottom, 2)
                 }
             }
         }
@@ -310,5 +314,82 @@ private struct SpeciesPage: View {
             .font(.system(size: 30))
             .foregroundStyle(Color(uiColor: .systemGray3))
             .frame(width: 50, height: 50)
+    }
+}
+
+private struct NamePage: View {
+    @Bindable var viewModel: AddPlantViewModel
+    
+    var body: some View {
+        PageView {
+            VStack(spacing: 14) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Name")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom, 2)
+                    
+                    let nameField = TextField("Enter a name", text: $viewModel.name)
+                        .frame(height: 54)
+                        .padding(.horizontal, 16)
+                        .background(Color(uiColor: .systemBackground))
+                        .cornerRadius(999)
+                    
+                    let targetErrors = ["name_empty"]
+                    if let nameError = viewModel.errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
+                        nameField
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 999)
+                                    .stroke(Color(uiColor: .systemRed), lineWidth: 2)
+                            )
+                        
+                        Text("*\(nameError.localizedDescription)")
+                            .font(.caption.bold())
+                            .foregroundColor(.red)
+                    } else {
+                        nameField
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 999)
+                                    .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
+                            )
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct LocationLightPage: View {
+    @Bindable var viewModel: AddPlantViewModel
+    
+    var body: some View {
+        PageView {
+            VStack(alignment: .leading, spacing: 14) {
+                Section() {
+                    Picker("Location", selection: $viewModel.isIndoors) {
+                        Text("Indoors").tag(true)
+                        Text("Outdoors").tag(false)
+                    }
+                    .pickerStyle(.segmented)
+                } header: {
+                    Text("Location")
+                        .font(.headline.bold())
+                        .foregroundStyle(.secondary)
+                }
+                
+                Divider().padding(.vertical, 8)
+                
+                Section() {
+                    Picker("Light Exposure", selection: $viewModel.lightExposure) {
+                        ForEach(AddPlantViewModel.PlantLightExposure.allCases) { Text(String(describing: $0)).tag($0) }
+                    }
+                    .pickerStyle(.wheel)
+                } header: {
+                    Text("Light Exposure")
+                        .font(.headline.bold())
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
     }
 }
