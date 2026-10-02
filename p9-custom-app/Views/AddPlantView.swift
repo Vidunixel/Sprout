@@ -59,6 +59,8 @@ struct AddPlantView: View {
                         NamePage(viewModel: viewModel)
                     case .locationLight:
                         LocationLightPage(viewModel: viewModel)
+                    case .pot:
+                        PotPage(viewModel: viewModel)
                     default:
                         Text("Test")
                     }
@@ -141,7 +143,9 @@ struct AddPlantView: View {
         case .name:
             return "Give your plant a name"
         case .locationLight:
-            return "What's your plant’s environment?"
+            return "Your plant’s environment"
+        case .pot:
+            return "Your plant’s pot size"
         default:
             return ""
         }
@@ -381,11 +385,53 @@ private struct LocationLightPage: View {
                 
                 Section() {
                     Picker("Light Exposure", selection: $viewModel.lightExposure) {
-                        ForEach(AddPlantViewModel.PlantLightExposure.allCases) { Text(String(describing: $0)).tag($0) }
+                        ForEach(AddPlantViewModel.PlantLightExposure.allCases) {
+                            switch $0 {
+                            case .low:
+                                Text("Low").tag($0)
+                            case .medium:
+                                Text("Medium").tag($0)
+                            case .high:
+                                Text("High").tag($0)
+                            }
+                        }
                     }
                     .pickerStyle(.wheel)
                 } header: {
                     Text("Light Exposure")
+                        .font(.headline.bold())
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+}
+
+private struct PotPage: View {
+    @Bindable var viewModel: AddPlantViewModel
+    
+    var body: some View {
+        PageView {
+            VStack(alignment: .leading, spacing: 14) {
+                Section() {
+                    Picker("Pot Size", selection: $viewModel.potSize) {
+                        Text("(None)").tag(nil as AddPlantViewModel.PotSize?)
+                        ForEach(AddPlantViewModel.PotSize.allCases) {
+                            switch $0 {
+                            case .mini:
+                                Text("Mini (2–4\" wide)").tag($0)
+                            case .small:
+                                Text("Small (5–7\" wide)").tag($0)
+                            case .medium:
+                                Text("Medium (8–12\" wide)").tag($0)
+                            case .large:
+                                Text("Large (13\"+ wide)").tag($0)
+                            }
+                        }
+                    }
+                    .pickerStyle(.wheel)
+                } header: {
+                    Text("Pot Size")
                         .font(.headline.bold())
                         .foregroundStyle(.secondary)
                 }

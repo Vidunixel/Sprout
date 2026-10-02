@@ -18,9 +18,18 @@ class AddPlantViewModel {
     var feedbackTrigger = false
     
     enum PlantLightExposure: String, CaseIterable, Identifiable {
-        case Low = "LOW"
-        case Medium = "MEDIUM"
-        case High = "HIGH"
+        case low = "LOW"
+        case medium = "MEDIUM"
+        case high = "HIGH"
+        
+        var id: Self { self }
+    }
+    
+    enum PotSize: String, CaseIterable, Identifiable {
+        case mini = "MINI"
+        case small = "SMALL"
+        case medium = "MEDIUM"
+        case large = "LARGE"
         
         var id: Self { self }
     }
@@ -30,7 +39,8 @@ class AddPlantViewModel {
     var species: String = ""
     var name: String = ""
     var isIndoors: Bool = true
-    var lightExposure: PlantLightExposure = .Medium
+    var lightExposure: PlantLightExposure = .medium
+    var potSize: PotSize = .medium
     
     private var plantNetService = PlantNetService()
     
