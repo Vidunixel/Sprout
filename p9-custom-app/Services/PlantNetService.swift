@@ -9,13 +9,11 @@ import Foundation
 import Alamofire
 
 class PlantNetService {
-    private let apiKey = "2b103HWJ27E7l4kdQHS8pyBoe"
-    private let baseURL = "https://my-api.plantnet.org/v2/identify/all"
+    private let baseURL = "https://ucjxcrmfkkujjdgtbjuz.supabase.co/functions/v1/plants/identify"
     
     func identifyPlant(imageData: Data) async throws -> PlantNetResponse {
         var components = URLComponents(string: baseURL)!
         components.queryItems = [
-            URLQueryItem(name: "api-key", value: apiKey),
             URLQueryItem(name: "nb-results", value: "4"),
             URLQueryItem(name: "lang", value: "en"),
             URLQueryItem(name: "include-related-images", value: "true")

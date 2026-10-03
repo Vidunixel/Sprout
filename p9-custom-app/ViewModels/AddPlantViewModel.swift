@@ -41,6 +41,7 @@ class AddPlantViewModel {
     var isIndoors: Bool = true
     var lightExposure: PlantLightExposure = .medium
     var potSize: PotSize = .medium
+    var garden: Garden?
     
     private var plantNetService = PlantNetService()
     
@@ -64,14 +65,16 @@ class AddPlantViewModel {
         }
     }
     
-    func nextStage() {
-        if let next = FormStage(rawValue: currentStage.rawValue + 1) {
-            isLoading = true
-            Task {
-                defer { isLoading = false }
-                validateErrors()
-                if (errors.isEmpty) {
-                    do {
+    func nextStage(submit: Bool = false) {
+        isLoading = true
+        Task {
+            defer { isLoading = false }
+            validateErrors()
+            if (errors.isEmpty) {
+                do {
+                    if submit {
+                        // On submit
+                    } else if let next = FormStage(rawValue: currentStage.rawValue + 1) {
                         switch currentStage {
                         case .photo:
                             guard photoImage != nil else {
@@ -91,16 +94,16 @@ class AddPlantViewModel {
                         default:
                             currentStage = next
                         }
-                    } catch let error as AppError {
-                        errors.append(error)
-                    } catch {
-                        errors.append(AppError(error.localizedDescription, showAlert: true))
                     }
+                } catch let error as AppError {
+                    errors.append(error)
+                } catch {
+                    errors.append(AppError(error.localizedDescription, showAlert: true))
                 }
-                
-                if !errors.isEmpty {
-                    feedbackTrigger.toggle()
-                }
+            }
+            
+            if !errors.isEmpty {
+                feedbackTrigger.toggle()
             }
         }
     }
@@ -119,6 +122,8 @@ class AddPlantViewModel {
             validateSpecies()
         case .name:
             validateName()
+        case .garden:
+            validateGarden()
         default:
             break
         }
@@ -133,6 +138,12 @@ class AddPlantViewModel {
     private func validateName() {
         if name.isEmpty {
             errors.append(AppError("Name is required.", "name_empty"))
+        }
+    }
+    
+    private func validateGarden() {
+        if garden == nil {
+            errors.append(AppError("Please select a garden to continue.", showAlert: true))
         }
     }
     

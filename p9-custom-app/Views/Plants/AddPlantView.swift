@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import Supabase
 
 enum FormStage: Int, CaseIterable {
     case photo = 0
@@ -19,9 +20,10 @@ enum FormStage: Int, CaseIterable {
 
 struct AddPlantView: View {
     @EnvironmentObject private var authService: AuthService
+    @EnvironmentObject private var gardenStore: GardenStore
+    
     @State private var viewModel = AddPlantViewModel()
     
-    @FocusState private var focusedField: FormStage? // Automatically focus text fields.
     @State private var showCamera = false
     @State private var photoItem: PhotosPickerItem?
     
@@ -61,8 +63,8 @@ struct AddPlantView: View {
                         LocationLightPage(viewModel: viewModel)
                     case .pot:
                         PotPage(viewModel: viewModel)
-                    default:
-                        Text("Test")
+                    case .garden:
+                        GardenPage(viewModel: viewModel)
                     }
                 }
             }
@@ -78,30 +80,27 @@ struct AddPlantView: View {
                     .controlSize(.large)
                 }
                 
-                if viewModel.currentStage == .garden {
-                    Button(action: {}) {
-                        HStack(spacing: 8) {
-                            if viewModel.isLoading { ProgressView().tint(.white) }
-                            Text("Submit")
-                        }
-                        .frame(maxWidth: .infinity)
+                Button(action: {
+                    if viewModel.currentStage == .garden {
+                        viewModel.nextStage(submit: true)
+                    } else {
+                        viewModel.nextStage()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .disabled(viewModel.isLoading)
-                } else {
-                    Button(action: viewModel.nextStage) {
-                        HStack(spacing: 8) {
-                            if viewModel.isLoading { ProgressView().tint(.white) }
+                }) {
+                    HStack(spacing: 8) {
+                        if viewModel.isLoading { ProgressView().tint(.white) }
+                        if viewModel.currentStage == .garden {
+                            Text("Submit")
+                        } else {
                             Text("Next").frame(maxWidth: .infinity)
                             Image(systemName: "arrow.forward")
                         }
-                        .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .disabled(viewModel.isLoading)
+                    .frame(maxWidth: .infinity)
                 }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .disabled(viewModel.isLoading)
             }
             .padding(.bottom, 24)
             .padding(.horizontal, 24)
@@ -112,12 +111,6 @@ struct AddPlantView: View {
         .navigationTitle("Add Plant")
         .navigationBarTitleDisplayMode(.inline)
         .appBackground()
-        .onChange(of: viewModel.currentStage) { _, newValue in
-            focusedField = newValue
-        }
-        .onAppear {
-            focusedField = .photo
-        }
         .sensoryFeedback(.error, trigger: viewModel.feedbackTrigger)
         .alert("Error", isPresented: errorIsPresented) {
             Button("OK", role: .cancel) { }
@@ -146,8 +139,8 @@ struct AddPlantView: View {
             return "Your plant’s environment"
         case .pot:
             return "Your plant’s pot size"
-        default:
-            return ""
+        case .garden:
+            return "Select your garden"
         }
     }
 }
@@ -271,6 +264,7 @@ private struct SpeciesPage: View {
                                 Image(systemName: viewModel.selectedSpecies?.id == plant.id ? "checkmark.circle.fill" : "circle")
                                     .foregroundStyle(viewModel.selectedSpecies?.id == plant.id ? Color.accentColor : Color.secondary)
                             }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -436,6 +430,69 @@ private struct PotPage: View {
                         .foregroundStyle(.secondary)
                 }
             }
+        }
+    }
+}
+
+private struct GardenPage: View {
+    @EnvironmentObject private var authService: AuthService
+    @EnvironmentObject private var gardenStore: GardenStore
+    
+    @Bindable var viewModel: AddPlantViewModel
+    @State private var showAddGardenView = false
+    
+    var body: some View {
+        PageView {
+            Image(systemName: "carrot")
+                .font(.system(size: 100))
+                .foregroundStyle(.tint)
+            
+            VStack(alignment: .leading, spacing: 24) {
+                if !gardenStore.gardens.isEmpty {
+                    ForEach(gardenStore.gardens, id: \.self) { garden in
+                        Button(action: { viewModel.garden = garden }) {
+                            HStack(alignment: .top, spacing: 12) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(garden.name)
+                                        .font(.headline)
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    
+                                    Text(garden.city)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: viewModel.garden?.id == garden.id ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(viewModel.garden?.id == garden.id ? Color.accentColor : Color.secondary)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                } else {
+                    Text("You don't have any gardens yet. Create one to get started.")
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                
+                Button(action: { showAddGardenView = true }) {
+                    Label("Create New", systemImage: "plus")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+            }
+        }
+        .task {
+            // Fetch db data.
+            guard let userId = authService.session?.user.id else { return }
+            await gardenStore.fetchGardens(for: userId)
+        }
+        .sheet(isPresented: $showAddGardenView) {
+            AddGardenView()
         }
     }
 }
