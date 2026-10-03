@@ -9,7 +9,6 @@ import Foundation
 internal import MapKit
 
 class LocalityAutocomplete: NSObject, MKLocalSearchCompleterDelegate {
-    var maxResults: Int = 4
     private let completer: MKLocalSearchCompleter
     var onResultsUpdated: (([MKLocalSearchCompletion]) -> Void)?
     var onError: ((Error) -> Void)?
@@ -36,8 +35,7 @@ class LocalityAutocomplete: NSObject, MKLocalSearchCompleterDelegate {
     }
     
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
-        let limitedResults = Array(completer.results.prefix(maxResults))
-        onResultsUpdated?(limitedResults)
+        onResultsUpdated?(completer.results)
     }
     
     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {

@@ -119,31 +119,34 @@ struct AddGardenView: View {
                         }
                         
                         if !viewModel.cityResults.isEmpty {
-                            VStack(spacing: 0) {
-                                ForEach(viewModel.cityResults, id: \.self) { result in
-                                    Button(action: { handleAutocompleteSelection(result: result) }) {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(result.title)
-                                                .font(.body)
-                                                .foregroundColor(.primary)
-                                            if !result.subtitle.isEmpty {
-                                                Text(result.subtitle)
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
+                            ScrollView {
+                                VStack(spacing: 0) {
+                                    ForEach(viewModel.cityResults, id: \.self) { result in
+                                        Button(action: { handleAutocompleteSelection(result: result) }) {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(result.title)
+                                                    .font(.body)
+                                                    .foregroundColor(.primary)
+                                                if !result.subtitle.isEmpty {
+                                                    Text(result.subtitle)
+                                                        .font(.caption)
+                                                        .foregroundColor(.secondary)
+                                                }
                                             }
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 12)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .contentShape(Rectangle())
                                         }
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 12)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .contentShape(Rectangle())
-                                    }
-                                    
-                                    // Divider between rows
-                                    if result != viewModel.cityResults.last {
-                                        Divider().padding(.horizontal, 16)
+                                        
+                                        // Divider between rows
+                                        if result != viewModel.cityResults.last {
+                                            Divider().padding(.horizontal, 16)
+                                        }
                                     }
                                 }
                             }
+                            .frame(maxHeight: 240)
                             .background(Color(uiColor: .systemBackground))
                             .cornerRadius(16)
                             .shadow(color: Color.black.opacity(0.12), radius: 10, x: 0, y: 5)
