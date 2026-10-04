@@ -13,12 +13,13 @@ internal import MapKit
 @MainActor
 class AddGardenViewModel {
     var name = ""
-    var city = ""
+    var city: MKLocalSearchCompletion?
     var geoLocation: [Int]?
     var isLoading = false
     var errors: [AppError] = []
     var feedbackTrigger = false
     
+    var citySearch = ""
     var cityCompleter = LocalityAutocomplete()
     var cityResults: [MKLocalSearchCompletion] = []
 }

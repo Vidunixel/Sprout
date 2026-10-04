@@ -67,50 +67,35 @@ struct AddGardenView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("City")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.secondary)
-                            .padding(.bottom, 2)
-                        
-                        HStack(spacing: 4) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                let cityField = TextField("Enter a city", text: $viewModel.city)
-                                    .focused($isCityFocused)
-                                    .onChange(of: viewModel.city) { _, newValue in
-                                        if isCityFocused {
-                                            viewModel.cityCompleter.search(query: newValue)
+                        HStack(alignment: .bottom, spacing: 4) {
+                            CustomField(
+                                label: "City",
+                                placeholder: "Enter a city",
+                                text: $viewModel.citySearch,
+                                errors: viewModel.errors,
+                                targetErrorCodes: ["city_empty"]
+                            ) {
+                                if viewModel.city != nil {
+                                    Chip(title: viewModel.city?.title ?? "Unknown") {
+                                        withAnimation {
+                                            viewModel.city = nil
                                         }
                                     }
-                                    .textContentType(.addressCity)
-                                    .autocorrectionDisabled()
-                                    .frame(height: 54)
-                                    .padding(.horizontal, 16)
-                                    .background(Color(uiColor: .systemBackground))
-                                    .cornerRadius(999)
-                                
-                                let targetErrors = ["city_empty"]
-                                if let cityError = viewModel.errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
-                                    cityField
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 999)
-                                                .stroke(Color(uiColor: .systemRed), lineWidth: 2)
-                                        )
-                                    
-                                    Text("*\(cityError.localizedDescription)")
-                                        .font(.caption.bold())
-                                        .foregroundColor(.red)
-                                } else {
-                                    cityField
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 999)
-                                                .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
-                                        )
                                 }
                             }
+                            .focused($isCityFocused)
+                            .onChange(of: viewModel.citySearch) { _, newValue in
+                                if isCityFocused {
+                                    viewModel.cityCompleter.search(query: newValue)
+                                }
+                            }
+                            .textContentType(.addressCity)
+                            .autocorrectionDisabled()
                             
                             Button(action: {}) {
                                 Label("Current Location", systemImage: "location")
                             }
+                            .padding(4)
                             .buttonBorderShape(.circle)
                             .controlSize(.large)
                             .labelStyle(.iconOnly)
@@ -200,12 +185,13 @@ struct AddGardenView: View {
     
     private func handleAutocompleteSelection(result: MKLocalSearchCompletion) {
         isCityFocused = false
+        viewModel.citySearch = ""
         viewModel.cityCompleter.cancel()
         viewModel.cityResults = []
         
         // Let SwiftUI finish unfocusing before updating
         DispatchQueue.main.async {
-            viewModel.city = result.title
+            viewModel.city = result
         }
     }
 }
