@@ -10,13 +10,14 @@ internal import Combine
 
 struct VerifyEmail: View {
     @EnvironmentObject var authService: AuthService
-    @State var email: String
-    @State private var isLoading = false
-    @State private var errors: [AppError] = []
-    @State private var feedbackTrigger = false
+    @State private var viewModel: VerifyEmailViewModel
     
-    @State private var timeRemaining = 30
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
+    init(email: String) {
+        // Pass the email to the viewModel
+        _viewModel = State(initialValue: VerifyEmailViewModel(email: email))
+    }
     
     var body: some View {
         ScrollView {
@@ -29,20 +30,20 @@ struct VerifyEmail: View {
                     VStack(spacing: 8) {
                         Text("Verify Email")
                             .font(.largeTitle.bold())
-                        Text("We sent a verification link to **\(email)**.")
+                        Text("We sent a verification link to **\(viewModel.email)**.")
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
                 }
                 
                 VStack(spacing: 14) {
-                    Button(action: resendVerificationEmail) {
+                    Button(action: { viewModel.resendVerificationEmail(authService: authService) }) {
                         HStack {
-                            if isLoading { ProgressView().tint(.white) }
+                            if viewModel.isLoading { ProgressView().tint(.white) }
                             Text("Resend Email").frame(maxWidth: .infinity)
                             
-                            if (timeRemaining > 0) {
-                                Text(String(timeRemaining))
+                            if (viewModel.timeRemaining > 0) {
+                                Text(String(viewModel.timeRemaining))
                                     .font(.subheadline.bold())
                                     .foregroundStyle(.secondary)
                                     .padding(.bottom, 2)
@@ -51,7 +52,7 @@ struct VerifyEmail: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
-                    .disabled(timeRemaining > 0)
+                    .disabled(viewModel.timeRemaining > 0)
                     
                     Button(action: {
                         authService.awaitingVerificationEmail = nil
@@ -78,43 +79,24 @@ struct VerifyEmail: View {
             }
         }
         .defaultScrollAnchor(.center, for: .alignment)
-        .sensoryFeedback(.error, trigger: feedbackTrigger)
+        .sensoryFeedback(.error, trigger: viewModel.feedbackTrigger)
         .alert("Error", isPresented: errorIsPresented) {
             Button("OK", role: .cancel) { }
         } message: {
-            let alertError = errors.first(where: { $0.showAlert })
+            let alertError = viewModel.errors.first(where: { $0.showAlert })
             Text(alertError?.localizedDescription ?? "An unknown error occurred.")
         }
         .onReceive(timer) { _ in
-            if timeRemaining > 0 {
-                timeRemaining -= 1
+            if viewModel.timeRemaining > 0 {
+                viewModel.timeRemaining -= 1
             }
         }
     }
     
     private var errorIsPresented: Binding<Bool> {
         Binding(
-            get: { errors.contains(where: { $0.showAlert }) },
-            set: { if !$0 { errors.removeAll { $0.showAlert } } }
+            get: { viewModel.errors.contains(where: { $0.showAlert }) },
+            set: { if !$0 { viewModel.errors.removeAll { $0.showAlert } } }
         )
-    }
-    
-    private func resendVerificationEmail() {
-        isLoading = true
-        Task {
-            defer { isLoading = false }
-            if (errors.isEmpty) {
-                do {
-                    try await authService.resendVerificationEmail(email: email)
-                    timeRemaining = 30
-                } catch let error as AppError {
-                    errors.append(error)
-                }
-            }
-            
-            if !errors.isEmpty {
-                feedbackTrigger.toggle()
-            }
-        }
     }
 }

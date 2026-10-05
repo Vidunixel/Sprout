@@ -8,19 +8,26 @@
 import SwiftUI
 
 struct CustomField<Content: View>: View {
-    let label: String
-    let placeholder: String
-    @Binding var text: String
-    
-    var isSecure: Bool = false
+    let label: String?
     var errors: [AppError] = []
     var targetErrorCodes: [String] = []
     var silentErrorCodes: [String] = [] // Errors which only show red border (no description).
     
-    var hiddenField: Bool = false
-    var disabledField: Bool = false
-    
     @ViewBuilder var content: () -> Content
+    
+    init(
+        label: String? = nil,
+        errors: [AppError] = [],
+        targetErrorCodes: [String] = [],
+        silentErrorCodes: [String] = [],
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.label = label
+        self.errors = errors
+        self.targetErrorCodes = targetErrorCodes
+        self.silentErrorCodes = silentErrorCodes
+        self.content = content
+    }
     
     // If this specific field has an error.
     private var activeError: AppError? {
@@ -29,26 +36,19 @@ struct CustomField<Content: View>: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(label)
-                .font(.subheadline.bold())
-                .foregroundStyle(.secondary)
-                .padding(.bottom, 2)
-            
-            VStack (alignment: .leading) {
-                content()
-                
-                if !hiddenField {
-                    Group {
-                        if isSecure {
-                            SecureField(placeholder, text: $text)
-                        } else {
-                            TextField(placeholder, text: $text)
-                        }
-                    }
-                    .disabled(disabledField)
-                }
+            if let label {
+                Text(label)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 2)
             }
-            .padding(16)
+            
+            VStack(alignment: .leading) {
+                content()
+            }
+            .frame(minHeight: 32)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(10)
             .background(Color(uiColor: .systemBackground))
             .cornerRadius(16)
             .overlay(
@@ -65,7 +65,6 @@ struct CustomField<Content: View>: View {
                 Text("*\(error.localizedDescription)")
                     .font(.caption.bold())
                     .foregroundColor(.red)
-                    .padding(.leading, 16)
             }
         }
     }

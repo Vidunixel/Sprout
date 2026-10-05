@@ -10,13 +10,8 @@ import SwiftUI
 struct LogInView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject private var authService: AuthService
-    @State private var email = ""
-    @State private var password = ""
-    @State private var isLoading = false
-    @State private var errors: [AppError] = []
-    @State private var feedbackTrigger = false
     
-    let emailRegex = #/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/#
+    @State private var viewModel = LogInViewModel()
     
     var body: some View {
         ScrollView {
@@ -30,90 +25,39 @@ struct LogInView: View {
                 }
                 
                 VStack(spacing: 14) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Email")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.secondary)
-                            .padding(.bottom, 2)
-                        
-                        let emailField = TextField("Enter your email", text: $email)
+                    CustomField(
+                        label: "Email",
+                        errors: viewModel.errors,
+                        targetErrorCodes: ["email_empty", "email_invalid", "invalid_credentials"],
+                        silentErrorCodes: ["invalid_credentials"] // Don't show error message if its a invalid_credentials.
+                    ) {
+                        TextField("Enter your email", text: $viewModel.email)
                             .keyboardType(.emailAddress)
                             .textContentType(.emailAddress)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                            .frame(height: 54)
-                            .padding(.horizontal, 16)
-                            .background(Color(uiColor: .systemBackground))
-                            .cornerRadius(999)
-                        
-                        let targetErrors = ["email_empty", "email_invalid", "invalid_credentials"]
-                        if let emailError = errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
-                            emailField
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 999)
-                                        .stroke(Color(uiColor: .systemRed), lineWidth: 2)
-                                )
-                            
-                            // Don't show error message if its a invalid_credentials.
-                            if !["invalid_credentials"].contains(emailError.errorCode) {
-                                Text("*\(emailError.localizedDescription)")
-                                    .font(.caption.bold())
-                                    .foregroundColor(.red)
-                            }
-                            
-                        } else {
-                            emailField
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 999)
-                                        .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
-                                )
-                        }
                     }
                     
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Password")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.secondary)
-                            .padding(.bottom, 2)
-                        
-                        let passwordField = SecureField("Enter your password", text: $password)
+                    CustomField(
+                        label: "Password",
+                        errors: viewModel.errors,
+                        targetErrorCodes: ["password_empty", "password_weak", "invalid_credentials"]
+                    ) {
+                        SecureField("Enter your email", text: $viewModel.password)
                             .textContentType(.password)
-                            .frame(height: 54)
-                            .padding(.horizontal, 16)
-                            .background(Color(uiColor: .systemBackground))
-                            .cornerRadius(999)
-                        
-                        let targetErrors = ["password_empty", "password_weak", "invalid_credentials"]
-                        if let passwordError = errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
-                            passwordField
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 999)
-                                        .stroke(Color(uiColor: .systemRed), lineWidth: 2)
-                                )
-                            
-                            Text("*\(passwordError.localizedDescription)")
-                                .font(.caption.bold())
-                                .foregroundColor(.red)
-                        } else {
-                            passwordField
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 999)
-                                        .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
-                                )
-                        }
                     }
                 }
                 
                 VStack(spacing: 14) {
-                    Button(action: logIn) {
+                    Button(action: { viewModel.logIn(authService: authService) }) {
                         HStack {
-                            if isLoading { ProgressView().tint(.white) }
+                            if viewModel.isLoading { ProgressView().tint(.white) }
                             Text("Log In").frame(maxWidth: .infinity)
                         }
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
-                    .disabled(isLoading)
+                    .disabled(viewModel.isLoading)
                     
                     NavigationLink(destination: ForgotPassword()) {
                         HStack {
@@ -137,66 +81,24 @@ struct LogInView: View {
             }
         }
         .defaultScrollAnchor(.center, for: .alignment)
-        .sensoryFeedback(.error, trigger: feedbackTrigger)
+        .sensoryFeedback(.error, trigger: viewModel.feedbackTrigger)
         .alert("Error", isPresented: errorIsPresented) {
             Button("OK", role: .cancel) { }
         } message: {
-            let alertError = errors.first(where: { $0.showAlert })
+            let alertError = viewModel.errors.first(where: { $0.showAlert })
             Text(alertError?.localizedDescription ?? "An unknown error occurred.")
+        }
+        .onChange(of: viewModel.dismissView) { _, newValue in
+            if newValue {
+                dismiss()
+            }
         }
     }
     
     private var errorIsPresented: Binding<Bool> {
         Binding(
-            get: { errors.contains(where: { $0.showAlert }) },
-            set: { if !$0 { errors.removeAll { $0.showAlert } } }
+            get: { viewModel.errors.contains(where: { $0.showAlert }) },
+            set: { if !$0 { viewModel.errors.removeAll { $0.showAlert } } }
         )
-    }
-    
-    private func logIn() {
-        isLoading = true
-        Task {
-            defer { isLoading = false }
-            validateErrors()
-            if (errors.isEmpty) {
-                do {
-                    try await authService.signIn(
-                        email: email,
-                        password: password
-                    )
-                    
-                    // Dismiss if email not verified
-                    if (authService.awaitingVerificationEmail != nil) {
-                        dismiss()
-                    }
-                } catch let error as AppError {
-                    errors.append(error)
-                }
-            }
-            
-            if !errors.isEmpty {
-                feedbackTrigger.toggle()
-            }
-        }
-    }
-    
-    private func validateErrors() {
-        errors = []
-        validateEmail()
-        validatePassword()
-    }
-    
-    private func validateEmail() {
-        if email.isEmpty {
-            errors.append(AppError("Email is required.", "email_empty"))
-        }  else if email.wholeMatch(of: emailRegex) == nil {
-            errors.append(AppError("Invalid email address.", "email_invalid"))
-        }
-    }
-    
-    private func validatePassword() {
-        if password.isEmpty {
-            errors.append(AppError("Password is required.", "password_empty"))
-        }
     }
 }

@@ -25,7 +25,7 @@ struct Chip: View {
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 8)
-        .background(Color(UIColor.systemBackground))
+        .background(Color(UIColor.secondarySystemFill))
         .clipShape(Capsule())
         .overlay(
             Capsule().stroke(Color.gray.opacity(0.5), lineWidth: 1)

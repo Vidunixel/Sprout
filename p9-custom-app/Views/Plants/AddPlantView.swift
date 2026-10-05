@@ -259,20 +259,14 @@ private struct SpeciesPage: View {
                         .padding(.bottom, 2)
                     
                     HStack(spacing: 4) {
-                        TextField("e.g., Lavender", text: $viewModel.species)
-                            .frame(height: 54)
-                            .padding(.horizontal, 16)
-                            .background(Color(uiColor: .systemBackground))
-                            .cornerRadius(999)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 999)
-                                    .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
-                            )
-                            .onChange(of: viewModel.species) { oldValue, newValue in
-                                if !newValue.isEmpty {
-                                    viewModel.selectedSpecies = nil
+                        CustomField {
+                            TextField("e.g., Lavender", text: $viewModel.species)
+                                .onChange(of: viewModel.species) { oldValue, newValue in
+                                    if !newValue.isEmpty {
+                                        viewModel.selectedSpecies = nil
+                                    }
                                 }
-                            }
+                        }
                         
                         Image(systemName: !viewModel.species.isEmpty ? "checkmark.circle.fill" : "circle")
                             .foregroundStyle(!viewModel.species.isEmpty ? Color.accentColor : Color.secondary)
@@ -296,31 +290,11 @@ private struct NamePage: View {
     var body: some View {
         PageView(pageNumber: 3, pageTitle: "Give your plant a name") {
             VStack(spacing: 14) {
-                VStack(alignment: .leading, spacing: 4) {
-                    let nameField = TextField("Enter a name", text: $viewModel.name)
-                        .frame(height: 54)
-                        .padding(.horizontal, 16)
-                        .background(Color(uiColor: .systemBackground))
-                        .cornerRadius(999)
-                    
-                    let targetErrors = ["name_empty"]
-                    if let nameError = viewModel.errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
-                        nameField
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 999)
-                                    .stroke(Color(uiColor: .systemRed), lineWidth: 2)
-                            )
-                        
-                        Text("*\(nameError.localizedDescription)")
-                            .font(.caption.bold())
-                            .foregroundColor(.red)
-                    } else {
-                        nameField
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 999)
-                                    .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
-                            )
-                    }
+                CustomField(
+                    errors: viewModel.errors,
+                    targetErrorCodes: ["name_empty"]
+                ) {
+                    TextField("Enter a name", text: $viewModel.name)
                 }
             }
         }

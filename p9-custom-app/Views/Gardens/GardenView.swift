@@ -20,7 +20,7 @@ struct GardenView: View {
             }
         }
         .sheet(isPresented: $showAddPlantView) {
-            AddGardenView()
+            AddPlantView()
         }
         .navigationTitle("Garden")
         .navigationBarTitleDisplayMode(.inline)

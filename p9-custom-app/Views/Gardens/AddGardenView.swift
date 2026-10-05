@@ -10,7 +10,6 @@ internal import MapKit
 
 struct AddGardenView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject private var authService: AuthService
     
     @State private var viewModel = AddGardenViewModel()
     @FocusState private var isCityFocused: Bool
@@ -30,48 +29,20 @@ struct AddGardenView: View {
                 }
                 
                 VStack(spacing: 14) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Name")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.secondary)
-                            .padding(.bottom, 2)
-                        
-                        let nameField = TextField("Enter a name", text: $viewModel.name)
-                            .keyboardType(.emailAddress)
-                            .textContentType(.emailAddress)
+                    CustomField(
+                        label: "Name",
+                        errors: viewModel.errors,
+                        targetErrorCodes: ["name_empty"]
+                    ) {
+                        TextField("Enter a name", text: $viewModel.name)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                            .frame(height: 54)
-                            .padding(.horizontal, 16)
-                            .background(Color(uiColor: .systemBackground))
-                            .cornerRadius(999)
-                        
-                        let targetErrors = ["name_empty"]
-                        if let nameError = viewModel.errors.first(where: { targetErrors.contains($0.errorCode ?? "") }) {
-                            nameField
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 999)
-                                        .stroke(Color(uiColor: .systemRed), lineWidth: 2)
-                                )
-                            
-                            Text("*\(nameError.localizedDescription)")
-                                .font(.caption.bold())
-                                .foregroundColor(.red)
-                        } else {
-                            nameField
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 999)
-                                        .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
-                                )
-                        }
                     }
                     
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(alignment: .bottom, spacing: 4) {
                             CustomField(
                                 label: "City",
-                                placeholder: "Enter a city",
-                                text: $viewModel.citySearch,
                                 errors: viewModel.errors,
                                 targetErrorCodes: ["city_empty"]
                             ) {
@@ -82,25 +53,32 @@ struct AddGardenView: View {
                                         }
                                     }
                                 }
-                            }
-                            .focused($isCityFocused)
-                            .onChange(of: viewModel.citySearch) { _, newValue in
-                                if isCityFocused {
-                                    viewModel.cityCompleter.search(query: newValue)
+                                
+                                HStack {
+                                    if viewModel.city == nil {
+                                        TextField("Enter a city", text: $viewModel.citySearch)
+                                            .focused($isCityFocused)
+                                            .onChange(of: viewModel.citySearch) { _, newValue in
+                                                if isCityFocused {
+                                                    viewModel.cityCompleter.search(query: newValue)
+                                                }
+                                            }
+                                            .textContentType(.addressCity)
+                                            .autocorrectionDisabled()
+                                    }
+                                    
+                                    Button(action: {}) {
+                                        Label("Current Location", systemImage: "location")
+                                    }
+                                    .padding(.leading, 4)
+                                    .buttonBorderShape(.circle)
+                                    .controlSize(.regular)
+                                    .labelStyle(.iconOnly)
+                                    .buttonStyle(.bordered)
+                                    .disabled(viewModel.isLoading)
                                 }
+                                .frame(maxWidth: .infinity, alignment: .trailing)
                             }
-                            .textContentType(.addressCity)
-                            .autocorrectionDisabled()
-                            
-                            Button(action: {}) {
-                                Label("Current Location", systemImage: "location")
-                            }
-                            .padding(4)
-                            .buttonBorderShape(.circle)
-                            .controlSize(.large)
-                            .labelStyle(.iconOnly)
-                            .buttonStyle(.bordered)
-                            .disabled(viewModel.isLoading)
                         }
                         
                         if !viewModel.cityResults.isEmpty {
