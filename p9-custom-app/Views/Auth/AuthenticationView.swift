@@ -42,7 +42,7 @@ struct AuthenticationView: View {
                                     Text("Log In").frame(maxWidth: .infinity)
                                 }
                             }
-                            .buttonStyle(.borderedProminent)
+                            .buttonStyle(.glassProminent)
                             .controlSize(.large)
                             
                             NavigationLink(destination: SignUpView()) {
@@ -50,7 +50,7 @@ struct AuthenticationView: View {
                                     Text("Create an Account").frame(maxWidth: .infinity)
                                 }
                             }
-                            .buttonStyle(.bordered)
+                            .buttonStyle(.glass)
                             .controlSize(.large)
                         }
                     }

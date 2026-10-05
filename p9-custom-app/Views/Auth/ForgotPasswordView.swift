@@ -66,7 +66,7 @@ struct ForgotPassword: View {
                             }
                         }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.timeRemaining > 0 || viewModel.isLoading)
                     
@@ -75,7 +75,7 @@ struct ForgotPassword: View {
                             Text("Back to Log In").frame(maxWidth: .infinity)
                         }
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.glass)
                     .controlSize(.large)
                 }
             }

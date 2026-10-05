@@ -50,7 +50,7 @@ struct VerifyEmail: View {
                             }
                         }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.timeRemaining > 0)
                     
@@ -62,7 +62,7 @@ struct VerifyEmail: View {
                             Text("Back to Log In").frame(maxWidth: .infinity)
                         }
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.glass)
                     .controlSize(.large)
                 }
             }

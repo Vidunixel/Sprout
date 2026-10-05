@@ -55,7 +55,7 @@ struct LogInView: View {
                             Text("Log In").frame(maxWidth: .infinity)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.isLoading)
                     

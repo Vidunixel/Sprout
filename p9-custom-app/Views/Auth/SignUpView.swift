@@ -75,7 +75,7 @@ struct SignUpView: View {
                             Text("Create Account").frame(maxWidth: .infinity)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.isLoading)
                 }
