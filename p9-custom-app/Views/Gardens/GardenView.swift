@@ -53,9 +53,9 @@ struct GardenView: View {
         .navigationTitle("Garden")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Menu {
-                    if !gardenStore.gardens.isEmpty {
+            if !gardenStore.gardens.isEmpty {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
                         ForEach(gardenStore.gardens, id: \.self) { garden in
                             Button {
                                 viewModel.selectedGarden = garden
@@ -68,22 +68,25 @@ struct GardenView: View {
                         }
                         
                         Divider()
-                    }
-                    
-                    Button {
-                        viewModel.showAddGardenView = true
+                        
+                        Button {
+                            viewModel.showAddGardenView = true
+                        } label: {
+                            Label("Create Garden", systemImage: "plus")
+                        }
+                        
                     } label: {
-                        Label("Create Garden", systemImage: "plus")
+                        Text(viewModel.selectedGarden?.name ?? "Select Garden")
+                            .font(.headline)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.caption)
                     }
-                    
-                } label: {
-                    Image(systemName: "line.3.horizontal.decrease")
                 }
             }
             
             ToolbarItem(placement: .principal) {
-                if let name = viewModel.selectedGarden?.name, let city = viewModel.selectedGarden?.city {
-                    Text(name + " (\(city))")
+                if let city = viewModel.selectedGarden?.city {
+                    Text(city)
                 }
             }
             
