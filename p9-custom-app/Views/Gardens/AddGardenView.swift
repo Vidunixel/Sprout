@@ -10,6 +10,8 @@ internal import MapKit
 
 struct AddGardenView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject private var authService: AuthService
+    @EnvironmentObject private var gardenStore: GardenStore
     
     @State private var viewModel = AddGardenViewModel()
     @FocusState private var isCityFocused: Bool
@@ -37,6 +39,7 @@ struct AddGardenView: View {
                         TextField("Enter a name", text: $viewModel.name)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .padding(.horizontal, 6)
                     }
                     
                     VStack(alignment: .leading, spacing: 4) {
@@ -47,7 +50,7 @@ struct AddGardenView: View {
                                 targetErrorCodes: ["city_empty"]
                             ) {
                                 if viewModel.city != nil {
-                                    Chip(title: viewModel.city?.title ?? "Unknown") {
+                                    Chip(title: viewModel.city ?? "Unknown") {
                                         withAnimation {
                                             viewModel.city = nil
                                         }
@@ -55,22 +58,20 @@ struct AddGardenView: View {
                                 }
                                 
                                 HStack {
-                                    if viewModel.city == nil {
-                                        TextField("Enter a city", text: $viewModel.citySearch)
-                                            .focused($isCityFocused)
-                                            .onChange(of: viewModel.citySearch) { _, newValue in
-                                                if isCityFocused {
-                                                    viewModel.cityCompleter.search(query: newValue)
-                                                }
+                                    TextField("Enter a city", text: $viewModel.citySearch)
+                                        .focused($isCityFocused)
+                                        .onChange(of: viewModel.citySearch) { _, newValue in
+                                            if isCityFocused {
+                                                viewModel.cityCompleter.search(query: newValue)
                                             }
-                                            .textContentType(.addressCity)
-                                            .autocorrectionDisabled()
-                                    }
+                                        }
+                                        .textContentType(.addressCity)
+                                        .autocorrectionDisabled()
+                                        .padding(.horizontal, 6)
                                     
-                                    Button(action: {}) {
+                                    Button(action: { withAnimation { viewModel.setCurrentCity() } }) {
                                         Label("Current Location", systemImage: "location")
                                     }
-                                    .padding(.leading, 4)
                                     .buttonBorderShape(.circle)
                                     .controlSize(.regular)
                                     .labelStyle(.iconOnly)
@@ -85,7 +86,7 @@ struct AddGardenView: View {
                             ScrollView {
                                 VStack(spacing: 0) {
                                     ForEach(viewModel.cityResults, id: \.self) { result in
-                                        Button(action: { handleAutocompleteSelection(result: result) }) {
+                                        Button(action: { withAnimation { handleAutocompleteSelection(result: result) } }) {
                                             VStack(alignment: .leading, spacing: 4) {
                                                 Text(result.title)
                                                     .font(.body)
@@ -123,12 +124,13 @@ struct AddGardenView: View {
                 }
                 
                 VStack(spacing: 14) {
-                    Button(action: {}) {
+                    Button(action: { viewModel.createGarden(authService: authService, gardenStore: gardenStore) }) {
                         HStack {
+                            if viewModel.isLoading { ProgressView().tint(.white) }
                             Text("Create").frame(maxWidth: .infinity)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.isLoading)
                 }
@@ -147,29 +149,31 @@ struct AddGardenView: View {
         .defaultScrollAnchor(.center, for: .alignment)
         .appBackground()
         .onAppear {
-            setupAutocomplete()
+            viewModel.setupAutocomplete()
+        }
+        .sensoryFeedback(.error, trigger: viewModel.feedbackTrigger)
+        .alert("Error", isPresented: errorIsPresented) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            let alertError = viewModel.errors.first(where: { $0.showAlert })
+            Text(alertError?.localizedDescription ?? "An unknown error occurred.")
+        }
+        .onChange(of: viewModel.dismissView) { _, newValue in
+            if newValue {
+                dismiss()
+            }
         }
     }
     
-    private func setupAutocomplete() {
-        viewModel.cityCompleter.onResultsUpdated = { results in
-            viewModel.cityResults = results
-        }
-        
-        viewModel.cityCompleter.onError = { error in
-            print("Autocomplete error: \(error.localizedDescription)")
-        }
+    private var errorIsPresented: Binding<Bool> {
+        Binding(
+            get: { viewModel.errors.contains(where: { $0.showAlert }) },
+            set: { if !$0 { viewModel.errors.removeAll { $0.showAlert } } }
+        )
     }
     
-    private func handleAutocompleteSelection(result: MKLocalSearchCompletion) {
+    func handleAutocompleteSelection(result: MKLocalSearchCompletion) {
         isCityFocused = false
-        viewModel.citySearch = ""
-        viewModel.cityCompleter.cancel()
-        viewModel.cityResults = []
-        
-        // Let SwiftUI finish unfocusing before updating
-        DispatchQueue.main.async {
-            viewModel.city = result
-        }
+        viewModel.handleAutocompleteSelection(result: result)
     }
 }

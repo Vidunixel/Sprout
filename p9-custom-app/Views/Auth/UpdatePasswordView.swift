@@ -37,6 +37,7 @@ struct UpdatePasswordView: View {
                     ) {
                         SecureField("Create a new password", text: $viewModel.password)
                             .textContentType(.password)
+                            .padding(.horizontal, 6)
                     }
                     
                     CustomField(
@@ -46,6 +47,7 @@ struct UpdatePasswordView: View {
                     ) {
                         SecureField("Re-enter new password", text: $viewModel.confirmPassword)
                             .textContentType(.password)
+                            .padding(.horizontal, 6)
                     }
                 }
                 

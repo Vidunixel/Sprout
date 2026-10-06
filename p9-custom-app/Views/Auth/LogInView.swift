@@ -36,6 +36,7 @@ struct LogInView: View {
                             .textContentType(.emailAddress)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .padding(.horizontal, 6)
                     }
                     
                     CustomField(
@@ -43,8 +44,9 @@ struct LogInView: View {
                         errors: viewModel.errors,
                         targetErrorCodes: ["password_empty", "password_weak", "invalid_credentials"]
                     ) {
-                        SecureField("Enter your email", text: $viewModel.password)
+                        SecureField("Enter your password", text: $viewModel.password)
                             .textContentType(.password)
+                            .padding(.horizontal, 6)
                     }
                 }
                 

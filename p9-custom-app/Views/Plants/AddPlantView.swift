@@ -266,6 +266,7 @@ private struct SpeciesPage: View {
                                         viewModel.selectedSpecies = nil
                                     }
                                 }
+                                .padding(.horizontal, 6)
                         }
                         
                         Image(systemName: !viewModel.species.isEmpty ? "checkmark.circle.fill" : "circle")
@@ -295,6 +296,7 @@ private struct NamePage: View {
                     targetErrorCodes: ["name_empty"]
                 ) {
                     TextField("Enter a name", text: $viewModel.name)
+                        .padding(.horizontal, 6)
                 }
             }
         }

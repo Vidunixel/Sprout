@@ -303,6 +303,7 @@
 				INFOPLIST_FILE = "p9-custom-app/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Sprout;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This application requires the camera to take photos of plants.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This application requires your location to determine weather updates for your gardens.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This application requires the photo library to select photos of plants.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -340,6 +341,7 @@
 				INFOPLIST_FILE = "p9-custom-app/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Sprout;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This application requires the camera to take photos of plants.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This application requires your location to determine weather updates for your gardens.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This application requires the photo library to select photos of plants.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

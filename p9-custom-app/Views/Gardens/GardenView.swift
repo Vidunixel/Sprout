@@ -6,36 +6,101 @@
 //
 
 import SwiftUI
+import Supabase
 
 struct GardenView: View {
     @EnvironmentObject private var authService: AuthService
-    @State private var showAddPlantView = false
+    @EnvironmentObject private var gardenStore: GardenStore
+    
+    @State private var viewModel = GardenViewModel()
     
     var body: some View {
         ScrollView {
-            Button(action: { Task{ try? await authService.signOut() }}) {
-                HStack {
-                    Text("Log out").frame(maxWidth: .infinity)
+            VStack (spacing: 48) {
+                if gardenStore.gardens.isEmpty {
+                    VStack(spacing: 24) {
+                        Image(systemName: "carrot")
+                            .font(.system(size: 100))
+                            .foregroundStyle(.tint)
+                        
+                        Text("You don't have any gardens yet. Create one to get started.")
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 14) {
+                    if gardenStore.gardens.isEmpty {
+                        Button(action: { viewModel.showAddGardenView = true }) {
+                            Label("Create New", systemImage: "plus")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.large)
+                    }
                 }
             }
+            .padding(28)
+            .frame(maxWidth: .infinity)
+            .frame(maxHeight: .infinity)
         }
-        .sheet(isPresented: $showAddPlantView) {
+        .sheet(isPresented: $viewModel.showAddPlantView) {
             AddPlantView()
+        }
+        .sheet(isPresented: $viewModel.showAddGardenView) {
+            AddGardenView()
         }
         .navigationTitle("Garden")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Menu {
+                    if !gardenStore.gardens.isEmpty {
+                        ForEach(gardenStore.gardens, id: \.self) { garden in
+                            Button {
+                                viewModel.selectedGarden = garden
+                            } label: {
+                                if viewModel.selectedGarden == garden {
+                                    Image(systemName: "checkmark")
+                                }
+                                Text(garden.name)
+                            }
+                        }
+                        
+                        Divider()
+                    }
+                    
+                    Button {
+                        viewModel.showAddGardenView = true
+                    } label: {
+                        Label("Create Garden", systemImage: "plus")
+                    }
+                    
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease")
+                }
+            }
+            
             ToolbarItem(placement: .principal) {
-                Text("")
+                if let name = viewModel.selectedGarden?.name, let city = viewModel.selectedGarden?.city {
+                    Text(name + " (\(city))")
+                }
             }
             
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: { showAddPlantView = true }) {
+                Button(action: { viewModel.showAddPlantView = true }) {
                     Image(systemName: "plus")
                 }
             }
         }
         .defaultScrollAnchor(.center, for: .alignment)
         .appBackground()
+        .task {
+            // Fetch db data.
+            guard let userId = authService.session?.user.id else { return }
+            await gardenStore.fetchGardens(for: userId)
+            
+            viewModel.setInitialGarden(gardenStore: gardenStore)
+        }
     }
 }

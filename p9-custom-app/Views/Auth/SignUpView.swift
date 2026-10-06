@@ -34,6 +34,7 @@ struct SignUpView: View {
                         TextField("Enter your full name", text: $viewModel.fullName)
                             .textContentType(.name)
                             .autocorrectionDisabled()
+                            .padding(.horizontal, 6)
                     }
                     
                     CustomField(
@@ -46,6 +47,7 @@ struct SignUpView: View {
                             .textContentType(.emailAddress)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .padding(.horizontal, 6)
                     }
                     
                     CustomField(
@@ -56,6 +58,7 @@ struct SignUpView: View {
                     ) {
                         SecureField("Create a password", text: $viewModel.password)
                             .textContentType(.password)
+                            .padding(.horizontal, 6)
                     }
                     
                     CustomField(
@@ -65,6 +68,7 @@ struct SignUpView: View {
                     ) {
                         SecureField("Re-enter password", text: $viewModel.confirmPassword)
                             .textContentType(.password)
+                            .padding(.horizontal, 6)
                     }
                 }
                 

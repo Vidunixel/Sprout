@@ -49,6 +49,7 @@ struct ForgotPassword: View {
                         .textContentType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .padding(.horizontal, 6)
                 }
                 
                 VStack(spacing: 14) {
