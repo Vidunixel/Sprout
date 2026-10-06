@@ -11,6 +11,7 @@ import Supabase
 struct RootView: View {
     @EnvironmentObject var authService: AuthService
     @StateObject private var gardenStore = GardenStore()
+    @StateObject private var plantStore = PlantStore()
     
     @State private var showUpdatePasswordView = false
     
@@ -23,6 +24,7 @@ struct RootView: View {
             }
         }
         .environmentObject(gardenStore)
+        .environmentObject(plantStore)
         .sheet(isPresented: $showUpdatePasswordView) {
             UpdatePasswordView()
         }

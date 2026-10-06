@@ -21,6 +21,7 @@ enum FormStage: Int, CaseIterable {
 struct AddPlantView: View {
     @EnvironmentObject private var authService: AuthService
     @EnvironmentObject private var gardenStore: GardenStore
+    @EnvironmentObject private var plantStore: PlantStore
     
     @State private var viewModel = AddPlantViewModel()
     
@@ -71,7 +72,7 @@ struct AddPlantView: View {
                     
                     Button(action: {
                         if viewModel.currentStage == .garden {
-                            viewModel.nextStage(submit: true)
+                            viewModel.nextStage(submit: true, authService: authService, plantStore: plantStore)
                         } else {
                             viewModel.nextStage()
                         }

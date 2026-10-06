@@ -9,7 +9,7 @@ import Foundation
 import Alamofire
 
 class PlantNetService {
-    private let baseURL = "https://ucjxcrmfkkujjdgtbjuz.supabase.co/functions/v1/plants/identify"
+    private let baseURL = AppConfig.supabaseURL.appendingPathComponent("functions/v1/plants/identify").absoluteString
     
     func identifyPlant(imageData: Data) async throws -> PlantNetResponse {
         var components = URLComponents(string: baseURL)!

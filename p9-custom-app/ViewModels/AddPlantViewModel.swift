@@ -65,7 +65,7 @@ class AddPlantViewModel {
         }
     }
     
-    func nextStage(submit: Bool = false) {
+    func nextStage(submit: Bool = false, authService: AuthService? = nil, plantStore: PlantStore? = nil) {
         isLoading = true
         Task {
             defer { isLoading = false }
