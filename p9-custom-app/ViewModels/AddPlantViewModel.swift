@@ -7,32 +7,18 @@
 
 import SwiftUI
 import Observation
+import Supabase
 
 @Observable
 @MainActor
 class AddPlantViewModel {
+    var dismissView = false
+    
     var currentStage: FormStage = .photo
     var isLoading = false
     var identifiedPlants: [PlantNetResult] = []
     var errors: [AppError] = []
     var feedbackTrigger = false
-    
-    enum PlantLightExposure: String, CaseIterable, Identifiable {
-        case low = "LOW"
-        case medium = "MEDIUM"
-        case high = "HIGH"
-        
-        var id: Self { self }
-    }
-    
-    enum PotSize: String, CaseIterable, Identifiable {
-        case mini = "MINI"
-        case small = "SMALL"
-        case medium = "MEDIUM"
-        case large = "LARGE"
-        
-        var id: Self { self }
-    }
     
     var photoImage: UIImage?
     var selectedSpecies: PlantNetResult?
@@ -40,12 +26,13 @@ class AddPlantViewModel {
     var name: String = ""
     var isIndoors: Bool = true
     var lightExposure: PlantLightExposure = .medium
-    var potSize: PotSize = .medium
+    var potSize: PlantPotSize? = .medium
     var garden: Garden?
     
     private var plantNetService = PlantNetService()
+    private var openAiService = OpenAiService()
     
-    func uploadPlantPhoto() async throws {
+    private func uploadPlantPhoto() async throws {
         // Compress image.
         guard let image = photoImage, let imageData = image.jpegData(compressionQuality: 0.6) else {
             throw AppError("Could not process the image.", showAlert: true)
@@ -65,15 +52,27 @@ class AddPlantViewModel {
         }
     }
     
-    func nextStage(submit: Bool = false, authService: AuthService? = nil, plantStore: PlantStore? = nil) {
+    func nextStage(
+        submit: Bool = false,
+        authService: AuthService? = nil,
+        plantStore: PlantStore? = nil,
+        taskStore: TaskStore? = nil,
+        weatherAdjustmentStore: WeatherAdjustmentStore? = nil
+    ) {
         isLoading = true
         Task {
             defer { isLoading = false }
             validateErrors()
             if (errors.isEmpty) {
                 do {
-                    if submit {
-                        // On submit
+                    if submit, let authService, let plantStore, let taskStore, let weatherAdjustmentStore {
+                        try await analyseAndCreatePlant(
+                            authService: authService,
+                            plantStore: plantStore,
+                            taskStore: taskStore,
+                            weatherAdjustmentStore: weatherAdjustmentStore
+                        )
+                        
                     } else if let next = FormStage(rawValue: currentStage.rawValue + 1) {
                         switch currentStage {
                         case .photo:
@@ -111,6 +110,67 @@ class AddPlantViewModel {
     func previousStage() {
         if let prev = FormStage(rawValue: currentStage.rawValue - 1) {
             currentStage = prev
+        }
+    }
+    
+    private func analyseAndCreatePlant(
+        authService: AuthService,
+        plantStore: PlantStore,
+        taskStore: TaskStore,
+        weatherAdjustmentStore: WeatherAdjustmentStore
+    ) async throws {
+        let species = selectedSpecies?.species.scientificNameWithoutAuthor ?? self.species
+        
+        if let garden = garden, let userId = authService.session?.user.id {
+            // Get openAi result.
+            let openAiResult = try await openAiService.analysePlant(
+                species: species,
+                lightExposure: lightExposure,
+                isIndoors: isIndoors,
+                potSize: potSize,
+                city: garden.city,
+                geoLocation: garden.geoLocation
+            )
+            
+            // Save plant.
+            let plant = try await plantStore.createPlant(
+                userId: userId,
+                species: species,
+                name: name,
+                lightExposure: lightExposure,
+                potSize: potSize,
+                gardenId: garden.id
+            )
+            
+            // Save tasks and weather adjustments.
+            for openAiTask in openAiResult.tasks {
+                let task = try await taskStore.createTask(
+                    plantId: plant.id,
+                    name: openAiTask.taskName,
+                    instructions: openAiTask.instructions,
+                    springIntervalDays: openAiTask.schedule.springIntervalDays,
+                    summerIntervalDays: openAiTask.schedule.summerIntervalDays,
+                    autumnIntervalDays: openAiTask.schedule.autumnIntervalDays,
+                    winterIntervalDays: openAiTask.schedule.winterIntervalDays
+                )
+                
+                let weatherAdjustmentsMirror = Mirror(reflecting: openAiTask.weatherAdjustments)
+                
+                for weatherAdjustment in weatherAdjustmentsMirror.children {
+                    if let key = weatherAdjustment.label, let value = weatherAdjustment.value as? Double {
+                        try await weatherAdjustmentStore.createAdjustment(
+                            taskId: task.id,
+                            name: key,
+                            multiplier: value
+                        )
+                    }
+                }
+            }
+            
+            // Dismiss view
+            dismissView = true
+        } else {
+            throw AppError("Invalid fields.", showAlert: true)
         }
     }
     

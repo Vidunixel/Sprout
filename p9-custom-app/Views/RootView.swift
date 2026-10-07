@@ -12,6 +12,8 @@ struct RootView: View {
     @EnvironmentObject var authService: AuthService
     @StateObject private var gardenStore = GardenStore()
     @StateObject private var plantStore = PlantStore()
+    @StateObject private var taskStore = TaskStore()
+    @StateObject private var weatherAdjustmentStore = WeatherAdjustmentStore()
     
     @State private var showUpdatePasswordView = false
     
@@ -25,6 +27,8 @@ struct RootView: View {
         }
         .environmentObject(gardenStore)
         .environmentObject(plantStore)
+        .environmentObject(taskStore)
+        .environmentObject(weatherAdjustmentStore)
         .sheet(isPresented: $showUpdatePasswordView) {
             UpdatePasswordView()
         }

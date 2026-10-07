@@ -34,19 +34,24 @@ final class WeatherAdjustmentStore: ObservableObject {
     func createAdjustment(
         taskId: Int,
         name: String,
-        multiplier: Float
-    ) async throws {
+        multiplier: Double
+    ) async throws -> WeatherAdjustment {
         let newAdjustment = WeatherAdjustmentInsert(
             taskId: taskId,
             name: name,
             multiplier: multiplier
         )
         
-        try await supabase
+        let response: WeatherAdjustment = try await supabase
             .from("weather_adjustments")
             .insert(newAdjustment)
+            .select()
+            .single()
             .execute()
+            .value
         
         await fetchAdjustments(for: taskId)
+        
+        return response
     }
 }

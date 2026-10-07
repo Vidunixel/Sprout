@@ -19,9 +19,12 @@ enum FormStage: Int, CaseIterable {
 }
 
 struct AddPlantView: View {
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject private var authService: AuthService
     @EnvironmentObject private var gardenStore: GardenStore
     @EnvironmentObject private var plantStore: PlantStore
+    @EnvironmentObject private var taskStore: TaskStore
+    @EnvironmentObject private var weatherAdjustmentStore: WeatherAdjustmentStore
     
     @State private var viewModel = AddPlantViewModel()
     
@@ -72,7 +75,13 @@ struct AddPlantView: View {
                     
                     Button(action: {
                         if viewModel.currentStage == .garden {
-                            viewModel.nextStage(submit: true, authService: authService, plantStore: plantStore)
+                            viewModel.nextStage(
+                                submit: true,
+                                authService: authService,
+                                plantStore: plantStore,
+                                taskStore: taskStore,
+                                weatherAdjustmentStore: weatherAdjustmentStore
+                            )
                         } else {
                             viewModel.nextStage()
                         }
@@ -100,6 +109,11 @@ struct AddPlantView: View {
             } message: {
                 let alertError = viewModel.errors.first(where: { $0.showAlert })
                 Text(alertError?.localizedDescription ?? "An unknown error occurred.")
+            }
+            .onChange(of: viewModel.dismissView) { _, newValue in
+                if newValue {
+                    dismiss()
+                }
             }
         }
     }
@@ -322,7 +336,7 @@ private struct LocationLightPage: View {
                 
                 Section() {
                     Picker("Light Exposure", selection: $viewModel.lightExposure) {
-                        ForEach(AddPlantViewModel.PlantLightExposure.allCases) {
+                        ForEach(PlantLightExposure.allCases) {
                             switch $0 {
                             case .low:
                                 Text("Low").tag($0)
@@ -352,8 +366,8 @@ private struct PotPage: View {
             VStack(alignment: .leading, spacing: 14) {
                 Section() {
                     Picker("Pot Size", selection: $viewModel.potSize) {
-                        Text("(None)").tag(nil as AddPlantViewModel.PotSize?)
-                        ForEach(AddPlantViewModel.PotSize.allCases) {
+                        Text("(None)").tag(nil as PlantPotSize?)
+                        ForEach(PlantPotSize.allCases) {
                             switch $0 {
                             case .mini:
                                 Text("Mini (2–4\" wide)").tag($0)

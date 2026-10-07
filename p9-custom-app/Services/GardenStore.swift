@@ -31,18 +31,23 @@ final class GardenStore: ObservableObject {
         }
     }
     
-    func createGarden(name: String, city: String, geoLocation: [Double], userId: UUID) async throws {
+    func createGarden(name: String, city: String, geoLocation: [Double], userId: UUID) async throws -> Garden {
         let newGarden = GardenInsert(
             name: name,
             city: city,
             geoLocation: geoLocation
         )
         
-        try await supabase
+        let response: Garden = try await supabase
             .from("gardens")
             .insert(newGarden)
+            .select()
+            .single()
             .execute()
+            .value
             
         await fetchGardens(for: userId)
+        
+        return response
     }
 }

@@ -39,7 +39,7 @@ final class PlantStore: ObservableObject {
         isIndoors: Bool = true,
         potSize: PlantPotSize? = nil,
         gardenId: Int
-    ) async throws {
+    ) async throws -> Plant {
         let newPlant = PlantInsert(
             userId: userId,
             species: species,
@@ -50,11 +50,15 @@ final class PlantStore: ObservableObject {
             gardenId: gardenId
         )
         
-        try await supabase
+        let response: Plant = try await supabase
             .from("plants")
             .insert(newPlant)
+            .select()
+            .single()
             .execute()
+            .value
         
         await fetchPlants(for: userId)
+        return response
     }
 }

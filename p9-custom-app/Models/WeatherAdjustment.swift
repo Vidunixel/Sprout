@@ -12,7 +12,7 @@ struct WeatherAdjustment: Codable, Identifiable, Hashable {
     let taskId: Int
     let name: String
     let createdAt: Date
-    let multiplier: Float
+    let multiplier: Double
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -26,7 +26,7 @@ struct WeatherAdjustment: Codable, Identifiable, Hashable {
 struct WeatherAdjustmentInsert: Encodable {
     let taskId: Int
     let name: String
-    let multiplier: Float
+    let multiplier: Double
     
     enum CodingKeys: String, CodingKey {
         case taskId = "task_id"

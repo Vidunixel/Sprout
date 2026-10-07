@@ -40,7 +40,7 @@ final class TaskStore: ObservableObject {
         autumnIntervalDays: Int? = nil,
         winterIntervalDays: Int? = nil,
         currentCycle: Int = 1
-    ) async throws {
+    ) async throws -> TaskModel {
         let newTask = TaskInsert(
             plantId: plantId,
             name: name,
@@ -52,11 +52,16 @@ final class TaskStore: ObservableObject {
             currentCycle: currentCycle
         )
         
-        try await supabase
+        let response: TaskModel = try await supabase
             .from("tasks")
             .insert(newTask)
+            .select()
+            .single()
             .execute()
+            .value
         
         await fetchTasks(for: plantId)
+        
+        return response
     }
 }
