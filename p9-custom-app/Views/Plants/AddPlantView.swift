@@ -265,6 +265,9 @@ private struct SpeciesPage: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    
+                    // Divider between rows
+                    Divider()
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
@@ -432,6 +435,9 @@ private struct GardenPage: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        
+                        // Divider between rows
+                        Divider()
                     }
                 }
                 

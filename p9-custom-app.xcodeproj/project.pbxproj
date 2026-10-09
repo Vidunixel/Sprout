@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9E75AAC23078D4B40064865F /* SplineRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 9E75AAC13078D4B40064865F /* SplineRuntime */; };
 		C2684C3F3063C3000081E70A /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C2684C3E3063C3000081E70A /* Auth */; };
 		C2684C413063C3000081E70A /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C2684C403063C3000081E70A /* PostgREST */; };
 		C2684C433063C3000081E70A /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C2684C423063C3000081E70A /* Storage */; };
@@ -48,6 +49,7 @@
 				C2684C6B3063C91A0081E70A /* Supabase in Frameworks */,
 				C2684C413063C3000081E70A /* PostgREST in Frameworks */,
 				C2684C433063C3000081E70A /* Storage in Frameworks */,
+				9E75AAC23078D4B40064865F /* SplineRuntime in Frameworks */,
 				C2684C3F3063C3000081E70A /* Auth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -104,6 +106,7 @@
 				C2684C423063C3000081E70A /* Storage */,
 				C2684C6A3063C91A0081E70A /* Supabase */,
 				C2694757306E31490095B6BD /* Alamofire */,
+				9E75AAC13078D4B40064865F /* SplineRuntime */,
 			);
 			productName = "p9-custom-app";
 			productReference = C2499C6130624106001E82B6 /* p9-custom-app.app */;
@@ -136,6 +139,7 @@
 			packageReferences = (
 				C2684C3D3063C3000081E70A /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				C2694756306E31490095B6BD /* XCRemoteSwiftPackageReference "Alamofire" */,
+				9E75AAC03078D4B40064865F /* XCRemoteSwiftPackageReference "spline-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C2499C6230624106001E82B6 /* Products */;
@@ -389,6 +393,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		9E75AAC03078D4B40064865F /* XCRemoteSwiftPackageReference "spline-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/splinetool/spline-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.58;
+			};
+		};
 		C2684C3D3063C3000081E70A /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase-community/supabase-swift.git";
@@ -408,6 +420,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		9E75AAC13078D4B40064865F /* SplineRuntime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9E75AAC03078D4B40064865F /* XCRemoteSwiftPackageReference "spline-ios" */;
+			productName = SplineRuntime;
+		};
 		C2684C3E3063C3000081E70A /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C2684C3D3063C3000081E70A /* XCRemoteSwiftPackageReference "supabase-swift" */;
