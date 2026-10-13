@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Supabase
+import SceneKit
 
 struct GardenView: View {
     @EnvironmentObject private var authService: AuthService
@@ -15,34 +16,36 @@ struct GardenView: View {
     @State private var viewModel = GardenViewModel()
     
     var body: some View {
-        ScrollView {
-            VStack (spacing: 48) {
-                if gardenStore.gardens.isEmpty {
-                    VStack(spacing: 24) {
-                        Image(systemName: "carrot")
-                            .font(.system(size: 100))
-                            .foregroundStyle(.tint)
-                        
-                        Text("You don't have any gardens yet. Create one to get started.")
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                }
-                
-                VStack(alignment: .leading, spacing: 14) {
-                    if gardenStore.gardens.isEmpty {
-                        Button(action: { viewModel.showAddGardenView = true }) {
-                            Label("Create New", systemImage: "plus")
-                                .frame(maxWidth: .infinity)
+        ZStack {
+            if gardenStore.gardens.isEmpty {
+                ScrollView {
+                    VStack (spacing: 48) {
+                        VStack(spacing: 24) {
+                            Image(systemName: "carrot")
+                                .font(.system(size: 100))
+                                .foregroundStyle(.tint)
+                            
+                            Text("You don't have any gardens yet. Create one to get started.")
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
                         }
-                        .buttonStyle(.bordered)
-                        .controlSize(.large)
+                        
+                        VStack(alignment: .leading, spacing: 14) {
+                            Button(action: { viewModel.showAddGardenView = true }) {
+                                Label("Create New", systemImage: "plus")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.large)
+                        }
                     }
+                    .padding(28)
+                    .frame(maxWidth: .infinity)
+                    .frame(maxHeight: .infinity)
                 }
+            } else {
+                GardenSceneView().ignoresSafeArea()
             }
-            .padding(28)
-            .frame(maxWidth: .infinity)
-            .frame(maxHeight: .infinity)
         }
         .sheet(isPresented: $viewModel.showAddPlantView) {
             AddPlantView()
@@ -104,6 +107,50 @@ struct GardenView: View {
             await gardenStore.fetchGardens(for: userId)
             
             viewModel.setInitialGarden(gardenStore: gardenStore)
+        }
+    }
+}
+
+struct GardenSceneView: View {
+    @State private var scene: SCNScene? = nil
+    
+    var body: some View {
+        ZStack {
+            if let scene = scene {
+                GardenScene(
+                    scene: scene,
+                    ambientIntensity: 500,
+                    sunIntensity: 1100
+                )
+                .transition(.opacity)
+                
+//                // Night
+//                GardenScene(
+//                    scene: scene,
+//                    ambientIntensity: 120,
+//                    sunIntensity: 150
+//                )
+//                .transition(.opacity)
+            } else {
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .controlSize(.large)
+                    Text("Loading Garden...")
+                        .foregroundStyle(.secondary)
+                }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .task {
+            // Load the 3D model in the background.
+            let loadedScene = await Task.detached(priority: .userInitiated) {
+                SCNScene(named: "Garden.usdz")
+            }.value
+            
+            await MainActor.run {
+                withAnimation {
+                    self.scene = loadedScene
+                }
+            }
         }
     }
 }
