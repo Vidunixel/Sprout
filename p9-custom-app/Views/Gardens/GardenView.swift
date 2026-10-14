@@ -21,9 +21,12 @@ struct GardenView: View {
                 ScrollView {
                     VStack (spacing: 48) {
                         VStack(spacing: 24) {
-                            Image(systemName: "carrot")
-                                .font(.system(size: 100))
-                                .foregroundStyle(.tint)
+                            Image(uiImage: .carrot)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 100, height: 100)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .clipped()
                             
                             Text("You don't have any gardens yet. Create one to get started.")
                                 .foregroundStyle(.secondary)

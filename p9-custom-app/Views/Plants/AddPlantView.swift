@@ -175,9 +175,12 @@ private struct PhotoPage: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .clipped()
             } else {
-                Image(systemName: "camera.viewfinder")
-                    .font(.system(size: 100))
-                    .foregroundStyle(.tint)
+                Image(uiImage: .camera)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 100, height: 100)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipped()
             }
             
             VStack(spacing: 14) {
@@ -401,9 +404,12 @@ private struct GardenPage: View {
         PageView(pageNumber: 6, pageTitle: "Select your plant's garden", shouldAddTitleMargin: gardenStore.gardens.isEmpty) {
             if gardenStore.gardens.isEmpty {
                 VStack(spacing: 24) {
-                    Image(systemName: "carrot")
-                        .font(.system(size: 100))
-                        .foregroundStyle(.tint)
+                    Image(uiImage: .carrot)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 100, height: 100)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipped()
                     
                     Text("You don't have any gardens yet. Create one to get started.")
                         .foregroundStyle(.secondary)

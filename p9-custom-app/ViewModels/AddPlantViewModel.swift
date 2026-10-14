@@ -142,6 +142,19 @@ class AddPlantViewModel {
                 gardenId: garden.id
             )
             
+//            if let image = photoImage, let imageData = image.jpegData(compressionQuality: 0.6) {
+//                // userId/plantId
+//                let filePath = "\(userId.uuidString)/\(plant.id).jpg"
+//
+//                try await supabase.storage
+//                    .from("plants")
+//                    .upload(
+//                        filePath,
+//                        data: imageData,
+//                        options: FileOptions(contentType: "image/jpeg")
+//                    )
+//            }
+            
             // Save tasks and weather adjustments.
             for openAiTask in openAiResult.tasks {
                 let task = try await taskStore.createTask(
