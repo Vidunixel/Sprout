@@ -31,6 +31,7 @@ class AddPlantViewModel {
     
     private var plantNetService = PlantNetService()
     private var openAiService = OpenAiService()
+    private var storageService = StorageService()
     
     private func uploadPlantPhoto() async throws {
         // Compress image.
@@ -122,8 +123,8 @@ class AddPlantViewModel {
         let species = selectedSpecies?.species.scientificNameWithoutAuthor ?? self.species
         
         if let garden = garden, let userId = authService.session?.user.id {
-            // Get openAi result.
-            let openAiResult = try await openAiService.analysePlant(
+            // Get plantAnalysis result.
+            let plantAnalysisResult = try await openAiService.analysePlant(
                 species: species,
                 lightExposure: lightExposure,
                 isIndoors: isIndoors,
@@ -142,46 +143,61 @@ class AddPlantViewModel {
                 gardenId: garden.id
             )
             
-//            if let image = photoImage, let imageData = image.jpegData(compressionQuality: 0.6) {
-//                // userId/plantId
-//                let filePath = "\(userId.uuidString)/\(plant.id).jpg"
-//
-//                try await supabase.storage
-//                    .from("plants")
-//                    .upload(
-//                        filePath,
-//                        data: imageData,
-//                        options: FileOptions(contentType: "image/jpeg")
-//                    )
-//            }
-            
-            // Save tasks and weather adjustments.
-            for openAiTask in openAiResult.tasks {
-                let task = try await taskStore.createTask(
-                    plantId: plant.id,
-                    name: openAiTask.taskName,
-                    instructions: openAiTask.instructions,
-                    springIntervalDays: openAiTask.schedule.springIntervalDays,
-                    summerIntervalDays: openAiTask.schedule.summerIntervalDays,
-                    autumnIntervalDays: openAiTask.schedule.autumnIntervalDays,
-                    winterIntervalDays: openAiTask.schedule.winterIntervalDays
-                )
+            do {
+                if let image = photoImage, let imageData = image.jpegData(compressionQuality: 0.6) {
+                    // Save plant image.
+                    try await storageService.uploadPlantImage(
+                        data: imageData,
+                        userId: userId,
+                        plantId: plant.id
+                    )
+                    
+                    // Generate 3D model
+                    let usdzData = try await openAiService.generatePlantModel(
+                        imageData: imageData,
+                        potSize: potSize
+                    )
+                    
+                    // Save 3D model.
+                    try await storageService.uploadPlantModel(
+                        data: usdzData,
+                        userId: userId,
+                        plantId: plant.id
+                    )
+                }
                 
-                let weatherAdjustmentsMirror = Mirror(reflecting: openAiTask.weatherAdjustments)
-                
-                for weatherAdjustment in weatherAdjustmentsMirror.children {
-                    if let key = weatherAdjustment.label, let value = weatherAdjustment.value as? Double {
-                        try await weatherAdjustmentStore.createAdjustment(
-                            taskId: task.id,
-                            name: key,
-                            multiplier: value
-                        )
+                // Save tasks and weather adjustments.
+                for openAiTask in plantAnalysisResult.tasks {
+                    let task = try await taskStore.createTask(
+                        plantId: plant.id,
+                        name: openAiTask.taskName,
+                        instructions: openAiTask.instructions,
+                        springIntervalDays: openAiTask.schedule.springIntervalDays,
+                        summerIntervalDays: openAiTask.schedule.summerIntervalDays,
+                        autumnIntervalDays: openAiTask.schedule.autumnIntervalDays,
+                        winterIntervalDays: openAiTask.schedule.winterIntervalDays
+                    )
+                    
+                    let weatherAdjustmentsMirror = Mirror(reflecting: openAiTask.weatherAdjustments)
+                    
+                    for weatherAdjustment in weatherAdjustmentsMirror.children {
+                        if let key = weatherAdjustment.label, let value = weatherAdjustment.value as? Double {
+                            try await weatherAdjustmentStore.createAdjustment(
+                                taskId: task.id,
+                                name: key,
+                                multiplier: value
+                            )
+                        }
                     }
                 }
+                
+                // Dismiss view
+                dismissView = true
+            } catch {
+                // Try to delete plant if error.
+                try? await plantStore.deletePlant(userId: userId, plantId: plant.id)
+                throw error
             }
-            
-            // Dismiss view
-            dismissView = true
         } else {
             throw AppError("Invalid fields.", showAlert: true)
         }

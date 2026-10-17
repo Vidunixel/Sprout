@@ -69,6 +69,7 @@ struct AddPlantView: View {
                                 Image(systemName: "arrow.backward")
                             }
                         }
+                        .disabled(viewModel.isLoading)
                     }
                     
                     Spacer()
@@ -127,7 +128,7 @@ struct AddPlantView: View {
 }
 
 private struct PageView<Content: View>: View {
-    var pageNumber: Int
+    var pageNumber: Int?
     var pageTitle: String
     var shouldAddTitleMargin: Bool = false
     @ViewBuilder var content: () -> Content
@@ -136,8 +137,10 @@ private struct PageView<Content: View>: View {
         ScrollView {
             VStack (spacing: titleSpacing) {
                 HStack(alignment: .top, spacing: 8) {
-                    Text("\(pageNumber).")
-                        .font(.title2.bold())
+                    if let pageNumber = pageNumber {
+                        Text("\(pageNumber).")
+                            .font(.title2.bold())
+                    }
 
                     Text(pageTitle)
                         .font(.title2.bold())
@@ -401,58 +404,66 @@ private struct GardenPage: View {
     @State private var showAddGardenView = false
     
     var body: some View {
-        PageView(pageNumber: 6, pageTitle: "Select your plant's garden", shouldAddTitleMargin: gardenStore.gardens.isEmpty) {
-            if gardenStore.gardens.isEmpty {
-                VStack(spacing: 24) {
-                    Image(uiImage: .carrot)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 100, height: 100)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .clipped()
-                    
-                    Text("You don't have any gardens yet. Create one to get started.")
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-            }
+        PageView(pageNumber: viewModel.isLoading ? nil : 6, pageTitle: viewModel.isLoading ? "Analysing your plant..." : "Select your plant's garden",
+                 shouldAddTitleMargin: gardenStore.gardens.isEmpty) {
             
-            VStack(alignment: .leading, spacing: 14) {
-                if !gardenStore.gardens.isEmpty {
-                    ForEach(gardenStore.gardens, id: \.self) { garden in
-                        Button(action: { viewModel.garden = garden }) {
-                            HStack(alignment: .top, spacing: 12) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(garden.name)
-                                        .font(.headline)
-                                        .multilineTextAlignment(.leading)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                    
-                                    Text(garden.city)
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: viewModel.garden?.id == garden.id ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(viewModel.garden?.id == garden.id ? Color.accentColor : Color.secondary)
-                            }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
+            if viewModel.isLoading {
+                Text("This may take up to a minute. Please be patient and keep the app open while we process your plant.")
+                    .foregroundStyle(.secondary)
+                
+            } else {
+                if gardenStore.gardens.isEmpty {
+                    VStack(spacing: 24) {
+                        Image(uiImage: .carrot)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipped()
                         
-                        // Divider between rows
-                        Divider()
+                        Text("You don't have any gardens yet. Create one to get started.")
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
                     }
                 }
                 
-                Button(action: { showAddGardenView = true }) {
-                    Label("Create New", systemImage: "plus")
-                        .frame(maxWidth: .infinity)
+                VStack(alignment: .leading, spacing: 14) {
+                    if !gardenStore.gardens.isEmpty {
+                        ForEach(gardenStore.gardens, id: \.self) { garden in
+                            Button(action: { viewModel.garden = garden }) {
+                                HStack(alignment: .top, spacing: 12) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(garden.name)
+                                            .font(.headline)
+                                            .multilineTextAlignment(.leading)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                        
+                                        Text(garden.city)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: viewModel.garden?.id == garden.id ? "checkmark.circle.fill" : "circle")
+                                        .foregroundStyle(viewModel.garden?.id == garden.id ? Color.accentColor : Color.secondary)
+                                }
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            
+                            // Divider between rows
+                            Divider()
+                        }
+                    }
+                    
+                    Button(action: { showAddGardenView = true }) {
+                        Label("Create New", systemImage: "plus")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
             }
         }
         .task {
@@ -463,5 +474,6 @@ private struct GardenPage: View {
         .sheet(isPresented: $showAddGardenView) {
             AddGardenView()
         }
+        .interactiveDismissDisabled(viewModel.isLoading)
     }
 }

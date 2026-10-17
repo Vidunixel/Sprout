@@ -22,7 +22,7 @@ final class PlantStore: ObservableObject {
         do {
             self.plants = try await supabase
                 .from("plants")
-                .select()
+                .select("*, tasks(*, weather_adjustments(*))")
                 .eq("user_id", value: userId)
                 .execute()
                 .value
@@ -53,12 +53,23 @@ final class PlantStore: ObservableObject {
         let response: Plant = try await supabase
             .from("plants")
             .insert(newPlant)
-            .select()
+            .select("*, tasks(*, weather_adjustments(*))")
             .single()
             .execute()
             .value
         
         await fetchPlants(for: userId)
         return response
+    }
+    
+    func deletePlant(
+        userId: UUID,
+        plantId: Int
+    ) async throws {
+        try await supabase
+          .from("plants")
+          .delete()
+          .eq("id", value: plantId)
+          .execute()
     }
 }

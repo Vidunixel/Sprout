@@ -16,7 +16,7 @@ struct GardenScene: UIViewRepresentable {
     /// Most zoomed in. This is the smallest visible half height of the view.
     var minZoomDistance: Float = 0.2
     /// Most zoomed out. This is the largest visible half height of the view.
-    var maxZoomDistance: Float = 0.8
+    var maxZoomDistance: Float = 0.3
     /// Starting rotation around the model in degrees. Zero looks straight at one side.
     var startAngle: Float = -45
     /// Colour behind the model. Clear shows whatever is behind the view.

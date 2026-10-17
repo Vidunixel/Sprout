@@ -88,6 +88,7 @@ struct UpdatePasswordView: View {
                 dismiss()
             }
         }
+        .interactiveDismissDisabled(viewModel.isLoading)
     }
     
     private var errorIsPresented: Binding<Bool> {

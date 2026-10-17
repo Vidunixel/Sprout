@@ -18,6 +18,7 @@ struct TaskModel: Codable, Identifiable, Hashable {
     var autumnIntervalDays: Int?
     var winterIntervalDays: Int?
     var currentCycle: Int = 1
+    var weatherAdjustments: [WeatherAdjustment]?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -30,6 +31,7 @@ struct TaskModel: Codable, Identifiable, Hashable {
         case autumnIntervalDays = "autumn_interval_days"
         case winterIntervalDays = "winter_interval_days"
         case currentCycle = "current_cycle"
+        case weatherAdjustments = "weather_adjustments"
     }
 }
 

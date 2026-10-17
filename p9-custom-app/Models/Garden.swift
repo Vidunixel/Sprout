@@ -14,6 +14,7 @@ struct Garden: Codable, Identifiable, Hashable {
     let city: String
     let geoLocation: [Double]
     let userId: UUID
+    var plants: [Plant]?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -22,6 +23,7 @@ struct Garden: Codable, Identifiable, Hashable {
         case city
         case geoLocation = "geo_location"
         case userId = "user_id"
+        case plants
     }
 }
 

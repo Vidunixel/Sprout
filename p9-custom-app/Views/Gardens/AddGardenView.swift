@@ -163,6 +163,7 @@ struct AddGardenView: View {
                 dismiss()
             }
         }
+        .interactiveDismissDisabled(viewModel.isLoading)
     }
     
     private var errorIsPresented: Binding<Bool> {

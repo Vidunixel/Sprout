@@ -4,6 +4,8 @@
   },
   "groups" : [
     {
+      "blend-mode" : "normal",
+      "blur-material" : null,
       "layers" : [
         {
           "blend-mode" : "normal",
@@ -32,6 +34,7 @@
           }
         }
       ],
+      "lighting" : "individual",
       "shadow" : {
         "kind" : "neutral",
         "opacity" : 0.5

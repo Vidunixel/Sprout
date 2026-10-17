@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://unpkg.com/openscad-wasm@0.0.4/openscad.js"></script>
+</head>
+<body>
+    <script>
+        async function compileOpenSCAD(base64Code) {
+            try {
+                // Decode from base64.
+                const code = decodeURIComponent(escape(window.atob(base64Code)));
+                
+                // Initialize the instance.
+                const instance = await OpenSCAD({ noInitialRun: true });
+                
+                instance.FS.writeFile("/input.scad", code);
+                
+                // Run the OpenSCAD compiler.
+                instance.callMain(["/input.scad", "--enable=manifold", "-o", "output.stl"]);
+                
+                const result = instance.FS.readFile("/output.stl");
+                
+                // Use a Blob and FileReader to convert the Uint8Array to base64.
+                const blob = new Blob([result], { type: 'application/octet-stream' });
+                const reader = new FileReader();
+                
+                reader.onloadend = function() {
+                    const base64Data = reader.result.split(',')[1];
+                    window.webkit.messageHandlers.openscadHandler.postMessage({ stlData: base64Data });
+                };
+                
+                reader.readAsDataURL(blob);
+                
+            } catch (err) {
+                window.webkit.messageHandlers.openscadHandler.postMessage({ error: err.toString() });
+            }
+        }
+    </script>
+</body>
+</html>

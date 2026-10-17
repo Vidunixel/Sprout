@@ -12,42 +12,73 @@ import SceneKit
 struct GardenView: View {
     @EnvironmentObject private var authService: AuthService
     @EnvironmentObject private var gardenStore: GardenStore
-    
+    @EnvironmentObject private var plantStore: PlantStore
+        
     @State private var viewModel = GardenViewModel()
     
+    let columns = [
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16)
+    ]
+    
     var body: some View {
-        ZStack {
+        ScrollView {
             if gardenStore.gardens.isEmpty {
-                ScrollView {
-                    VStack (spacing: 48) {
-                        VStack(spacing: 24) {
-                            Image(uiImage: .carrot)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 100, height: 100)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                                .clipped()
-                            
-                            Text("You don't have any gardens yet. Create one to get started.")
-                                .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
-                        }
+                VStack (spacing: 48) {
+                    VStack(spacing: 24) {
+                        Image(uiImage: .carrot)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipped()
                         
-                        VStack(alignment: .leading, spacing: 14) {
-                            Button(action: { viewModel.showAddGardenView = true }) {
-                                Label("Create New", systemImage: "plus")
-                                    .frame(maxWidth: .infinity)
+                        Text("You don't have any gardens yet. Create one to get started.")
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 14) {
+                        Button(action: { viewModel.showAddGardenView = true }) {
+                            Label("Create New", systemImage: "plus")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.large)
+                    }
+                }
+                .padding(28)
+                .frame(maxWidth: .infinity)
+                .frame(maxHeight: .infinity)
+            } else {
+                // Plant grid
+                if let plants = viewModel.selectedGarden?.plants {
+                    if plants.isEmpty {
+                        VStack(spacing: 16) {
+                            Image(systemName: "leaf")
+                                .font(.system(size: 40))
+                                .foregroundStyle(.secondary)
+                            Text("This garden is empty.")
+                                .foregroundStyle(.secondary)
+                            Button("Add a Plant") {
+                                viewModel.showAddPlantView = true
                             }
                             .buttonStyle(.bordered)
-                            .controlSize(.large)
                         }
+                        .padding(.top, 60)
+                        .frame(maxWidth: .infinity)
+                    } else {
+                        LazyVGrid(columns: columns, spacing: 16) {
+                            ForEach(plants) { plant in
+                                if let userId = authService.session?.user.id {
+                                    PlantCardView(plant: plant, userId: userId, viewModel: viewModel)
+                                }
+                            }
+                        }
+                        .padding(20)
                     }
-                    .padding(28)
-                    .frame(maxWidth: .infinity)
-                    .frame(maxHeight: .infinity)
+                    
                 }
-            } else {
-                GardenSceneView().ignoresSafeArea()
             }
         }
         .sheet(isPresented: $viewModel.showAddPlantView) {
@@ -114,46 +145,54 @@ struct GardenView: View {
     }
 }
 
-struct GardenSceneView: View {
-    @State private var scene: SCNScene? = nil
+struct PlantCardView: View {
+    let plant: Plant
+    let userId: UUID
+    let viewModel: GardenViewModel
     
     var body: some View {
-        ZStack {
-            if let scene = scene {
-                GardenScene(
-                    scene: scene,
-                    ambientIntensity: 500,
-                    sunIntensity: 1100
-                )
-                .transition(.opacity)
+        VStack(alignment: .leading, spacing: 10) {
+            ZStack {
+                Color(uiColor: .secondarySystemFill)
+                    .cornerRadius(12)
                 
-//                // Night
-//                GardenScene(
-//                    scene: scene,
-//                    ambientIntensity: 120,
-//                    sunIntensity: 150
-//                )
-//                .transition(.opacity)
-            } else {
-                VStack(spacing: 16) {
+                if let scene = viewModel.plantScenes[plant.id] {
+                    SceneView(
+                        scene: scene,
+                        options: [.autoenablesDefaultLighting, .allowsCameraControl]
+                    )
+                    .frame(height: 140)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                } else if viewModel.plantLoadingStates[plant.id] == true {
                     ProgressView()
-                        .controlSize(.large)
-                    Text("Loading Garden...")
-                        .foregroundStyle(.secondary)
-                }.frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-        .task {
-            // Load the 3D model in the background.
-            let loadedScene = await Task.detached(priority: .userInitiated) {
-                SCNScene(named: "Garden.usdz")
-            }.value
-            
-            await MainActor.run {
-                withAnimation {
-                    self.scene = loadedScene
+                } else {
+                    Image(systemName: "leaf.fill")
+                        .font(.largeTitle)
+                        .foregroundStyle(.tertiary)
                 }
             }
+            .frame(height: 140)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(plant.name)
+                    .font(.headline)
+                    .lineLimit(1)
+                
+                Text(plant.species)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 4)
+            .padding(.bottom, 6)
+        }
+        .padding(10)
+        .background(Color(uiColor: .systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        .task {
+            // Download model.
+            await viewModel.loadPlantModel(for: plant, userId: userId)
         }
     }
 }

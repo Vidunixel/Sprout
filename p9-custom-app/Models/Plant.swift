@@ -34,6 +34,7 @@ struct Plant: Codable, Identifiable, Hashable {
     var isIndoors: Bool = true
     var potSize: PlantPotSize? = nil
     let gardenId: Int
+    var tasks: [TaskModel]?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -45,6 +46,7 @@ struct Plant: Codable, Identifiable, Hashable {
         case isIndoors = "is_indoors"
         case potSize = "pot_size"
         case gardenId = "garden_id"
+        case tasks
     }
 }
 

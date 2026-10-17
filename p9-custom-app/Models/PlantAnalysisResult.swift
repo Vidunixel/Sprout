@@ -7,7 +7,7 @@
 
 import Foundation
 
-nonisolated struct OpenAiResult: Decodable, Sendable {
+nonisolated struct PlantAnalysisResult: Decodable, Sendable {
     let tasks: [PlantCareTask]
 }
 
