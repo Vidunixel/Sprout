@@ -17,8 +17,8 @@ struct GardenView: View {
     @State private var viewModel = GardenViewModel()
     
     let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
+        GridItem(.flexible(), spacing: 16, alignment: .top),
+        GridItem(.flexible(), spacing: 16, alignment: .top)
     ]
     
     var body: some View {
@@ -48,25 +48,36 @@ struct GardenView: View {
                     }
                 }
                 .padding(28)
-                .frame(maxWidth: .infinity)
-                .frame(maxHeight: .infinity)
+                .containerRelativeFrame(.vertical)
             } else {
                 // Plant grid
                 if let plants = viewModel.selectedGarden?.plants {
                     if plants.isEmpty {
-                        VStack(spacing: 16) {
-                            Image(systemName: "leaf")
-                                .font(.system(size: 40))
-                                .foregroundStyle(.secondary)
-                            Text("This garden is empty.")
-                                .foregroundStyle(.secondary)
-                            Button("Add a Plant") {
-                                viewModel.showAddPlantView = true
+                        VStack (spacing: 48) {
+                            VStack(spacing: 24) {
+                                Image(uiImage: .plant)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .clipped()
+                                
+                                Text("This garden is empty. Start by adding a plant.")
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
                             }
-                            .buttonStyle(.bordered)
+                            
+                            VStack(alignment: .leading, spacing: 14) {
+                                Button(action: { viewModel.showAddPlantView = true }) {
+                                    Label("Add a Plant", systemImage: "plus")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.bordered)
+                                .controlSize(.large)
+                            }
                         }
-                        .padding(.top, 60)
-                        .frame(maxWidth: .infinity)
+                        .padding(28)
+                        .containerRelativeFrame(.vertical)
                     } else {
                         LazyVGrid(columns: columns, spacing: 16) {
                             ForEach(plants) { plant in
@@ -75,20 +86,20 @@ struct GardenView: View {
                                 }
                             }
                         }
-                        .padding(20)
+                        .padding(.horizontal, 28)
+                        .padding(.bottom, 28)
                     }
                     
                 }
             }
         }
-        .sheet(isPresented: $viewModel.showAddPlantView) {
+        .sheet(isPresented: $viewModel.showAddPlantView, onDismiss: { viewModel.fetchGardens(gardenStore: gardenStore) }) {
             AddPlantView()
         }
         .sheet(isPresented: $viewModel.showAddGardenView) {
             AddGardenView()
         }
-        .navigationTitle("Garden")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(viewModel.selectedGarden?.city ?? "")
         .toolbar {
             if !gardenStore.gardens.isEmpty {
                 ToolbarItem(placement: .topBarLeading) {
@@ -121,19 +132,12 @@ struct GardenView: View {
                 }
             }
             
-            ToolbarItem(placement: .principal) {
-                if let city = viewModel.selectedGarden?.city {
-                    Text(city)
-                }
-            }
-            
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: { viewModel.showAddPlantView = true }) {
                     Image(systemName: "plus")
                 }
             }
         }
-        .defaultScrollAnchor(.center, for: .alignment)
         .appBackground()
         .task {
             // Fetch db data.
@@ -151,47 +155,51 @@ struct PlantCardView: View {
     let viewModel: GardenViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ZStack {
-                Color(uiColor: .secondarySystemFill)
-                    .cornerRadius(12)
+        VStack(alignment: .center, spacing: 12) {
+            ZStack(alignment: .bottom) {
+                // White circle background.
+                Circle()
+                    .fill(
+                        .white
+                        .shadow(.inner(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3))
+                    )
+                    .stroke(Color.white, lineWidth: 2)
+                    .frame(height: 130)
+                    .padding(.bottom, 8)
                 
                 if let scene = viewModel.plantScenes[plant.id] {
-                    SceneView(
-                        scene: scene,
-                        options: [.autoenablesDefaultLighting, .allowsCameraControl]
-                    )
-                    .frame(height: 140)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    PlantScene(scene: scene)
+                        .frame(height: 175)
+                        .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
                 } else if viewModel.plantLoadingStates[plant.id] == true {
                     ProgressView()
+                        .frame(height: 130)
+                        .padding(.bottom, 8)
                 } else {
                     Image(systemName: "leaf.fill")
-                        .font(.largeTitle)
+                        .font(.system(size: 40))
                         .foregroundStyle(.tertiary)
+                        .frame(height: 130)
+                        .padding(.bottom, 8)
                 }
             }
-            .frame(height: 140)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .center, spacing: 4) {
                 Text(plant.name)
                     .font(.headline)
-                    .lineLimit(1)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
                 
                 Text(plant.species)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
                     .lineLimit(1)
             }
             .padding(.horizontal, 4)
-            .padding(.bottom, 6)
         }
-        .padding(10)
-        .background(Color(uiColor: .systemBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        .padding(.vertical, 10)
         .task {
-            // Download model.
             await viewModel.loadPlantModel(for: plant, userId: userId)
         }
     }

@@ -12,6 +12,13 @@ class OpenAiService {
     // Construct the URL directly from your central AppConfig
     private let baseURL = AppConfig.supabaseURL.appendingPathComponent("functions/v1/plants")
     
+    // Custom session with 3 minute timeout.
+    private let session: Session = {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 180
+        return Session(configuration: configuration)
+    }()
+    
     func analysePlant(
         species: String,
         lightExposure: PlantLightExposure,
@@ -43,7 +50,7 @@ class OpenAiService {
             throw URLError(.badURL)
         }
         
-        let response = try await AF.request(
+        let response = try await session.request(
             finalURL,
             method: .get
         )
@@ -66,7 +73,7 @@ class OpenAiService {
         }
         
         // Fetch a USDZ model of the plant.
-        let usdzData = try await AF.upload(
+        let usdzData = try await session.upload(
             multipartFormData: { multipart in
                 multipart.append(imageData,
                                  withName: "image",

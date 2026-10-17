@@ -405,12 +405,15 @@ private struct GardenPage: View {
     
     var body: some View {
         PageView(pageNumber: viewModel.isLoading ? nil : 6, pageTitle: viewModel.isLoading ? "Analysing your plant..." : "Select your plant's garden",
-                 shouldAddTitleMargin: gardenStore.gardens.isEmpty) {
+                 shouldAddTitleMargin: viewModel.isLoading || gardenStore.gardens.isEmpty) {
             
             if viewModel.isLoading {
-                Text("This may take up to a minute. Please be patient and keep the app open while we process your plant.")
-                    .foregroundStyle(.secondary)
-                
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .controlSize(.large)
+                    Text("This may take up to two minutes. Please be patient and keep the app open.")
+                        .foregroundStyle(.secondary)
+                }
             } else {
                 if gardenStore.gardens.isEmpty {
                     VStack(spacing: 24) {
