@@ -93,7 +93,7 @@ struct GardenView: View {
                 }
             }
         }
-        .sheet(isPresented: $viewModel.showAddPlantView, onDismiss: { viewModel.fetchGardens(authService: authService, gardenStore: gardenStore) }) {
+        .sheet(isPresented: $viewModel.showAddPlantView) {
             AddPlantView()
         }
         .sheet(isPresented: $viewModel.showAddGardenView) {
@@ -155,7 +155,7 @@ struct PlantCardView: View {
     let viewModel: GardenViewModel
     
     var body: some View {
-        VStack(alignment: .center, spacing: 12) {
+        VStack(alignment: .center, spacing: 8) {
             VStack (alignment: .center) {
                 if let scene = viewModel.plantScenes[plant.id] {
                     PlantScene(scene: scene)

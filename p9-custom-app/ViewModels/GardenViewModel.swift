@@ -36,14 +36,6 @@ class GardenViewModel {
         }
     }
     
-    func fetchGardens(authService: AuthService, gardenStore: GardenStore) {
-        if let userId = authService.session?.user.id {
-            Task {
-                await gardenStore.fetchGardens(for: userId)
-            }
-        }
-    }
-    
     func loadPlantModel(for plant: Plant, userId: UUID) async {
         // Prevent re-downloading if already loaded or is currently loading.
         guard plantScenes[plant.id] == nil, plantLoadingStates[plant.id] != true else { return }
