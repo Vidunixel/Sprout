@@ -93,7 +93,7 @@ struct GardenView: View {
                 }
             }
         }
-        .sheet(isPresented: $viewModel.showAddPlantView, onDismiss: { viewModel.fetchGardens(gardenStore: gardenStore) }) {
+        .sheet(isPresented: $viewModel.showAddPlantView, onDismiss: { viewModel.fetchGardens(authService: authService, gardenStore: gardenStore) }) {
             AddPlantView()
         }
         .sheet(isPresented: $viewModel.showAddGardenView) {
@@ -156,33 +156,22 @@ struct PlantCardView: View {
     
     var body: some View {
         VStack(alignment: .center, spacing: 12) {
-            ZStack(alignment: .bottom) {
-                // White circle background.
-                Circle()
-                    .fill(
-                        .white
-                        .shadow(.inner(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3))
-                    )
-                    .stroke(Color.white, lineWidth: 2)
-                    .frame(height: 130)
-                    .padding(.bottom, 8)
-                
+            VStack (alignment: .center) {
                 if let scene = viewModel.plantScenes[plant.id] {
                     PlantScene(scene: scene)
-                        .frame(height: 175)
+                        .frame(height: .infinity)
                         .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
                 } else if viewModel.plantLoadingStates[plant.id] == true {
                     ProgressView()
-                        .frame(height: 130)
-                        .padding(.bottom, 8)
+                        .frame(height: .infinity)
                 } else {
                     Image(systemName: "leaf.fill")
                         .font(.system(size: 40))
                         .foregroundStyle(.tertiary)
-                        .frame(height: 130)
-                        .padding(.bottom, 8)
+                        .frame(height: .infinity)
                 }
             }
+            .frame(height: 175)
             
             VStack(alignment: .center, spacing: 4) {
                 Text(plant.name)

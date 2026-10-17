@@ -36,9 +36,11 @@ class GardenViewModel {
         }
     }
     
-    func fetchGardens(gardenStore: GardenStore) {
+    func fetchGardens(authService: AuthService, gardenStore: GardenStore) {
         if let userId = authService.session?.user.id {
-            gardenStore.fetchGardens(for: userId)
+            Task {
+                await gardenStore.fetchGardens(for: userId)
+            }
         }
     }
     

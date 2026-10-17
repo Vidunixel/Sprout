@@ -12,12 +12,10 @@
 		C2684C433063C3000081E70A /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C2684C423063C3000081E70A /* Storage */; };
 		C2684C6B3063C91A0081E70A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C2684C6A3063C91A0081E70A /* Supabase */; };
 		C2694758306E31490095B6BD /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = C2694757306E31490095B6BD /* Alamofire */; };
-		C2C94E6C307E1F15002CA2AF /* Garden.usdz in Resources */ = {isa = PBXBuildFile; fileRef = C2C94E6B307E1F15002CA2AF /* Garden.usdz */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		C2499C6130624106001E82B6 /* p9-custom-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "p9-custom-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C2C94E6B307E1F15002CA2AF /* Garden.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Garden.usdz; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -60,7 +58,6 @@
 		C2499C5830624106001E82B6 = {
 			isa = PBXGroup;
 			children = (
-				C2C94E6A307E1EE2002CA2AF /* Resources */,
 				C2499C6330624106001E82B6 /* p9-custom-app */,
 				C2684C693063C91A0081E70A /* Frameworks */,
 				C2499C6230624106001E82B6 /* Products */,
@@ -80,14 +77,6 @@
 			children = (
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		C2C94E6A307E1EE2002CA2AF /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				C2C94E6B307E1F15002CA2AF /* Garden.usdz */,
-			);
-			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -163,7 +152,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C2C94E6C307E1F15002CA2AF /* Garden.usdz in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
