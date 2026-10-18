@@ -7,11 +7,12 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct DetailedPlantView: View {
+    @Environment(\.dismiss) private var dismiss
+    
     let plant: Plant
     @State var gardenViewModel: GardenViewModel
+    @State private var showPanel = true
     
     var body: some View {
         GeometryReader { geo in
@@ -32,23 +33,46 @@ struct DetailedPlantView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: geo.size.height * 0.5)
         }
-        .onAppear {
-            gardenViewModel.showDetailedPlantPanelView = true
-        }
-        .onDisappear {
-            gardenViewModel.showDetailedPlantPanelView = false
-        }
+        .disableBackSwipe()
         .appBackground()
         .navigationTitle(plant.name)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .sheet(isPresented: $showPanel) {
+            DetailedPlantPanelView(executeDismissal: executeDismissal)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .presentationDetents([.medium, .large])
+                .interactiveDismissDisabled()
+                .presentationBackgroundInteraction(.enabled)
+        }
+    }
+    
+    private func executeDismissal() {
+        showPanel = false
+        dismiss()
     }
 }
 
 struct DetailedPlantPanelView: View {
+    var executeDismissal: () -> Void
+    
     var body: some View {
-        VStack {
-            Text("Panel")
-                .font(.title)
+        NavigationStack {
+            VStack {
+                Text("Panel")
+                    .font(.title)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        executeDismissal()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "xmark").fontWeight(.semibold)
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -89,7 +89,9 @@ struct GardenView: View {
                                             .navigationTransition(.zoom(sourceID: plant.id, in: animationNamespace))
                                     } label: {
                                         PlantCardView(plant: plant, userId: userId, viewModel: viewModel)
-                                            .matchedTransitionSource(id: plant.id, in: animationNamespace)
+                                            .matchedTransitionSource(id: plant.id, in: animationNamespace) { config in
+                                                config.clipShape(.rect(cornerRadius: 40))
+                                            }
                                     }
                                     .buttonStyle(.plain)
                                 }
@@ -107,13 +109,6 @@ struct GardenView: View {
         }
         .sheet(isPresented: $viewModel.showAddGardenView) {
             AddGardenView()
-        }
-        .sheet(isPresented: $viewModel.showDetailedPlantPanelView) {
-            DetailedPlantPanelView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .presentationDetents([.medium, .large])
-                .interactiveDismissDisabled()
-                .presentationBackgroundInteraction(.enabled)
         }
         .navigationTitle(viewModel.selectedGarden?.city ?? "")
         .toolbar {

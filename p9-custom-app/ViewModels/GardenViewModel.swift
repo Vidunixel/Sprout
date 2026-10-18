@@ -16,7 +16,6 @@ import SceneKit
 class GardenViewModel {
     var showAddPlantView = false
     var showAddGardenView = false
-    var showDetailedPlantPanelView = false
     
     var selectedGarden: Garden? = nil
     
