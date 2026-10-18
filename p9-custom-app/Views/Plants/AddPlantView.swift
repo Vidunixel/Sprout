@@ -113,6 +113,12 @@ struct AddPlantView: View {
             }
             .onChange(of: viewModel.dismissView) { _, newValue in
                 if newValue {
+                    if let userId = authService.session?.user.id {
+                        Task {
+                            await gardenStore.fetchGardens(for: userId)
+                        }
+                    }
+                    
                     dismiss()
                 }
             }
@@ -255,11 +261,13 @@ private struct SpeciesPage: View {
                                     .font(.headline)
                                     .multilineTextAlignment(.leading)
                                     .fixedSize(horizontal: false, vertical: true)
+                                    .lineLimit(2)
                                 
                                 if !plant.species.commonNames.isEmpty {
                                     Text(plant.species.commonNames.joined(separator: ", "))
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
+                                        .lineLimit(1)
                                 }
                             }
                             

@@ -16,10 +16,7 @@ import SceneKit
 class GardenViewModel {
     var showAddPlantView = false
     var showAddGardenView = false
-    
-    var isLoading = false
-    var errors: [AppError] = []
-    var feedbackTrigger = false
+    var showDetailedPlantPanelView = false
     
     var selectedGarden: Garden? = nil
     

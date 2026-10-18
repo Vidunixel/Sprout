@@ -16,6 +16,8 @@ struct GardenView: View {
         
     @State private var viewModel = GardenViewModel()
     
+    @Namespace private var animationNamespace
+    
     let columns = [
         GridItem(.flexible(), spacing: 16, alignment: .top),
         GridItem(.flexible(), spacing: 16, alignment: .top)
@@ -82,7 +84,14 @@ struct GardenView: View {
                         LazyVGrid(columns: columns, spacing: 16) {
                             ForEach(plants) { plant in
                                 if let userId = authService.session?.user.id {
-                                    PlantCardView(plant: plant, userId: userId, viewModel: viewModel)
+                                    NavigationLink {
+                                        DetailedPlantView(plant: plant, gardenViewModel: viewModel)
+                                            .navigationTransition(.zoom(sourceID: plant.id, in: animationNamespace))
+                                    } label: {
+                                        PlantCardView(plant: plant, userId: userId, viewModel: viewModel)
+                                            .matchedTransitionSource(id: plant.id, in: animationNamespace)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                             }
                         }
@@ -98,6 +107,13 @@ struct GardenView: View {
         }
         .sheet(isPresented: $viewModel.showAddGardenView) {
             AddGardenView()
+        }
+        .sheet(isPresented: $viewModel.showDetailedPlantPanelView) {
+            DetailedPlantPanelView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .presentationDetents([.medium, .large])
+                .interactiveDismissDisabled()
+                .presentationBackgroundInteraction(.enabled)
         }
         .navigationTitle(viewModel.selectedGarden?.city ?? "")
         .toolbar {
@@ -156,19 +172,19 @@ struct PlantCardView: View {
     
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
-            VStack (alignment: .center) {
+            VStack(alignment: .center) {
                 if let scene = viewModel.plantScenes[plant.id] {
-                    PlantScene(scene: scene)
-                        .frame(height: .infinity)
+                    PlantScene(scene: scene, yPadding: -0.1)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
                 } else if viewModel.plantLoadingStates[plant.id] == true {
                     ProgressView()
-                        .frame(height: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     Image(systemName: "leaf.fill")
                         .font(.system(size: 40))
                         .foregroundStyle(.tertiary)
-                        .frame(height: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
             .frame(height: 175)
