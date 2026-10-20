@@ -88,8 +88,7 @@ struct GardenView: View {
                                         PlantDetailView(plant: plant, gardenViewModel: viewModel)
                                             .navigationTransition(.zoom(sourceID: plant.id, in: animationNamespace))
                                     } label: {
-                                        PlantCardView(plant: plant, userId: userId, viewModel: viewModel)
-                                            .matchedTransitionSource(id: plant.id, in: animationNamespace)
+                                        PlantCardView(plant: plant, userId: userId, viewModel: viewModel, animationNamespace: animationNamespace)
                                     }
                                     .buttonStyle(.plain)
                                 }
@@ -149,10 +148,6 @@ struct GardenView: View {
         }
         .appBackground()
         .task {
-            // Fetch db data.
-            guard let userId = authService.session?.user.id else { return }
-            await gardenStore.fetchGardens(for: userId)
-            
             viewModel.setInitialGarden(gardenStore: gardenStore)
         }
         .onChange(of: gardenStore.gardens) { _, updatedGardens in
@@ -169,6 +164,7 @@ struct PlantCardView: View {
     let plant: Plant
     let userId: UUID
     let viewModel: GardenViewModel
+    let animationNamespace: Namespace.ID
     
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
@@ -177,14 +173,17 @@ struct PlantCardView: View {
                     PlantScene(scene: scene, yPadding: -0.1)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
+                        .matchedTransitionSource(id: plant.id, in: animationNamespace)
                 } else if viewModel.plantLoadingStates[plant.id] == true {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .matchedTransitionSource(id: plant.id, in: animationNamespace)
                 } else {
                     Image(systemName: "leaf.fill")
                         .font(.system(size: 40))
                         .foregroundStyle(.tertiary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .matchedTransitionSource(id: plant.id, in: animationNamespace)
                 }
             }
             .frame(height: 175)

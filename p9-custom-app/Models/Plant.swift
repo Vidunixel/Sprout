@@ -51,7 +51,6 @@ struct Plant: Codable, Identifiable, Hashable {
 }
 
 struct PlantInsert: Encodable {
-    let userId: UUID
     let species: String
     let name: String
     let lightExposure: PlantLightExposure
@@ -60,7 +59,6 @@ struct PlantInsert: Encodable {
     let gardenId: Int
     
     enum CodingKeys: String, CodingKey {
-        case userId = "user_id"
         case species
         case name
         case lightExposure = "light_exposure"

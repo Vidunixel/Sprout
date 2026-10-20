@@ -15,15 +15,15 @@ final class TaskStore: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
     
-    func fetchTasks(for plantId: Int) async {
+    func fetchTasks(for userId: UUID) async {
         isLoading = true
         defer { isLoading = false }
         
         do {
             self.tasks = try await supabase
                 .from("tasks")
-                .select("*, tasks_log(*), weather_adjustments(*, weather_adjustments_timeline(*))")
-                .eq("plant_id", value: plantId)
+                .select("*, tasks_log(*), weather_adjustments(*, weather_adjustments_timeline(*)), plants!inner(user_id)")
+                .eq("plants.user_id", value: userId)
                 .execute()
                 .value
         } catch {
@@ -59,8 +59,6 @@ final class TaskStore: ObservableObject {
             .single()
             .execute()
             .value
-        
-        await fetchTasks(for: plantId)
         
         return response
     }

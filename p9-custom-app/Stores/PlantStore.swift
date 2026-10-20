@@ -32,7 +32,6 @@ final class PlantStore: ObservableObject {
     }
     
     func createPlant(
-        userId: UUID,
         species: String,
         name: String,
         lightExposure: PlantLightExposure,
@@ -41,7 +40,6 @@ final class PlantStore: ObservableObject {
         gardenId: Int
     ) async throws -> Plant {
         let newPlant = PlantInsert(
-            userId: userId,
             species: species,
             name: name,
             lightExposure: lightExposure,
@@ -58,12 +56,10 @@ final class PlantStore: ObservableObject {
             .execute()
             .value
         
-        await fetchPlants(for: userId)
         return response
     }
     
     func deletePlant(
-        userId: UUID,
         plantId: Int
     ) async throws {
         try await supabase

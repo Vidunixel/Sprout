@@ -136,7 +136,6 @@ class AddPlantViewModel {
             
             // Save plant.
             let plant = try await plantStore.createPlant(
-                userId: userId,
                 species: species,
                 name: name,
                 lightExposure: lightExposure,
@@ -183,7 +182,7 @@ class AddPlantViewModel {
                     
                     for weatherAdjustment in weatherAdjustmentsMirror.children {
                         if let key = weatherAdjustment.label, let value = weatherAdjustment.value as? Double {
-                            try await weatherAdjustmentStore.createAdjustment(
+                            _ = try await weatherAdjustmentStore.createAdjustment(
                                 taskId: task.id,
                                 name: key,
                                 multiplier: value
@@ -196,7 +195,7 @@ class AddPlantViewModel {
                 dismissView = true
             } catch {
                 // Try to delete plant if error.
-                try? await plantStore.deletePlant(userId: userId, plantId: plant.id)
+                try? await plantStore.deletePlant(plantId: plant.id)
                 throw error
             }
         } else {

@@ -15,15 +15,15 @@ final class WeatherAdjustmentTimelineStore: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
     
-    func fetchTimelines(for weatherAdjustmentId: Int) async {
+    func fetchTimelines(for userId: UUID) async {
         isLoading = true
         defer { isLoading = false }
         
         do {
             self.timelines = try await supabase
                 .from("weather_adjustments_timeline")
-                .select()
-                .eq("weather_adjustment_id", value: weatherAdjustmentId)
+                .select("*, weather_adjustments!inner(tasks!inner(plants!inner(user_id)))")
+                .eq("weather_adjustments.tasks.plants.user_id", value: userId)
                 .execute()
                 .value
         } catch {
@@ -44,8 +44,6 @@ final class WeatherAdjustmentTimelineStore: ObservableObject {
             .single()
             .execute()
             .value
-            
-        await fetchTimelines(for: weatherAdjustmentId)
         
         return response
     }

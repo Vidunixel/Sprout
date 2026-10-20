@@ -116,7 +116,7 @@ struct AddPlantView: View {
                     if let userId = authService.session?.user.id {
                         Task {
                             await gardenStore.fetchGardens(for: userId)
-                            await viewModel.weatherEvaluationService.evaluateAndSync(gardens: gardenStore.gardens, userId: userId)
+                            await viewModel.weatherEvaluationService.evaluateAndSync(gardens: gardenStore.gardens)
                         }
                     }
                     
@@ -476,11 +476,6 @@ private struct GardenPage: View {
                     .controlSize(.large)
                 }
             }
-        }
-        .task {
-            // Fetch db data.
-            guard let userId = authService.session?.user.id else { return }
-            await gardenStore.fetchGardens(for: userId)
         }
         .sheet(isPresented: $showAddGardenView) {
             AddGardenView()

@@ -105,11 +105,10 @@ class AddGardenViewModel {
             validateErrors()
             if (errors.isEmpty) {
                 do {
-                    try await gardenStore.createGarden(
+                    _ = try await gardenStore.createGarden(
                         name: name,
                         city: city ?? "Unknown",
-                        geoLocation: geoLocation ?? [90,0],
-                        userId: authService.session?.user.id ?? UUID()
+                        geoLocation: geoLocation ?? [90,0]
                     )
                     
                     // Dismiss view
