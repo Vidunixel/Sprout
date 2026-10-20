@@ -22,7 +22,7 @@ final class TaskStore: ObservableObject {
         do {
             self.tasks = try await supabase
                 .from("tasks")
-                .select("*, weather_adjustments(*)")
+                .select("*, tasks_log(*), weather_adjustments(*, weather_adjustments_timeline(*))")
                 .eq("plant_id", value: plantId)
                 .execute()
                 .value
@@ -55,7 +55,7 @@ final class TaskStore: ObservableObject {
         let response: TaskModel = try await supabase
             .from("tasks")
             .insert(newTask)
-            .select("*, weather_adjustments(*)")
+            .select("*, tasks_log(*), weather_adjustments(*, weather_adjustments_timeline(*))")
             .single()
             .execute()
             .value

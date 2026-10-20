@@ -116,6 +116,7 @@ struct AddPlantView: View {
                     if let userId = authService.session?.user.id {
                         Task {
                             await gardenStore.fetchGardens(for: userId)
+                            await viewModel.weatherEvaluationService.evaluateAndSync(gardens: gardenStore.gardens, userId: userId)
                         }
                     }
                     

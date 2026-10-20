@@ -155,6 +155,13 @@ struct GardenView: View {
             
             viewModel.setInitialGarden(gardenStore: gardenStore)
         }
+        .onChange(of: gardenStore.gardens) { _, updatedGardens in
+            if let currentSelectedGardenId = viewModel.selectedGarden?.id {
+                viewModel.selectedGarden = updatedGardens.first(where: { $0.id == currentSelectedGardenId })
+            } else {
+                viewModel.setInitialGarden(gardenStore: gardenStore)
+            }
+        }
     }
 }
 

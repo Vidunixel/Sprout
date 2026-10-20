@@ -104,7 +104,10 @@ struct PlantDetailPanelView: View {
                 )
                 
                 Section {
-                    if let tasks = viewModel.plant.tasks {
+                    let garden = gardenStore.gardens.first(where: { $0.id == viewModel.plant.gardenId })
+                    let latitude = garden?.geoLocation.first
+                    
+                    if let tasks = viewModel.plant.tasks, !tasks.isEmpty {
                         ForEach(tasks, id: \.self) { task in
                             NavigationLink {
                             } label: {
@@ -112,9 +115,9 @@ struct PlantDetailPanelView: View {
                                     Text(task.name)
                                         .lineLimit(1)
                                     Spacer()
-//                                    Text(task.instructions)
-//                                        .foregroundColor(.gray)
-//                                        .lineLimit(1)
+                                    Text(task.dueStatusText(latitude: latitude))
+                                        .foregroundStyle((task.daysUntilDue(latitude: latitude) ?? 1) < 0 ? .red : .secondary)
+                                        .lineLimit(1)
                                 }
                             }
                         }

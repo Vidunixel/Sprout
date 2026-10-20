@@ -32,6 +32,7 @@ class AddPlantViewModel {
     private var plantNetService = PlantNetService()
     private var openAiService = OpenAiService()
     private var storageService = StorageService()
+    var weatherEvaluationService = WeatherEvaluationService()
     
     private func uploadPlantPhoto() async throws {
         // Compress image.

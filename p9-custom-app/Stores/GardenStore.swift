@@ -22,7 +22,7 @@ final class GardenStore: ObservableObject {
         do {
             self.gardens = try await supabase
                 .from("gardens")
-                .select("*, plants(*, tasks(*, weather_adjustments(*)))")
+                .select("*, plants(*, tasks(*, tasks_log(*), weather_adjustments(*, weather_adjustments_timeline(*))))")
                 .eq("user_id", value: userId)
                 .execute()
                 .value
@@ -41,7 +41,7 @@ final class GardenStore: ObservableObject {
         let response: Garden = try await supabase
             .from("gardens")
             .insert(newGarden)
-            .select("*, plants(*, tasks(*, weather_adjustments(*)))")
+            .select("*, plants(*, tasks(*, tasks_log(*), weather_adjustments(*, weather_adjustments_timeline(*))))")
             .single()
             .execute()
             .value

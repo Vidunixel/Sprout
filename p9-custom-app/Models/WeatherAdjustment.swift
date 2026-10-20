@@ -13,6 +13,7 @@ struct WeatherAdjustment: Codable, Identifiable, Hashable {
     let name: String
     let createdAt: Date
     let multiplier: Double
+    var timelines: [WeatherAdjustmentTimeline]?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -20,6 +21,7 @@ struct WeatherAdjustment: Codable, Identifiable, Hashable {
         case name
         case createdAt = "created_at"
         case multiplier
+        case timelines = "weather_adjustments_timeline"
     }
 }
 
