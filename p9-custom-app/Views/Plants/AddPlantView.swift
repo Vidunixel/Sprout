@@ -260,7 +260,6 @@ private struct SpeciesPage: View {
                                 Text(plant.species.scientificNameWithoutAuthor)
                                     .font(.headline)
                                     .multilineTextAlignment(.leading)
-                                    .fixedSize(horizontal: false, vertical: true)
                                     .lineLimit(2)
                                 
                                 if !plant.species.commonNames.isEmpty {

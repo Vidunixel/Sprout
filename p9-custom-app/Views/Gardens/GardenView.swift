@@ -85,13 +85,11 @@ struct GardenView: View {
                             ForEach(plants) { plant in
                                 if let userId = authService.session?.user.id {
                                     NavigationLink {
-                                        DetailedPlantView(plant: plant, gardenViewModel: viewModel)
+                                        PlantDetailView(plant: plant, gardenViewModel: viewModel)
                                             .navigationTransition(.zoom(sourceID: plant.id, in: animationNamespace))
                                     } label: {
                                         PlantCardView(plant: plant, userId: userId, viewModel: viewModel)
-                                            .matchedTransitionSource(id: plant.id, in: animationNamespace) { config in
-                                                config.clipShape(.rect(cornerRadius: 40))
-                                            }
+                                            .matchedTransitionSource(id: plant.id, in: animationNamespace)
                                     }
                                     .buttonStyle(.plain)
                                 }

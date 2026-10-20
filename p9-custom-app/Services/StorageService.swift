@@ -37,4 +37,11 @@ class StorageService {
             .from("plant-models")
             .download(path: path)
     }
+    
+    func downloadPlantImage(userId: UUID, plantId: Int) async throws -> Data {
+        let path = "\(userId.uuidString.lowercased())/\(plantId).jpg"
+        return try await supabase.storage
+            .from("plants")
+            .download(path: path)
+    }
 }
