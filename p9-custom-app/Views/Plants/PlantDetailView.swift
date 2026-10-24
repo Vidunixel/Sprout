@@ -122,21 +122,19 @@ struct PlantDetailPanelView: View {
                             NavigationLink {
                                 TaskDetailView(taskId: task.id, plantId: plant.id)
                             } label: {
-                                HStack {
-                                    Text(task.name)
-                                        .lineLimit(1)
-                                    Spacer()
+                                LabeledContent {
                                     Text(task.dueStatusText(latitude: latitude))
                                         .foregroundStyle((task.daysUntilDue(latitude: latitude) ?? 1) < 0 ? .red : .secondary)
+                                        .lineLimit(1)
+                                } label: {
+                                    Text(task.name)
                                         .lineLimit(1)
                                 }
                             }
                         }
                     } else {
-                        HStack {
-                            Text("None")
-                                .foregroundColor(.gray)
-                        }
+                        Text("None")
+                            .foregroundColor(.gray)
                     }
                 } header: {
                     Text("Tasks")
@@ -146,19 +144,16 @@ struct PlantDetailPanelView: View {
                 )
                 
                 Section {
-                    HStack {
-                        Text("Garden")
-                        Spacer()
-                        
+                    LabeledContent {
                         if let garden = gardenStore.gardens.first(where: { $0.id == plant.gardenId }) {
                             Text("\(garden.name) (\(garden.city))")
                                 .foregroundColor(.gray)
                         }
+                    } label: {
+                        Text("Garden")
                     }
-                    HStack {
-                        Text("Light Exposure")
-                        Spacer()
-                        
+                    
+                    LabeledContent {
                         switch plant.lightExposure {
                         case .low:
                             Text("Low")
@@ -170,11 +165,11 @@ struct PlantDetailPanelView: View {
                             Text("High")
                                 .foregroundColor(.gray)
                         }
+                    } label: {
+                        Text("Light Exposure")
                     }
-                    HStack {
-                        Text("Pot Size")
-                        Spacer()
-                        
+                    
+                    LabeledContent {
                         switch plant.potSize {
                         case .mini:
                             Text("Mini (2–4\" wide)")
@@ -192,12 +187,15 @@ struct PlantDetailPanelView: View {
                             Text("None")
                                 .foregroundColor(.gray)
                         }
+                    } label: {
+                        Text("Pot Size")
                     }
-                    HStack {
-                        Text("Location")
-                        Spacer()
+                    
+                    LabeledContent {
                         Text(plant.isIndoors ? "Indoors" : "Outdoors")
                             .foregroundColor(.gray)
+                    } label: {
+                        Text("Location")
                     }
                 } header: {
                     Text("Plant Details")

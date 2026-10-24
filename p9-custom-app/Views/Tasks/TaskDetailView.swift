@@ -57,19 +57,14 @@ struct TaskDetailView: View {
                     .listRowBackground(Color.primary.opacity(0.05))
                     
                     Section {
-                        HStack {
-                            Text("Status")
-                            Spacer()
+                        LabeledContent {
                             Text(task.dueStatusText(latitude: latitude))
                                 .foregroundStyle((task.daysUntilDue(latitude: latitude) ?? 1) < 0 ? .red : .secondary)
+                        } label: {
+                            Text("Status")
                         }
                         
-                        HStack {
-                            Text("Current Cycle")
-                            Spacer()
-                            Text("\(task.currentCycle)")
-                                .foregroundStyle(.secondary)
-                        }
+                        LabeledContent("Current Cycle", value: "\(task.currentCycle)")
                         
                         if !activeAdjustments.isEmpty {
                             LabeledContent("Weather Adjustments", value: appliedConditions)
