@@ -21,8 +21,31 @@ struct RootView: View {
     
     var body: some View {
         Group {
-            if authService.session != nil {
+            if authService.isInitialising {
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .controlSize(.large)
+                    Text("Loading...")
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.background)
+                .ignoresSafeArea()
+            } else if authService.session != nil {
                 MainTabView()
+                    .overlay {
+                        if viewModel.isBooting {
+                            VStack(spacing: 16) {
+                                ProgressView()
+                                    .controlSize(.large)
+                                Text("Loading...")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(.background)
+                            .ignoresSafeArea()
+                        }
+                    }
                     .task {
                         if let userId = authService.session?.user.id {
                             await viewModel.performBootTasks(

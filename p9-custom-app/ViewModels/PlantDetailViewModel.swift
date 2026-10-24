@@ -11,17 +11,12 @@ import Observation
 @Observable
 @MainActor
 class PlantDetailViewModel {
-    var plant: Plant
     var uiImage: UIImage? = nil
     var isLoadingImage = false
     
     private let storageService = StorageService()
     
-    init(plant: Plant) {
-        self.plant = plant
-    }
-    
-    func loadImage() async {
+    func loadImage(for plant: Plant) async {
         // Prevent duplicate network calls if it's already loaded or loading.
         guard uiImage == nil, !isLoadingImage else { return }
         

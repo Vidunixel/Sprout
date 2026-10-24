@@ -9,46 +9,55 @@ import SwiftUI
 
 struct PlantDetailView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var plantStore: PlantStore
     
+    let plantId: Int
     @State var gardenViewModel: GardenViewModel
-    @State private var viewModel: PlantDetailViewModel
+    @State private var viewModel = PlantDetailViewModel()
     @State private var showPanel = true
     
-    init(plant: Plant, gardenViewModel: GardenViewModel) {
-        self._gardenViewModel = State(wrappedValue: gardenViewModel)
-        self._viewModel = State(wrappedValue: PlantDetailViewModel(plant: plant))
+    var plant: Plant? {
+        plantStore.plants.first(where: { $0.id == plantId })
     }
     
     var body: some View {
-        GeometryReader { geo in
-            VStack(alignment: .center) {
-                if let scene = gardenViewModel.plantScenes[viewModel.plant.id] {
-                    PlantScene(scene: scene, allowHorizontalRotation: true, autoRotate: true)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
-                } else if gardenViewModel.plantLoadingStates[viewModel.plant.id] == true {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    Image(systemName: "leaf.fill")
-                        .font(.system(size: 100))
-                        .foregroundStyle(.tertiary)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        Group {
+            if let plant {
+                GeometryReader { geo in
+                    VStack(alignment: .center) {
+                        if let scene = gardenViewModel.plantScenes[plant.id] {
+                            PlantScene(scene: scene, allowHorizontalRotation: true, autoRotate: true)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
+                        } else if gardenViewModel.plantLoadingStates[plant.id] == true {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        } else {
+                            Image(systemName: "leaf.fill")
+                                .font(.system(size: 100))
+                                .foregroundStyle(.tertiary)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: geo.size.height * 0.5)
                 }
+                .navigationTitle(plant.name)
+                .sheet(isPresented: $showPanel) {
+                    PlantDetailPanelView(viewModel: viewModel, plant: plant, executeDismissal: executeDismissal)
+                        .presentationDetents([.medium, .large])
+                        .interactiveDismissDisabled()
+                        .presentationBackgroundInteraction(.enabled)
+                }
+            } else {
+                Text("Plant not found.")
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: geo.size.height * 0.5)
         }
         .disableBackSwipe()
         .appBackground()
-        .navigationTitle(viewModel.plant.name)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .sheet(isPresented: $showPanel) {
-            PlantDetailPanelView(viewModel: viewModel, executeDismissal: executeDismissal)
-                .presentationDetents([.medium, .large])
-                .interactiveDismissDisabled()
-                .presentationBackgroundInteraction(.enabled)
-        }
     }
     
     private func executeDismissal() {
@@ -60,6 +69,7 @@ struct PlantDetailView: View {
 struct PlantDetailPanelView: View {
     @EnvironmentObject private var gardenStore: GardenStore
     @Bindable var viewModel: PlantDetailViewModel
+    let plant: Plant
     
     var executeDismissal: () -> Void
     
@@ -87,12 +97,12 @@ struct PlantDetailPanelView: View {
                         }
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(viewModel.plant.name)
+                            Text(plant.name)
                                 .font(.headline)
                                 .multilineTextAlignment(.leading)
                                 .lineLimit(2)
                             
-                            Text(viewModel.plant.species)
+                            Text(plant.species)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
@@ -104,12 +114,13 @@ struct PlantDetailPanelView: View {
                 )
                 
                 Section {
-                    let garden = gardenStore.gardens.first(where: { $0.id == viewModel.plant.gardenId })
+                    let garden = gardenStore.gardens.first(where: { $0.id == plant.gardenId })
                     let latitude = garden?.geoLocation.first
                     
-                    if let tasks = viewModel.plant.tasks, !tasks.isEmpty {
+                    if let tasks = plant.tasks, !tasks.isEmpty {
                         ForEach(tasks, id: \.self) { task in
                             NavigationLink {
+                                TaskDetailView(taskId: task.id, plantId: plant.id)
                             } label: {
                                 HStack {
                                     Text(task.name)
@@ -139,7 +150,7 @@ struct PlantDetailPanelView: View {
                         Text("Garden")
                         Spacer()
                         
-                        if let garden = gardenStore.gardens.first(where: { $0.id == viewModel.plant.gardenId }) {
+                        if let garden = gardenStore.gardens.first(where: { $0.id == plant.gardenId }) {
                             Text("\(garden.name) (\(garden.city))")
                                 .foregroundColor(.gray)
                         }
@@ -148,7 +159,7 @@ struct PlantDetailPanelView: View {
                         Text("Light Exposure")
                         Spacer()
                         
-                        switch viewModel.plant.lightExposure {
+                        switch plant.lightExposure {
                         case .low:
                             Text("Low")
                                 .foregroundColor(.gray)
@@ -164,7 +175,7 @@ struct PlantDetailPanelView: View {
                         Text("Pot Size")
                         Spacer()
                         
-                        switch viewModel.plant.potSize {
+                        switch plant.potSize {
                         case .mini:
                             Text("Mini (2–4\" wide)")
                                 .foregroundColor(.gray)
@@ -185,7 +196,7 @@ struct PlantDetailPanelView: View {
                     HStack {
                         Text("Location")
                         Spacer()
-                        Text(viewModel.plant.isIndoors ? "Indoors" : "Outdoors")
+                        Text(plant.isIndoors ? "Indoors" : "Outdoors")
                             .foregroundColor(.gray)
                     }
                 } header: {
@@ -210,7 +221,7 @@ struct PlantDetailPanelView: View {
         }
         .appBackground()
         .task {
-            await viewModel.loadImage()
+            await viewModel.loadImage(for: plant)
         }
     }
 }

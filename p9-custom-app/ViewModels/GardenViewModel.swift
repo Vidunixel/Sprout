@@ -17,20 +17,12 @@ class GardenViewModel {
     var showAddPlantView = false
     var showAddGardenView = false
     
-    var selectedGarden: Garden? = nil
+    var selectedGardenId: Int? = nil
     
     private var storageService = StorageService()
     
     var plantScenes: [Int: SCNScene] = [:]
     var plantLoadingStates: [Int: Bool] = [:]
-    
-    func setInitialGarden(gardenStore: GardenStore) {
-        if selectedGarden == nil {
-            if let garden = gardenStore.gardens.first {
-                selectedGarden = garden
-            }
-        }
-    }
     
     func loadPlantModel(for plant: Plant, userId: UUID) async {
         // Prevent re-downloading if already loaded or is currently loading.

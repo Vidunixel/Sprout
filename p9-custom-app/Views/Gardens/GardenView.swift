@@ -23,6 +23,10 @@ struct GardenView: View {
         GridItem(.flexible(), spacing: 16, alignment: .top)
     ]
     
+    var selectedGarden: Garden? {
+        gardenStore.gardens.first(where: { $0.id == viewModel.selectedGardenId })
+    }
+    
     var body: some View {
         ScrollView {
             if gardenStore.gardens.isEmpty {
@@ -51,9 +55,9 @@ struct GardenView: View {
                 }
                 .padding(28)
                 .containerRelativeFrame(.vertical)
-            } else {
+            } else if selectedGarden != nil {
                 // Plant grid
-                if let plants = viewModel.selectedGarden?.plants {
+                if let plants = selectedGarden?.plants {
                     if plants.isEmpty {
                         VStack (spacing: 48) {
                             VStack(spacing: 24) {
@@ -85,7 +89,7 @@ struct GardenView: View {
                             ForEach(plants) { plant in
                                 if let userId = authService.session?.user.id {
                                     NavigationLink {
-                                        PlantDetailView(plant: plant, gardenViewModel: viewModel)
+                                        PlantDetailView(plantId: plant.id, gardenViewModel: viewModel)
                                             .navigationTransition(.zoom(sourceID: plant.id, in: animationNamespace))
                                     } label: {
                                         PlantCardView(plant: plant, userId: userId, viewModel: viewModel, animationNamespace: animationNamespace)
@@ -99,6 +103,10 @@ struct GardenView: View {
                     }
                     
                 }
+            } else {
+                Text("Garden not found.")
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .sheet(isPresented: $viewModel.showAddPlantView) {
@@ -107,16 +115,16 @@ struct GardenView: View {
         .sheet(isPresented: $viewModel.showAddGardenView) {
             AddGardenView()
         }
-        .navigationTitle(viewModel.selectedGarden?.city ?? "")
+        .navigationTitle(selectedGarden?.city ?? "")
         .toolbar {
             if !gardenStore.gardens.isEmpty {
                 ToolbarItem(placement: .topBarLeading) {
                     Menu {
                         ForEach(gardenStore.gardens, id: \.self) { garden in
                             Button {
-                                viewModel.selectedGarden = garden
+                                viewModel.selectedGardenId = garden.id
                             } label: {
-                                if viewModel.selectedGarden == garden {
+                                if viewModel.selectedGardenId == garden.id {
                                     Image(systemName: "checkmark")
                                 }
                                 Text(garden.name)
@@ -132,7 +140,7 @@ struct GardenView: View {
                         }
                         
                     } label: {
-                        Text(viewModel.selectedGarden?.name ?? "Select Garden")
+                        Text(selectedGarden?.name ?? "Select Garden")
                             .font(.headline)
                         Image(systemName: "chevron.up.chevron.down")
                             .font(.caption)
@@ -147,14 +155,11 @@ struct GardenView: View {
             }
         }
         .appBackground()
-        .task {
-            viewModel.setInitialGarden(gardenStore: gardenStore)
-        }
-        .onChange(of: gardenStore.gardens) { _, updatedGardens in
-            if let currentSelectedGardenId = viewModel.selectedGarden?.id {
-                viewModel.selectedGarden = updatedGardens.first(where: { $0.id == currentSelectedGardenId })
-            } else {
-                viewModel.setInitialGarden(gardenStore: gardenStore)
+        .onChange(of: gardenStore.gardens, initial: true) { _, newGardens in
+            // If no garden is currently selected, or the currently selected garden was deleted.
+            if viewModel.selectedGardenId == nil || !newGardens.contains(where: { $0.id == viewModel.selectedGardenId }) {
+                // Default to the first available garden.
+                viewModel.selectedGardenId = newGardens.first?.id
             }
         }
     }

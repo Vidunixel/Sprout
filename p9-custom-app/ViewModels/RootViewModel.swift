@@ -12,8 +12,8 @@ import Supabase
 @Observable @MainActor
 class RootViewModel {
     var showUpdatePasswordView = false
+    var isBooting = true
     private let weatherEvaluationService = WeatherEvaluationService()
-    
     private var realtimeService: RealtimeService?
     
     /// Handles incoming deep links, specifically for Supabase Auth.
@@ -43,6 +43,9 @@ class RootViewModel {
         weatherAdjustmentStore: WeatherAdjustmentStore,
         weatherAdjustmentTimelineStore: WeatherAdjustmentTimelineStore
     ) async {
+        isBooting = true
+        defer { isBooting = false }
+        
         await gardenStore.fetchGardens(for: userId)
         await plantStore.fetchPlants(for: userId)
         await taskLogStore.fetchLogs(for: userId)

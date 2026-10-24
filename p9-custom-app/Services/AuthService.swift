@@ -6,13 +6,17 @@ internal import Combine
 @MainActor
 final class AuthService: ObservableObject {
     @Published var session: Session?
-    
+    @Published var isInitialising = true
     @Published var awaitingVerificationEmail: String? = nil
     
     init() {
         Task {
-            for await (_, session) in supabase.auth.authStateChanges {
+            for await (event, session) in supabase.auth.authStateChanges {
                 self.session = session
+                
+                if event == .initialSession {
+                    self.isInitialising = false
+                }
             }
         }
     }
