@@ -95,6 +95,40 @@ struct GardenView: View {
                                         PlantCardView(plant: plant, userId: userId, viewModel: viewModel, animationNamespace: animationNamespace)
                                     }
                                     .buttonStyle(.plain)
+                                    .contextMenu {
+                                        Button(role: .destructive) {
+                                            viewModel.plantToDelete = plant
+                                            viewModel.showDeletePlantConfirmation = true
+                                        } label: {
+                                            Label("Delete Plant", systemImage: "trash")
+                                        }
+                                        .tint(.red)
+                                        .foregroundStyle(.red)
+                                        .disabled(viewModel.isLoading)
+                                    }
+                                    .confirmationDialog(
+                                        "Delete Plant",
+                                        isPresented: Binding(
+                                            // Only show if showDeletePlantConfirmation is true and it matches this specific plant.
+                                            get: { viewModel.showDeletePlantConfirmation && viewModel.plantToDelete?.id == plant.id },
+                                            set: { isVisible in
+                                                if !isVisible {
+                                                    viewModel.showDeletePlantConfirmation = false
+                                                    viewModel.plantToDelete = nil
+                                                }
+                                            }
+                                        ),
+                                        titleVisibility: .visible
+                                    ) {
+                                        Button("Delete", role: .destructive) {
+                                            viewModel.deletePlant(plant: plant, plantStore: plantStore)
+                                        }
+                                        Button("Cancel", role: .cancel) {
+                                            viewModel.plantToDelete = nil
+                                        }
+                                    } message: {
+                                        Text("Are you sure you want to delete this plant?")
+                                    }
                                 }
                             }
                         }
@@ -162,6 +196,20 @@ struct GardenView: View {
                 viewModel.selectedGardenId = newGardens.first?.id
             }
         }
+        .sensoryFeedback(.error, trigger: viewModel.feedbackTrigger)
+        .alert("Error", isPresented: errorIsPresented) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            let alertError = viewModel.errors.first(where: { $0.showAlert })
+            Text(alertError?.localizedDescription ?? "An unknown error occurred.")
+        }
+    }
+    
+    private var errorIsPresented: Binding<Bool> {
+        Binding(
+            get: { viewModel.errors.contains(where: { $0.showAlert }) },
+            set: { if !$0 { viewModel.errors.removeAll { $0.showAlert } } }
+        )
     }
 }
 

@@ -19,10 +19,22 @@ final class RealtimeService {
     private weak var weatherAdjustmentTimelineStore: WeatherAdjustmentTimelineStore?
     private let userId: UUID
     
-    init(userId: UUID, gardenStore: GardenStore, plantStore: PlantStore) {
+    init(
+        userId: UUID,
+        gardenStore: GardenStore,
+        plantStore: PlantStore,
+        taskLogStore: TaskLogStore,
+        taskStore: TaskStore,
+        weatherAdjustmentStore: WeatherAdjustmentStore,
+        weatherAdjustmentTimelineStore: WeatherAdjustmentTimelineStore
+    ){
         self.userId = userId
         self.gardenStore = gardenStore
         self.plantStore = plantStore
+        self.taskLogStore = taskLogStore
+        self.taskStore = taskStore
+        self.weatherAdjustmentStore = weatherAdjustmentStore
+        self.weatherAdjustmentTimelineStore = weatherAdjustmentTimelineStore
     }
     
     func startListening() async {

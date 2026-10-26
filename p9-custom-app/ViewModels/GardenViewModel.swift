@@ -17,7 +17,13 @@ class GardenViewModel {
     var showAddPlantView = false
     var showAddGardenView = false
     
+    var showDeletePlantConfirmation = false
+    var plantToDelete: Plant? = nil
+    
     var selectedGardenId: Int? = nil
+    var isLoading = false
+    var errors: [AppError] = []
+    var feedbackTrigger = false
     
     private var storageService = StorageService()
     
@@ -46,6 +52,26 @@ class GardenViewModel {
         } catch {
             print("Failed to load 3D model for \(plant.name): \(error.localizedDescription)")
             self.plantLoadingStates[plant.id] = false
+        }
+    }
+    
+    func deletePlant(plant: Plant, plantStore: PlantStore) {
+        isLoading = true
+        Task {
+            defer { isLoading = false }
+            errors = []
+            
+            do {
+                try await plantStore.deletePlant(plantId: plant.id)
+            } catch let error as AppError {
+                errors.append(error)
+            } catch {
+                errors.append(AppError(error.localizedDescription, showAlert: true))
+            }
+            
+            if !errors.isEmpty {
+                feedbackTrigger.toggle()
+            }
         }
     }
 }

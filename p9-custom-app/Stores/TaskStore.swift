@@ -62,4 +62,12 @@ final class TaskStore: ObservableObject {
         
         return response
     }
+    
+    func incrementTaskCycle(taskId: Int, currentCycle: Int) async throws {
+        try await supabase
+            .from("tasks")
+            .update(["current_cycle": currentCycle + 1])
+            .eq("id", value: taskId)
+            .execute()
+    }
 }

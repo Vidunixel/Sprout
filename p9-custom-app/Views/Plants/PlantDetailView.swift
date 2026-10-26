@@ -210,9 +210,7 @@ struct PlantDetailPanelView: View {
                     Button {
                         executeDismissal()
                     } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "xmark").fontWeight(.semibold)
-                        }
+                        Image(systemName: "xmark").fontWeight(.semibold)
                     }
                 }
             }

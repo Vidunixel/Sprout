@@ -60,7 +60,11 @@ class RootViewModel {
         realtimeService = RealtimeService(
             userId: userId,
             gardenStore: gardenStore,
-            plantStore: plantStore
+            plantStore: plantStore,
+            taskLogStore: taskLogStore,
+            taskStore: taskStore,
+            weatherAdjustmentStore: weatherAdjustmentStore,
+            weatherAdjustmentTimelineStore: weatherAdjustmentTimelineStore
         )
         await realtimeService?.startListening()
     }

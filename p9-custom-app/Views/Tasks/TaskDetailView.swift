@@ -11,9 +11,12 @@ struct TaskDetailView: View {
     @EnvironmentObject private var taskStore: TaskStore
     @EnvironmentObject private var plantStore: PlantStore
     @EnvironmentObject private var gardenStore: GardenStore
+    @EnvironmentObject private var taskLogStore: TaskLogStore
     
     let taskId: Int
     let plantId: Int
+    
+    @State private var viewModel = TaskDetailViewModel()
     
     var task: TaskModel? {
         taskStore.tasks.first(where: { $0.id == taskId })
@@ -115,5 +118,40 @@ struct TaskDetailView: View {
             }
         }
         .appBackground()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: { viewModel.showCompleteConfirmation = true }) {
+                    Image(systemName: "checkmark")
+                }
+                .buttonStyle(.glassProminent)
+                .confirmationDialog("Complete Task", isPresented: $viewModel.showCompleteConfirmation, titleVisibility: .visible) {
+                    Button("Complete") {
+                        if let currentTask = task {
+                            viewModel.logTask(
+                                task: currentTask,
+                                taskLogStore: taskLogStore,
+                                taskStore: taskStore
+                            )
+                        }
+                    }
+                } message: {
+                    Text("Are you sure you want to log this task as complete for the current cycle?")
+                }
+            }
+        }
+        .sensoryFeedback(.error, trigger: viewModel.feedbackTrigger)
+        .alert("Error", isPresented: errorIsPresented) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            let alertError = viewModel.errors.first(where: { $0.showAlert })
+            Text(alertError?.localizedDescription ?? "An unknown error occurred.")
+        }
+    }
+    
+    private var errorIsPresented: Binding<Bool> {
+        Binding(
+            get: { viewModel.errors.contains(where: { $0.showAlert }) },
+            set: { if !$0 { viewModel.errors.removeAll { $0.showAlert } } }
+        )
     }
 }
