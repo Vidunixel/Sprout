@@ -86,21 +86,29 @@ struct GardenView: View {
                         .containerRelativeFrame(.vertical)
                     } else {
                         LazyVGrid(columns: columns, spacing: 16) {
+                            let latitude = selectedGarden?.geoLocation.first
                             ForEach(plants) { plant in
                                 if let userId = authService.session?.user.id {
                                     NavigationLink {
                                         PlantDetailView(plantId: plant.id, gardenViewModel: viewModel)
                                             .navigationTransition(.zoom(sourceID: plant.id, in: animationNamespace))
                                     } label: {
-                                        PlantCardView(plant: plant, userId: userId, viewModel: viewModel, animationNamespace: animationNamespace)
+                                        PlantCardView(plant: plant, userId: userId, viewModel: viewModel, animationNamespace: animationNamespace, latitude: latitude)
                                     }
                                     .buttonStyle(.plain)
                                     .contextMenu {
+                                        Button {
+                                            
+                                        } label: {
+                                            Label("Edit", systemImage: "pencil")
+                                        }
+                                        .tint(nil)
+                                        
                                         Button(role: .destructive) {
                                             viewModel.plantToDelete = plant
                                             viewModel.showDeletePlantConfirmation = true
                                         } label: {
-                                            Label("Delete Plant", systemImage: "trash")
+                                            Label("Delete", systemImage: "trash")
                                         }
                                         .tint(.red)
                                         .foregroundStyle(.red)
@@ -186,6 +194,7 @@ struct GardenView: View {
                 Button(action: { viewModel.showAddPlantView = true }) {
                     Image(systemName: "plus")
                 }
+                .buttonStyle(.glassProminent)
             }
         }
         .appBackground()
@@ -218,6 +227,16 @@ struct PlantCardView: View {
     let userId: UUID
     let viewModel: GardenViewModel
     let animationNamespace: Namespace.ID
+    let latitude: Double?
+    
+    // Calculate tasks that are due today (0) or overdue (< 0).
+    var urgentTasksCount: Int {
+        guard let tasks = plant.tasks else { return 0 }
+        return tasks.filter { task in
+            guard let days = task.daysUntilDue(latitude: latitude) else { return false }
+            return days <= 0
+        }.count
+    }
     
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
@@ -240,6 +259,19 @@ struct PlantCardView: View {
                 }
             }
             .frame(height: 175)
+            .overlay(alignment: .bottomTrailing) {
+                if urgentTasksCount > 0 {
+                    Text("\(urgentTasksCount)")
+                        .font(.caption2.bold())
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.red)
+                        .clipShape(Capsule())
+                        .offset(x: -8, y: -8)
+                        .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 2)
+                }
+            }
             
             VStack(alignment: .center, spacing: 4) {
                 Text(plant.name)

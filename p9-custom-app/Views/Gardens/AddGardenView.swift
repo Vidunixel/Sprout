@@ -51,9 +51,7 @@ struct AddGardenView: View {
                             ) {
                                 if viewModel.city != nil {
                                     Chip(title: viewModel.city ?? "Unknown") {
-                                        withAnimation {
-                                            viewModel.city = nil
-                                        }
+                                        viewModel.city = nil
                                     }
                                 }
                                 
@@ -69,7 +67,7 @@ struct AddGardenView: View {
                                         .autocorrectionDisabled()
                                         .padding(.horizontal, 6)
                                     
-                                    Button(action: { withAnimation { viewModel.setCurrentCity() } }) {
+                                    Button(action: { viewModel.setCurrentCity() }) {
                                         Label("Current Location", systemImage: "location")
                                     }
                                     .buttonBorderShape(.circle)
@@ -86,7 +84,7 @@ struct AddGardenView: View {
                             ScrollView {
                                 VStack(spacing: 0) {
                                     ForEach(viewModel.cityResults, id: \.self) { result in
-                                        Button(action: { withAnimation { handleAutocompleteSelection(result: result) } }) {
+                                        Button(action: { handleAutocompleteSelection(result: result) }) {
                                             VStack(alignment: .leading, spacing: 4) {
                                                 Text(result.title)
                                                     .font(.body)

@@ -14,6 +14,12 @@ class PlantDetailViewModel {
     var uiImage: UIImage? = nil
     var isLoadingImage = false
     
+    var showDeletePlantConfirmation = false
+    
+    var isLoading = false
+    var errors: [AppError] = []
+    var feedbackTrigger = false
+    
     private let storageService = StorageService()
     
     func loadImage(for plant: Plant) async {
@@ -30,5 +36,26 @@ class PlantDetailViewModel {
             print("Failed to load plant image: \(error.localizedDescription)")
         }
         isLoadingImage = false
+    }
+    
+    
+    func deletePlant(plant: Plant, plantStore: PlantStore) {
+        isLoading = true
+        Task {
+            defer { isLoading = false }
+            errors = []
+            
+            do {
+                try await plantStore.deletePlant(plantId: plant.id)
+            } catch let error as AppError {
+                errors.append(error)
+            } catch {
+                errors.append(AppError(error.localizedDescription, showAlert: true))
+            }
+            
+            if !errors.isEmpty {
+                feedbackTrigger.toggle()
+            }
+        }
     }
 }

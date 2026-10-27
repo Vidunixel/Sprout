@@ -54,10 +54,10 @@ struct PlantDetailView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .disableBackSwipe()
+        .disableBackSwipe(plant == nil ? false : true)
         .appBackground()
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
+        .navigationBarBackButtonHidden(plant == nil ? false : true)
     }
     
     private func executeDismissal() {
@@ -68,6 +68,7 @@ struct PlantDetailView: View {
 
 struct PlantDetailPanelView: View {
     @EnvironmentObject private var gardenStore: GardenStore
+    @EnvironmentObject private var plantStore: PlantStore
     @Bindable var viewModel: PlantDetailViewModel
     let plant: Plant
     
@@ -212,6 +213,32 @@ struct PlantDetailPanelView: View {
                     } label: {
                         Image(systemName: "xmark").fontWeight(.semibold)
                     }
+                    .tint(nil)
+                }
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "pencil").fontWeight(.semibold)
+                    }
+                    
+                    Button {
+                        viewModel.showDeletePlantConfirmation = true
+                    } label: {
+                        Image(systemName: "trash").fontWeight(.semibold)
+                    }
+                    .disabled(viewModel.isLoading)
+                    .confirmationDialog(
+                        "Delete Plant",
+                        isPresented: $viewModel.showDeletePlantConfirmation,
+                        titleVisibility: .visible
+                    ) {
+                        Button("Delete", role: .destructive) {
+                            viewModel.deletePlant(plant: plant, plantStore: plantStore)
+                        }
+                    } message: {
+                        Text("Are you sure you want to delete this plant?")
+                    }
                 }
             }
         }
@@ -219,5 +246,19 @@ struct PlantDetailPanelView: View {
         .task {
             await viewModel.loadImage(for: plant)
         }
+        .sensoryFeedback(.error, trigger: viewModel.feedbackTrigger)
+        .alert("Error", isPresented: errorIsPresented) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            let alertError = viewModel.errors.first(where: { $0.showAlert })
+            Text(alertError?.localizedDescription ?? "An unknown error occurred.")
+        }
+    }
+    
+    private var errorIsPresented: Binding<Bool> {
+        Binding(
+            get: { viewModel.errors.contains(where: { $0.showAlert }) },
+            set: { if !$0 { viewModel.errors.removeAll { $0.showAlert } } }
+        )
     }
 }

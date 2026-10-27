@@ -9,11 +9,16 @@ import SwiftUI
 import UIKit
 
 extension View {
-    func disableBackSwipe() -> some View {
-        background(
-            DisableBackSwipeRepresentable()
-                .frame(width: 0, height: 0)
-        )
+    @ViewBuilder
+    func disableBackSwipe(_ disable: Bool = true) -> some View {
+        if disable {
+            self.background(
+                DisableBackSwipeRepresentable()
+                    .frame(width: 0, height: 0)
+            )
+        } else {
+            self
+        }
     }
 }
 

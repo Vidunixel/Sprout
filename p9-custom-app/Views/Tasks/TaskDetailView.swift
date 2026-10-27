@@ -52,17 +52,27 @@ struct TaskDetailView: View {
             if let task = task {
                 List {
                     Section {
-                        Text(task.instructions)
-                            .font(.body)
+                        LabeledContent {
+                            Text(task.name)
+                        } label: {
+                            Text("Task")
+                        }
+                        
+                        LabeledContent {
+                            Text(task.instructions)
+                        } label: {
+                            Text("Instructions")
+                        }
                     } header: {
-                        Text("Instructions")
+                        Text("Details")
                     }
                     .listRowBackground(Color.primary.opacity(0.05))
                     
                     Section {
                         LabeledContent {
+                            let days = task.daysUntilDue(latitude: latitude) ?? 1
                             Text(task.dueStatusText(latitude: latitude))
-                                .foregroundStyle((task.daysUntilDue(latitude: latitude) ?? 1) < 0 ? .red : .secondary)
+                                .foregroundStyle(days < 0 ? .red : (days == 0 ? .orange : .secondary))
                         } label: {
                             Text("Status")
                         }
@@ -118,6 +128,7 @@ struct TaskDetailView: View {
             }
         }
         .appBackground()
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: { viewModel.showCompleteConfirmation = true }) {
