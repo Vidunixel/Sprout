@@ -7,12 +7,16 @@
 
 import SwiftUI
 import Observation
+import SceneKit
 
 @Observable
 @MainActor
 class PlantDetailViewModel {
     var uiImage: UIImage? = nil
     var isLoadingImage = false
+    
+    var scene: SCNScene? = nil
+    var isLoadingModel = false
     
     var showDeletePlantConfirmation = false
     
@@ -36,6 +40,28 @@ class PlantDetailViewModel {
             print("Failed to load plant image: \(error.localizedDescription)")
         }
         isLoadingImage = false
+    }
+    
+    func loadModel(for plant: Plant) async {
+        guard scene == nil, !isLoadingModel else { return }
+        
+        isLoadingModel = true
+        do {
+            let tempUrl = FileManager.default.temporaryDirectory.appendingPathComponent("\(plant.id).usdz")
+            
+            // Check if the file already exists locally.
+            if !FileManager.default.fileExists(atPath: tempUrl.path) {
+                let data = try await storageService.downloadPlantModel(userId: plant.userId, plantId: plant.id)
+                try data.write(to: tempUrl)
+            }
+            
+            let loadedScene = try SCNScene(url: tempUrl)
+            loadedScene.background.contents = UIColor.clear
+            self.scene = loadedScene
+        } catch {
+            print("Failed to load 3D model for \(plant.name): \(error.localizedDescription)")
+        }
+        isLoadingModel = false
     }
     
     

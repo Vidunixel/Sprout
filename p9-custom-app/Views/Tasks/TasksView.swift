@@ -24,7 +24,7 @@ struct TasksView: View {
                     ForEach(urgent) { task in
                         if let plant = plantStore.plants.first(where: { $0.id == task.plantId }) {
                             let lat = viewModel.latitude(for: task, plants: plantStore.plants, gardens: gardenStore.gardens)
-                            NavigationLink(destination: TaskDetailView(taskId: task.id, plantId: plant.id)) {
+                            NavigationLink(destination: TaskDetailView(taskId: task.id, plantId: plant.id, showPlantReference: true)) {
                                 TaskRowView(task: task, plant: plant, latitude: lat)
                             }
                         }
@@ -38,7 +38,7 @@ struct TasksView: View {
                     ForEach(upcoming) { task in
                         if let plant = plantStore.plants.first(where: { $0.id == task.plantId }) {
                             let lat = viewModel.latitude(for: task, plants: plantStore.plants, gardens: gardenStore.gardens)
-                            NavigationLink(destination: TaskDetailView(taskId: task.id, plantId: plant.id)) {
+                            NavigationLink(destination: TaskDetailView(taskId: task.id, plantId: plant.id, showPlantReference: true)) {
                                 TaskRowView(task: task, plant: plant, latitude: lat)
                             }
                         }

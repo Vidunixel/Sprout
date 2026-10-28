@@ -12,7 +12,6 @@ struct PlantDetailView: View {
     @EnvironmentObject private var plantStore: PlantStore
     
     let plantId: Int
-    @State var gardenViewModel: GardenViewModel
     @State private var viewModel = PlantDetailViewModel()
     @State private var showPanel = true
     
@@ -25,11 +24,11 @@ struct PlantDetailView: View {
             if let plant {
                 GeometryReader { geo in
                     VStack(alignment: .center) {
-                        if let scene = gardenViewModel.plantScenes[plant.id] {
+                        if let scene = viewModel.scene {
                             PlantScene(scene: scene, allowHorizontalRotation: true, autoRotate: true)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
-                        } else if gardenViewModel.plantLoadingStates[plant.id] == true {
+                        } else if viewModel.isLoadingModel == true {
                             ProgressView()
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                         } else {
@@ -47,6 +46,9 @@ struct PlantDetailView: View {
                         .presentationDetents([.medium, .large])
                         .interactiveDismissDisabled()
                         .presentationBackgroundInteraction(.enabled)
+                }
+                .task {
+                    await viewModel.loadModel(for: plant)
                 }
             } else {
                 Text("Plant not found.")

@@ -33,18 +33,18 @@ class GardenViewModel {
     func loadPlantModel(for plant: Plant, userId: UUID) async {
         // Prevent re-downloading if already loaded or is currently loading.
         guard plantScenes[plant.id] == nil, plantLoadingStates[plant.id] != true else { return }
-        
+            
         plantLoadingStates[plant.id] = true
         
         do {
-            // Donwload model.
-            let data = try await storageService.downloadPlantModel(userId: userId, plantId: plant.id)
-            
-            // Write to temp file.
             let tempUrl = FileManager.default.temporaryDirectory.appendingPathComponent("\(plant.id).usdz")
-            try data.write(to: tempUrl)
             
-            // Render & save state.
+            // Check if the file already exists locally.
+            if !FileManager.default.fileExists(atPath: tempUrl.path) {
+                let data = try await storageService.downloadPlantModel(userId: userId, plantId: plant.id)
+                try data.write(to: tempUrl)
+            }
+            
             let loadedScene = try SCNScene(url: tempUrl)
             loadedScene.background.contents = UIColor.clear
             self.plantScenes[plant.id] = loadedScene

@@ -15,11 +15,16 @@ struct TaskDetailView: View {
     
     let taskId: Int
     let plantId: Int
+    var showPlantReference: Bool = false
     
     @State private var viewModel = TaskDetailViewModel()
     
     var task: TaskModel? {
         taskStore.tasks.first(where: { $0.id == taskId })
+    }
+    
+    var plant: Plant? {
+        plantStore.plants.first(where: { $0.id == plantId })
     }
     
     var latitude: Double? {
@@ -51,6 +56,50 @@ struct TaskDetailView: View {
         Group {
             if let task = task {
                 List {
+                    if showPlantReference, let plant {
+                        Section {
+                            NavigationLink(destination: PlantDetailView(plantId: plant.id)) {
+                                HStack(spacing: 12) {
+                                    if let uiImage = viewModel.uiImage {
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 60, height: 60)
+                                            .clipShape(Circle())
+                                    } else if viewModel.isLoadingImage {
+                                        ProgressView()
+                                            .frame(width: 60, height: 60)
+                                    } else {
+                                        Image(systemName: "leaf.fill")
+                                            .font(.system(size: 30))
+                                            .foregroundStyle(.tertiary)
+                                            .frame(width: 60, height: 60)
+                                            .background(Color(uiColor: .systemGray6))
+                                            .clipShape(Circle())
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(plant.name)
+                                            .font(.headline)
+                                            .multilineTextAlignment(.leading)
+                                            .lineLimit(2)
+                                        
+                                        Text(plant.species)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(1)
+                                    }
+                                }
+                            }
+                        }
+                        .listRowBackground(
+                            Color.primary.opacity(0.05)
+                        )
+                        .task {
+                            await viewModel.loadImage(for: plant)
+                        }
+                    }
+                    
                     Section {
                         LabeledContent {
                             Text(task.name)

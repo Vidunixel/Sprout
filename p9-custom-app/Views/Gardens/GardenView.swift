@@ -90,7 +90,7 @@ struct GardenView: View {
                             ForEach(plants) { plant in
                                 if let userId = authService.session?.user.id {
                                     NavigationLink {
-                                        PlantDetailView(plantId: plant.id, gardenViewModel: viewModel)
+                                        PlantDetailView(plantId: plant.id)
                                             .navigationTransition(.zoom(sourceID: plant.id, in: animationNamespace))
                                     } label: {
                                         PlantCardView(plant: plant, userId: userId, viewModel: viewModel, animationNamespace: animationNamespace, latitude: latitude)
