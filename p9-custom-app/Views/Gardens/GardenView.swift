@@ -245,20 +245,18 @@ struct PlantCardView: View {
                     PlantScene(scene: scene, yPadding: -0.1)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
-                        .matchedTransitionSource(id: plant.id, in: animationNamespace)
                 } else if viewModel.plantLoadingStates[plant.id] == true {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .matchedTransitionSource(id: plant.id, in: animationNamespace)
                 } else {
                     Image(systemName: "leaf.fill")
                         .font(.system(size: 40))
                         .foregroundStyle(.tertiary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .matchedTransitionSource(id: plant.id, in: animationNamespace)
                 }
             }
             .frame(height: 175)
+            .matchedTransitionSource(id: plant.id, in: animationNamespace)
             .overlay(alignment: .bottomTrailing) {
                 if urgentTasksCount > 0 {
                     Text("\(urgentTasksCount)")

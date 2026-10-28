@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SceneKit
 
 struct TaskDetailView: View {
     @EnvironmentObject private var taskStore: TaskStore
@@ -56,67 +57,6 @@ struct TaskDetailView: View {
         Group {
             if let task = task {
                 List {
-                    if showPlantReference, let plant {
-                        Section {
-                            NavigationLink(destination: PlantDetailView(plantId: plant.id)) {
-                                HStack(spacing: 12) {
-                                    if let uiImage = viewModel.uiImage {
-                                        Image(uiImage: uiImage)
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 60, height: 60)
-                                            .clipShape(Circle())
-                                    } else if viewModel.isLoadingImage {
-                                        ProgressView()
-                                            .frame(width: 60, height: 60)
-                                    } else {
-                                        Image(systemName: "leaf.fill")
-                                            .font(.system(size: 30))
-                                            .foregroundStyle(.tertiary)
-                                            .frame(width: 60, height: 60)
-                                            .background(Color(uiColor: .systemGray6))
-                                            .clipShape(Circle())
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(plant.name)
-                                            .font(.headline)
-                                            .multilineTextAlignment(.leading)
-                                            .lineLimit(2)
-                                        
-                                        Text(plant.species)
-                                            .font(.subheadline)
-                                            .foregroundStyle(.secondary)
-                                            .lineLimit(1)
-                                    }
-                                }
-                            }
-                        }
-                        .listRowBackground(
-                            Color.primary.opacity(0.05)
-                        )
-                        .task {
-                            await viewModel.loadImage(for: plant)
-                        }
-                    }
-                    
-                    Section {
-                        LabeledContent {
-                            Text(task.name)
-                        } label: {
-                            Text("Task")
-                        }
-                        
-                        LabeledContent {
-                            Text(task.instructions)
-                        } label: {
-                            Text("Instructions")
-                        }
-                    } header: {
-                        Text("Details")
-                    }
-                    .listRowBackground(Color.primary.opacity(0.05))
-                    
                     Section {
                         LabeledContent {
                             let days = task.daysUntilDue(latitude: latitude) ?? 1
@@ -145,6 +85,67 @@ struct TaskDetailView: View {
                                 Text("We’ve adjusted the current shedule based on upcoming local weather forecasts.")
                             }
                         }
+                    }
+                    .listRowBackground(Color.primary.opacity(0.05))
+                    
+                    Section {
+                        LabeledContent {
+                            Text(task.name)
+                        } label: {
+                            Text("Task")
+                        }
+                        
+                        if showPlantReference, let plant {
+                            NavigationLink {
+                                PlantDetailView(plantId: plant.id)
+                            } label: {
+                                LabeledContent {
+                                    HStack(spacing: 12) {
+                                        Group {
+                                            if let scene = viewModel.scene {
+                                                PlantScene(scene: scene, yPadding: -0.1)
+                                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                    .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
+                                            } else if viewModel.isLoadingModel == true {
+                                                ProgressView()
+                                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                            } else {
+                                                Image(systemName: "leaf.fill")
+                                                    .font(.system(size: 30))
+                                                    .foregroundStyle(.tertiary)
+                                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                            }
+                                        }
+                                        .frame(width: 100, height: 100)
+                                        
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(plant.name)
+                                                .font(.headline)
+                                                .multilineTextAlignment(.leading)
+                                                .lineLimit(2)
+                                            
+                                            Text(plant.species)
+                                                .font(.subheadline)
+                                                .foregroundStyle(.secondary)
+                                                .lineLimit(1)
+                                        }
+                                    }
+                                } label: {
+                                    Text("Plant")
+                                }
+                            }
+                            .task {
+                                await viewModel.loadModel(for: plant)
+                            }
+                        }
+                        
+                        LabeledContent {
+                            Text(task.instructions)
+                        } label: {
+                            Text("Instructions")
+                        }
+                    } header: {
+                        Text("Details")
                     }
                     .listRowBackground(Color.primary.opacity(0.05))
                     

@@ -11,6 +11,7 @@ struct TasksView: View {
     @EnvironmentObject private var taskStore: TaskStore
     @EnvironmentObject private var plantStore: PlantStore
     @EnvironmentObject private var gardenStore: GardenStore
+    @EnvironmentObject private var taskLogStore: TaskLogStore
     
     @State private var viewModel = TasksViewModel()
     
@@ -27,6 +28,39 @@ struct TasksView: View {
                             NavigationLink(destination: TaskDetailView(taskId: task.id, plantId: plant.id, showPlantReference: true)) {
                                 TaskRowView(task: task, plant: plant, latitude: lat)
                             }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button {
+                                    viewModel.taskToComplete = task
+                                    viewModel.showCompleteConfirmation = true
+                                } label: {
+                                    Label("Mark Complete", systemImage: "checkmark")
+                                }
+                                .tint(.green)
+                            }
+                            .confirmationDialog(
+                                "Complete Task",
+                                isPresented: Binding(
+                                    // Only show if showCompleteConfirmation is true and it matches this specific task.
+                                    get: { viewModel.showCompleteConfirmation && viewModel.taskToComplete?.id == task.id },
+                                    set: { isVisible in
+                                        if !isVisible {
+                                            viewModel.showCompleteConfirmation = false
+                                            viewModel.taskToComplete = nil
+                                        }
+                                    }
+                                ),
+                                titleVisibility: .visible
+                            ) {
+                                Button("Complete") {
+                                    viewModel.logTask(
+                                        task: task,
+                                        taskLogStore: taskLogStore,
+                                        taskStore: taskStore
+                                    )
+                                }
+                            } message: {
+                                Text("Are you sure you want to log this task as complete for the current cycle?")
+                            }
                         }
                     }
                 }
@@ -40,6 +74,39 @@ struct TasksView: View {
                             let lat = viewModel.latitude(for: task, plants: plantStore.plants, gardens: gardenStore.gardens)
                             NavigationLink(destination: TaskDetailView(taskId: task.id, plantId: plant.id, showPlantReference: true)) {
                                 TaskRowView(task: task, plant: plant, latitude: lat)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button {
+                                    viewModel.taskToComplete = task
+                                    viewModel.showCompleteConfirmation = true
+                                } label: {
+                                    Label("Mark Complete", systemImage: "checkmark")
+                                }
+                                .tint(.green)
+                            }
+                            .confirmationDialog(
+                                "Complete Task",
+                                isPresented: Binding(
+                                    // Only show if showCompleteConfirmation is true and it matches this specific task.
+                                    get: { viewModel.showCompleteConfirmation && viewModel.taskToComplete?.id == task.id },
+                                    set: { isVisible in
+                                        if !isVisible {
+                                            viewModel.showCompleteConfirmation = false
+                                            viewModel.taskToComplete = nil
+                                        }
+                                    }
+                                ),
+                                titleVisibility: .visible
+                            ) {
+                                Button("Complete") {
+                                    viewModel.logTask(
+                                        task: task,
+                                        taskLogStore: taskLogStore,
+                                        taskStore: taskStore
+                                    )
+                                }
+                            } message: {
+                                Text("Are you sure you want to log this task as complete for the current cycle?")
                             }
                         }
                     }
@@ -56,6 +123,20 @@ struct TasksView: View {
         .scrollContentBackground(.hidden)
         .navigationTitle("Tasks")
         .appBackground()
+        .sensoryFeedback(.error, trigger: viewModel.feedbackTrigger)
+        .alert("Error", isPresented: errorIsPresented) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            let alertError = viewModel.errors.first(where: { $0.showAlert })
+            Text(alertError?.localizedDescription ?? "An unknown error occurred.")
+        }
+    }
+    
+    private var errorIsPresented: Binding<Bool> {
+        Binding(
+            get: { viewModel.errors.contains(where: { $0.showAlert }) },
+            set: { if !$0 { viewModel.errors.removeAll { $0.showAlert } } }
+        )
     }
 }
 
@@ -82,14 +163,14 @@ struct TaskRowView: View {
             
             let days = task.daysUntilDue(latitude: latitude) ?? 1
             Text(task.dueStatusText(latitude: latitude))
-                .font(.caption.bold())
+                .font(.subheadline)
                 .foregroundStyle(days < 0 ? .red : (days == 0 ? .orange : .secondary))
                 .multilineTextAlignment(.trailing)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
                 .containerRelativeFrame(.horizontal, alignment: .trailing) { length, _ in
                     //15% of container.
-                    length * 0.15
+                    length * 0.20
                 }
         }
     }

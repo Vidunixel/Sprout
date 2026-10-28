@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Observation
+import SceneKit
 
 @Observable @MainActor class TaskDetailViewModel {
     var isLoading = false
@@ -14,8 +15,8 @@ import Observation
     var feedbackTrigger = false
     var showCompleteConfirmation = false
     
-    var uiImage: UIImage? = nil
-    var isLoadingImage = false
+    var scene: SCNScene? = nil
+    var isLoadingModel = false
     private let storageService = StorageService()
     
     func logTask(task: TaskModel, taskLogStore: TaskLogStore, taskStore: TaskStore) {
@@ -48,18 +49,25 @@ import Observation
         }
     }
     
-    func loadImage(for plant: Plant) async {
-        guard uiImage == nil, !isLoadingImage else { return }
+    func loadModel(for plant: Plant) async {
+        guard scene == nil, !isLoadingModel else { return }
         
-        isLoadingImage = true
+        isLoadingModel = true
         do {
-            let data = try await storageService.downloadPlantImage(userId: plant.userId, plantId: plant.id)
-            if let downloadedImage = UIImage(data: data) {
-                self.uiImage = downloadedImage
+            let tempUrl = FileManager.default.temporaryDirectory.appendingPathComponent("\(plant.id).usdz")
+            
+            // Check if the file already exists locally.
+            if !FileManager.default.fileExists(atPath: tempUrl.path) {
+                let data = try await storageService.downloadPlantModel(userId: plant.userId, plantId: plant.id)
+                try data.write(to: tempUrl)
             }
+            
+            let loadedScene = try SCNScene(url: tempUrl)
+            loadedScene.background.contents = UIColor.clear
+            self.scene = loadedScene
         } catch {
-            print("Failed to load plant image: \(error.localizedDescription)")
+            print("Failed to load 3D model for \(plant.name): \(error.localizedDescription)")
         }
-        isLoadingImage = false
+        isLoadingModel = false
     }
 }
