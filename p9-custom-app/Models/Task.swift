@@ -129,6 +129,23 @@ struct TaskModel: Codable, Identifiable, Hashable {
             return "In \(days) \(days == 1 ? "day" : "days")"
         }
     }
+    
+    var activeAdjustments: [WeatherAdjustment] {
+        guard let adjustments = weatherAdjustments else { return [] }
+        return adjustments.filter { adjustment in
+            adjustment.timelines?.contains(where: { $0.cycle == currentCycle }) ?? false
+        }
+    }
+    
+    var appliedConditions: String {
+        activeAdjustments.map { adjustment in
+            switch adjustment.name {
+            case "heavyRainMultiplier": return "Heavy Rain"
+            case "extremeHeatMultiplier": return "Extreme Heat"
+            default: return adjustment.name
+            }
+        }.joined(separator: ", ")
+    }
 }
 
 struct TaskInsert: Encodable {

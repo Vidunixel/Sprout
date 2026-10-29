@@ -28,29 +28,16 @@ struct TaskDetailView: View {
         plantStore.plants.first(where: { $0.id == plantId })
     }
     
+    var garden: Garden? {
+        guard let plant else { return nil }
+        return gardenStore.gardens.first(where: { $0.id == plant.gardenId })
+    }
+    
     var latitude: Double? {
-        if let plant = plantStore.plants.first(where: { $0.id == plantId }),
-           let garden = gardenStore.gardens.first(where: { $0.id == plant.gardenId }) {
-            return garden.geoLocation.first
+        if let garden {
+           return garden.geoLocation.first
         }
         return nil
-    }
-    
-    var activeAdjustments: [WeatherAdjustment] {
-        guard let task = task, let adjustments = task.weatherAdjustments else { return [] }
-        return adjustments.filter { adjustment in
-            adjustment.timelines?.contains(where: { $0.cycle == task.currentCycle }) ?? false
-        }
-    }
-    
-    var appliedConditions: String {
-        activeAdjustments.map { adjustment in
-            switch adjustment.name {
-            case "heavyRainMultiplier": return "Heavy Rain"
-            case "extremeHeatMultiplier": return "Extreme Heat"
-            default: return adjustment.name
-            }
-        }.joined(separator: ", ")
     }
     
     var body: some View {
@@ -60,22 +47,39 @@ struct TaskDetailView: View {
                     Section {
                         LabeledContent {
                             let days = task.daysUntilDue(latitude: latitude) ?? 1
-                            Text(task.dueStatusText(latitude: latitude))
-                                .foregroundStyle(days < 0 ? .red : (days == 0 ? .orange : .secondary))
+                            if days <= 0 {
+                                let isOverdue = days < 0
+                                let badgeColor: Color = isOverdue ? .red : .orange
+                                
+                                HStack(spacing: 4) {
+                                    Image(systemName: isOverdue ? "exclamationmark.circle.fill" : "clock.fill")
+                                    Text(task.dueStatusText(latitude: latitude))
+                                }
+                                .font(.subheadline.bold())
+                                .foregroundStyle(badgeColor)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(badgeColor.opacity(0.15))
+                                .clipShape(Capsule())
+                                .brightness(-0.1)
+                            } else {
+                                Text(task.dueStatusText(latitude: latitude))
+                                    .font(.subheadline)
+                            }
                         } label: {
                             Text("Status")
                         }
                         
                         LabeledContent("Current Cycle", value: "\(task.currentCycle)")
                         
-                        if !activeAdjustments.isEmpty {
-                            LabeledContent("Weather Adjustments", value: appliedConditions)
+                        if !task.activeAdjustments.isEmpty {
+                            LabeledContent("Weather Adjustments", value: task.appliedConditions)
                         }
                     } header: {
                         Text("Schedule")
                     } footer: {
-                        if !activeAdjustments.isEmpty {
-                            let combinedMultiplier = activeAdjustments.reduce(1.0) { $0 * $1.multiplier }
+                        if !task.activeAdjustments.isEmpty {
+                            let combinedMultiplier = task.activeAdjustments.reduce(1.0) { $0 * $1.multiplier }
                                     
                             if combinedMultiplier < 1.0 {
                                 Text("We’ve sped up the current shedule based on upcoming local weather forecasts.")
@@ -136,6 +140,14 @@ struct TaskDetailView: View {
                             }
                             .task {
                                 await viewModel.loadModel(for: plant)
+                            }
+                        }
+                        
+                        if let garden {
+                            LabeledContent {
+                                Text("\(garden.name) (\(garden.city))")
+                            } label: {
+                                Text("Garden")
                             }
                         }
                         

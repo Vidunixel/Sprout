@@ -125,10 +125,27 @@ struct PlantDetailPanelView: View {
                             NavigationLink {
                                 TaskDetailView(taskId: task.id, plantId: plant.id)
                             } label: {
+                                let days = task.daysUntilDue(latitude: latitude) ?? 1
                                 LabeledContent {
-                                    Text(task.dueStatusText(latitude: latitude))
-                                        .foregroundStyle((task.daysUntilDue(latitude: latitude) ?? 1) < 0 ? .red : .secondary)
-                                        .lineLimit(1)
+                                    if days <= 0 {
+                                        let isOverdue = days < 0
+                                        let badgeColor: Color = isOverdue ? .red : .orange
+                                        
+                                        HStack(spacing: 4) {
+                                            Image(systemName: isOverdue ? "exclamationmark.circle.fill" : "clock.fill")
+                                            Text(task.dueStatusText(latitude: latitude))
+                                        }
+                                        .font(.subheadline.bold())
+                                        .foregroundStyle(badgeColor)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(badgeColor.opacity(0.15))
+                                        .clipShape(Capsule())
+                                        .brightness(-0.1)
+                                    } else {
+                                        Text(task.dueStatusText(latitude: latitude))
+                                            .font(.subheadline)
+                                    }
                                 } label: {
                                     Text(task.name)
                                         .lineLimit(1)
@@ -229,6 +246,7 @@ struct PlantDetailPanelView: View {
                     } label: {
                         Image(systemName: "trash").fontWeight(.semibold)
                     }
+                    .tint(.red)
                     .disabled(viewModel.isLoading)
                     .confirmationDialog(
                         "Delete Plant",

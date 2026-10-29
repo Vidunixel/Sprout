@@ -161,17 +161,45 @@ struct TaskRowView: View {
             
             Spacer()
             
-            let days = task.daysUntilDue(latitude: latitude) ?? 1
-            Text(task.dueStatusText(latitude: latitude))
-                .font(.subheadline)
-                .foregroundStyle(days < 0 ? .red : (days == 0 ? .orange : .secondary))
-                .multilineTextAlignment(.trailing)
-                .lineLimit(nil)
-                .fixedSize(horizontal: false, vertical: true)
-                .containerRelativeFrame(.horizontal, alignment: .trailing) { length, _ in
-                    //15% of container.
-                    length * 0.20
+            VStack(alignment: .trailing, spacing: 4) {
+                let days = task.daysUntilDue(latitude: latitude) ?? 1
+                if days <= 0 {
+                    let isOverdue = days < 0
+                    let badgeColor: Color = isOverdue ? .red : .orange
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: isOverdue ? "exclamationmark.circle.fill" : "clock.fill")
+                        Text(task.dueStatusText(latitude: latitude))
+                    }
+                    .font(.caption.bold())
+                    .foregroundStyle(badgeColor)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(badgeColor.opacity(0.15))
+                    .clipShape(Capsule())
+                    .brightness(-0.1)
+                } else {
+                    Text(task.dueStatusText(latitude: latitude))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.trailing)
                 }
+                
+                if !task.activeAdjustments.isEmpty {
+                    HStack(spacing: 3) {
+                        Image(systemName: "clock.arrow.trianglehead.2.counterclockwise.rotate.90")
+                        Text("Weather adjusted")
+                    }
+                    .font(.caption2.bold())
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.secondary.opacity(0.15))
+                    .foregroundColor(.secondary)
+                    .clipShape(Capsule())
+                }
+            }
+            .lineLimit(1)
         }
     }
 }
