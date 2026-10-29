@@ -65,7 +65,6 @@ struct TaskDetailView: View {
                                 .clipShape(Capsule())
                             } else {
                                 Text(task.dueStatusText(latitude: latitude))
-                                    .font(.subheadline)
                             }
                         } label: {
                             Text("Status")

@@ -53,8 +53,18 @@ class RootViewModel {
         await weatherAdjustmentStore.fetchAdjustments(for: userId)
         await weatherAdjustmentTimelineStore.fetchTimelines(for: userId)
         
-        // Evaluate weather adjustments.
-        _ = await weatherEvaluationService.evaluateAndSync(gardens: gardenStore.gardens)
+        // Handle initial notification permissions if no userdefault is set.
+        if UserDefaults.standard.object(forKey: "isTaskRemindersEnabled") == nil {
+            UserDefaults.standard.set(true, forKey: "isTaskRemindersEnabled")
+            NotificationService.shared.requestPermission { granted in
+                if !granted {
+                    UserDefaults.standard.set(false, forKey: "isTaskRemindersEnabled")
+                }
+            }
+        }
+        
+        // Evaluate weather adjustments and sync notifications.
+        await evaluateWeatherAndSyncNotifications(userId: userId, gardenStore: gardenStore, plantStore: plantStore, taskStore: taskStore)
         
         // Listen to db changes.
         realtimeService = RealtimeService(
@@ -67,6 +77,26 @@ class RootViewModel {
             weatherAdjustmentTimelineStore: weatherAdjustmentTimelineStore
         )
         await realtimeService?.startListening()
+    }
+    
+    func evaluateWeatherAndSyncNotifications(
+        userId: UUID,
+        gardenStore: GardenStore,
+        plantStore: PlantStore,
+        taskStore: TaskStore
+    ) async {
+        // Evaluate weather adjustments.
+        _ = await weatherEvaluationService.evaluateAndSync(gardens: gardenStore.gardens)
+        
+        // Sync notifications if enabled.
+        if UserDefaults.standard.bool(forKey: "isTaskRemindersEnabled") {
+            await taskStore.fetchTasks(for: userId) // Fetch fresh tasks (realtime may be delayed).
+            NotificationService.shared.syncNotifications(
+                tasks: taskStore.tasks,
+                plants: plantStore.plants,
+                gardens: gardenStore.gardens
+            )
+        }
     }
     
     

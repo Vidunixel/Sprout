@@ -11,6 +11,8 @@ import Supabase
 struct AccountView: View {
     @EnvironmentObject private var authService: AuthService
     @EnvironmentObject private var plantStore: PlantStore
+    @EnvironmentObject private var taskStore: TaskStore
+    @EnvironmentObject private var gardenStore: GardenStore
     
     @State private var viewModel = AccountViewModel()
     
@@ -107,7 +109,7 @@ struct AccountView: View {
             } header: {
                 Text("Notifications")
             } footer: {
-                Text("We only notify you when a plant genuinely needs you.")
+                Text("Notify me of tasks on their due dates.")
             }
             .listRowBackground(Color.primary.opacity(0.05))
             
@@ -142,7 +144,7 @@ struct AccountView: View {
             Section {
                 HStack {
                     Spacer()
-                    Text("Sprout v1 · Made with 🖤 by Vidun Herath")
+                    Text("Sprout v1 · Made with 💚 by Vidun Herath")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Spacer()
@@ -154,6 +156,17 @@ struct AccountView: View {
         .navigationBarTitleDisplayMode(.large)
         .scrollContentBackground(.hidden)
         .appBackground()
+        .onChange(of: viewModel.isTaskRemindersEnabled) { _, newValue in
+            if newValue {
+                NotificationService.shared.syncNotifications(
+                    tasks: taskStore.tasks,
+                    plants: plantStore.plants,
+                    gardens: gardenStore.gardens
+                )
+            } else {
+                NotificationService.shared.clearAllNotifications()
+            }
+        }
         .sensoryFeedback(.error, trigger: viewModel.feedbackTrigger)
         .alert("Error", isPresented: errorIsPresented) {
             Button("OK", role: .cancel) { }

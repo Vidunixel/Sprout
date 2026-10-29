@@ -50,7 +50,7 @@ struct HistoryRowView: View {
     let viewModel: HistoryViewModel
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(task.name)
                     .font(.headline)
@@ -67,16 +67,16 @@ struct HistoryRowView: View {
             
             VStack(alignment: .trailing, spacing: 6) {
                 Text(viewModel.formatDate(log.createdAt))
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.trailing)
                     .lineLimit(2)
                 
                 Text("Cycle \(log.cycle)")
-                    .font(.caption2.bold())
+                    .font(.caption.bold())
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
                     .background(Color.secondary.opacity(0.15))
                     .foregroundColor(.secondary)
                     .clipShape(Capsule())

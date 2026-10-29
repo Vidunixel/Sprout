@@ -9,6 +9,7 @@ import SwiftUI
 import Supabase
 
 struct RootView: View {
+    @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var authService: AuthService
     @StateObject private var gardenStore = GardenStore()
     @StateObject private var plantStore = PlantStore()
@@ -74,6 +75,33 @@ struct RootView: View {
         }
         .onOpenURL { url in
             viewModel.handleOpenURL(url)
+        }
+        .onChange(of: authService.session) { _, newSession in
+            // If the session is nil, the user just logged out.
+            if newSession == nil {
+                Task {
+                    await viewModel.cleanup()
+                }
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active && !viewModel.isBooting {
+                if let userId = authService.session?.user.id {
+                    Task {
+                        // Evaluate weather adjustments and sync notifications.
+                        await viewModel.evaluateWeatherAndSyncNotifications(userId: userId, gardenStore: gardenStore, plantStore: plantStore, taskStore: taskStore)
+                    }
+                }
+            }
+        }
+        .onChange(of: taskStore.tasks) { _, _ in
+            if !viewModel.isBooting {
+                NotificationService.shared.syncNotifications(
+                    tasks: taskStore.tasks,
+                    plants: plantStore.plants,
+                    gardens: gardenStore.gardens
+                )
+            }
         }
     }
 }

@@ -107,6 +107,12 @@ struct TaskModel: Codable, Identifiable, Hashable {
         return Calendar.current.date(byAdding: .day, value: adjustedDays, to: cycleStartDate)
     }
     
+    // Return due date at 9am.
+    func notificationDate(latitude: Double? = nil) -> Date? {
+        guard let due = dueDate(latitude: latitude) else { return nil }
+        return Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: due)
+    }
+    
     func daysUntilDue(latitude: Double? = nil) -> Int? {
         guard let finalDue = dueDate(latitude: latitude) else { return nil }
         let calendar = Calendar.current

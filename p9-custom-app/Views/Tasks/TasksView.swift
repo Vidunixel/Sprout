@@ -146,7 +146,7 @@ struct TaskRowView: View {
     let latitude: Double?
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(task.name)
                     .font(.headline)
@@ -173,15 +173,14 @@ struct TaskRowView: View {
                         Text(task.dueStatusText(latitude: latitude))
                             .brightness(-0.1)
                     }
-                    .font(.caption.bold())
+                    .font(.subheadline.bold())
                     .foregroundStyle(badgeColor)
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 3)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
                     .background(badgeColor.opacity(0.15))
                     .clipShape(Capsule())
                 } else {
                     Text(task.dueStatusText(latitude: latitude))
-                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.trailing)
                 }
