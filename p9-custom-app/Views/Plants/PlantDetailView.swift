@@ -133,15 +133,16 @@ struct PlantDetailPanelView: View {
                                         
                                         HStack(spacing: 4) {
                                             Image(systemName: isOverdue ? "exclamationmark.circle.fill" : "clock.fill")
+                                                .brightness(-0.1)
                                             Text(task.dueStatusText(latitude: latitude))
+                                                .brightness(-0.1)
                                         }
-                                        .font(.subheadline.bold())
+                                        .font(.caption.bold())
                                         .foregroundStyle(badgeColor)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
+                                        .padding(.horizontal, 7)
+                                        .padding(.vertical, 3)
                                         .background(badgeColor.opacity(0.15))
                                         .clipShape(Capsule())
-                                        .brightness(-0.1)
                                     } else {
                                         Text(task.dueStatusText(latitude: latitude))
                                             .font(.subheadline)
@@ -246,7 +247,6 @@ struct PlantDetailPanelView: View {
                     } label: {
                         Image(systemName: "trash").fontWeight(.semibold)
                     }
-                    .tint(.red)
                     .disabled(viewModel.isLoading)
                     .confirmationDialog(
                         "Delete Plant",

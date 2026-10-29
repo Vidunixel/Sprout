@@ -53,7 +53,9 @@ struct TaskDetailView: View {
                                 
                                 HStack(spacing: 4) {
                                     Image(systemName: isOverdue ? "exclamationmark.circle.fill" : "clock.fill")
+                                        .brightness(-0.1)
                                     Text(task.dueStatusText(latitude: latitude))
+                                        .brightness(-0.1)
                                 }
                                 .font(.subheadline.bold())
                                 .foregroundStyle(badgeColor)
@@ -61,7 +63,6 @@ struct TaskDetailView: View {
                                 .padding(.vertical, 4)
                                 .background(badgeColor.opacity(0.15))
                                 .clipShape(Capsule())
-                                .brightness(-0.1)
                             } else {
                                 Text(task.dueStatusText(latitude: latitude))
                                     .font(.subheadline)
