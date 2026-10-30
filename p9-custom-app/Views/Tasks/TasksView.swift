@@ -21,9 +21,19 @@ struct TasksView: View {
         
         Group {
             if urgent.isEmpty && upcoming.isEmpty {
-                Text("No tasks currently available.")
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                VStack(spacing: 24) {
+                    Image(uiImage: .task)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 100, height: 100)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipped()
+                    
+                    Text("No tasks currently available.")
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
                     if !urgent.isEmpty {

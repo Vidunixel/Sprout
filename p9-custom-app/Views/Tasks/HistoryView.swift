@@ -19,9 +19,19 @@ struct HistoryView: View {
         
         Group {
             if logs.isEmpty {
-                Text("No completed tasks yet.")
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                VStack(spacing: 24) {
+                    Image(uiImage: .schedule)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 100, height: 100)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipped()
+                    
+                    Text("No completed tasks yet.")
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
                     Section("Completed Tasks") {
