@@ -28,11 +28,14 @@ struct HistoryView: View {
                         ForEach(logs) { log in
                             if let task = taskStore.tasks.first(where: { $0.id == log.taskId }),
                                let plant = plantStore.plants.first(where: { $0.id == task.plantId }) {
-                                HistoryRowView(log: log, task: task, plant: plant, viewModel: viewModel)
+                                NavigationLink(destination: TaskDetailView(taskId: task.id, plantId: plant.id, showPlantReference: true, taskLogId: log.id)) {
+                                    HistoryRowView(log: log, task: task, plant: plant, viewModel: viewModel)
+                                }
                             }
                         }
                     }
                     .listRowBackground(Color.primary.opacity(0.05))
+                    .navigationLinkIndicatorVisibility(.hidden)
                 }
                 .listRowSeparator(.hidden)
                 .listRowSpacing(12)

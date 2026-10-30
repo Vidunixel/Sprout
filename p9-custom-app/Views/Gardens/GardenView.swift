@@ -55,7 +55,7 @@ struct GardenView: View {
                 }
                 .padding(28)
                 .containerRelativeFrame(.vertical)
-            } else if selectedGarden != nil {
+            } else if let garden = selectedGarden {
                 // Plant grid
                 if let plants = selectedGarden?.plants {
                     if plants.isEmpty {

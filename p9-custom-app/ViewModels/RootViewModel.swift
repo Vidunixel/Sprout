@@ -78,7 +78,26 @@ class RootViewModel {
             weatherAdjustmentStore: weatherAdjustmentStore,
             weatherAdjustmentTimelineStore: weatherAdjustmentTimelineStore
         )
-        await realtimeService?.startListening()
+        
+        Task {
+            await realtimeService?.startListening()
+            
+            // Re-fetch data and evaluate weather once realtime connects.
+            // This ensures data loads if the app was launched offline and internet is restored.
+            let needsRefetch = gardenStore.errorMessage != nil || plantStore.errorMessage != nil || taskStore.errorMessage != nil
+            
+            if needsRefetch {
+                async let fetchGardens: () = gardenStore.fetchGardens(for: userId)
+                async let fetchPlants: () = plantStore.fetchPlants(for: userId)
+                async let fetchLogs: () = taskLogStore.fetchLogs(for: userId)
+                async let fetchTasks: () = taskStore.fetchTasks(for: userId)
+                async let fetchAdjustments: () = weatherAdjustmentStore.fetchAdjustments(for: userId)
+                async let fetchTimelines: () = weatherAdjustmentTimelineStore.fetchTimelines(for: userId)
+                _ = await (fetchGardens, fetchPlants, fetchLogs, fetchTasks, fetchAdjustments, fetchTimelines)
+                
+                await self.evaluateWeatherAndSyncNotifications(userId: userId, gardenStore: gardenStore, plantStore: plantStore, taskStore: taskStore)
+            }
+        }
     }
     
     func evaluateWeatherAndSyncNotifications(

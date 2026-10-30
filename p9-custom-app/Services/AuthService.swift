@@ -105,4 +105,15 @@ final class AuthService: ObservableObject {
             throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
         }
     }
+    
+    func updateFullName(newName: String) async throws {
+        do {
+            try await supabase.auth.update(
+                user: UserAttributes(data: ["display_name": .string(newName)])
+            )
+        } catch let error as AuthError {
+            print(error)
+            throw AppError(error.localizedDescription, error.errorCode.rawValue, showAlert: true)
+        }
+    }
 }

@@ -10,13 +10,14 @@ import SceneKit
 
 struct TaskDetailView: View {
     @EnvironmentObject private var taskStore: TaskStore
+    @EnvironmentObject private var taskLogStore: TaskLogStore
     @EnvironmentObject private var plantStore: PlantStore
     @EnvironmentObject private var gardenStore: GardenStore
-    @EnvironmentObject private var taskLogStore: TaskLogStore
     
     let taskId: Int
     let plantId: Int
     var showPlantReference: Bool = false
+    var taskLogId: Int?
     
     @State private var viewModel = TaskDetailViewModel()
     
@@ -33,6 +34,10 @@ struct TaskDetailView: View {
         return gardenStore.gardens.first(where: { $0.id == plant.gardenId })
     }
     
+    var taskLog: TaskLog? {
+        taskLogStore.logs.first(where: { $0.id == taskLogId })
+    }
+    
     var latitude: Double? {
         if let garden {
            return garden.geoLocation.first
@@ -40,34 +45,97 @@ struct TaskDetailView: View {
         return nil
     }
     
+    private var logCompletionStatus: (text: String, color: Color) {
+        if let taskLog {
+            let calendar = Calendar.current
+            let dueStart = calendar.startOfDay(for: taskLog.dueDate)
+            let completedStart = calendar.startOfDay(for: taskLog.createdAt)
+            
+            let diff = calendar.dateComponents([.day], from: dueStart, to: completedStart).day ?? 0
+            
+            if diff < 0 {
+                return ("Early", .orange)
+            } else if diff > 0 {
+                return ("Late", .red)
+            } else {
+                return ("On time", .green)
+            }
+        }
+        
+        return ("Unknown", .secondary)
+    }
+    
     var body: some View {
         Group {
             if let task = task {
                 List {
+                    if let taskLog {
+                        Section {
+                            LabeledContent("Due Date", value: "\(viewModel.formatTaskDueDate(taskLog.dueDate))")
+                            
+                            LabeledContent {
+                                VStack(alignment: .trailing, spacing: 6) {
+                                    Text(viewModel.formatTaskLogDate(taskLog.createdAt))
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                        .multilineTextAlignment(.trailing)
+                                        .lineLimit(2)
+                                    
+                                    Group {
+                                        Text(logCompletionStatus.text)
+                                            .brightness(-0.1)
+                                    }
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(logCompletionStatus.color)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(logCompletionStatus.color.opacity(0.15))
+                                    .clipShape(Capsule())
+                                }
+                            } label: {
+                                Text("Date Completed")
+                            }
+                            
+                            LabeledContent("Cycle", value: "\(taskLog.cycle)")
+                        } header: {
+                            Text("Log")
+                        }
+                        .listRowBackground(Color.primary.opacity(0.05))
+                    }
+                    
                     Section {
                         LabeledContent {
-                            let days = task.daysUntilDue(latitude: latitude) ?? 1
-                            if days <= 0 {
-                                let isOverdue = days < 0
-                                let badgeColor: Color = isOverdue ? .red : .orange
-                                
-                                HStack(spacing: 4) {
-                                    Image(systemName: isOverdue ? "exclamationmark.circle.fill" : "clock.fill")
-                                        .brightness(-0.1)
-                                    Text(task.dueStatusText(latitude: latitude))
-                                        .brightness(-0.1)
+                            VStack(alignment: .trailing, spacing: 6) {
+                                if let dueDate = task.dueDate(latitude: latitude) {
+                                    Text(viewModel.formatTaskDueDate(dueDate))
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                        .multilineTextAlignment(.trailing)
+                                        .lineLimit(2)
                                 }
-                                .font(.subheadline.bold())
-                                .foregroundStyle(badgeColor)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(badgeColor.opacity(0.15))
-                                .clipShape(Capsule())
-                            } else {
-                                Text(task.dueStatusText(latitude: latitude))
+                                let days = task.daysUntilDue(latitude: latitude) ?? 1
+                                if days <= 0 {
+                                    let isOverdue = days < 0
+                                    let badgeColor: Color = isOverdue ? .red : .orange
+                                    
+                                    HStack(spacing: 4) {
+                                        Image(systemName: isOverdue ? "exclamationmark.circle.fill" : "clock.fill")
+                                            .brightness(-0.1)
+                                        Text(task.dueStatusText(latitude: latitude))
+                                            .brightness(-0.1)
+                                    }
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(badgeColor)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(badgeColor.opacity(0.15))
+                                    .clipShape(Capsule())
+                                } else {
+                                    Text(task.dueStatusText(latitude: latitude))
+                                }
                             }
                         } label: {
-                            Text("Status")
+                            Text("Due Next")
                         }
                         
                         LabeledContent("Current Cycle", value: "\(task.currentCycle)")
@@ -94,9 +162,28 @@ struct TaskDetailView: View {
                     
                     Section {
                         LabeledContent {
-                            Text(task.name)
+                            HStack(spacing: 8) {
+                                ZStack {
+                                    Circle()
+                                        .fill(task.symbolColor.opacity(0.15))
+                                        .frame(width: 30, height: 30)
+                                    
+                                    Image(systemName: task.sfSymbol ?? "leaf.fill")
+                                        .font(.subheadline)
+                                        .foregroundStyle(task.symbolColor)
+                                        .brightness(-0.1)
+                                }
+                                
+                                Text(task.name)
+                            }
                         } label: {
                             Text("Task")
+                        }
+                        
+                        LabeledContent {
+                            Text(task.instructions)
+                        } label: {
+                            Text("Instructions")
                         }
                         
                         if showPlantReference, let plant {
@@ -104,7 +191,7 @@ struct TaskDetailView: View {
                                 PlantDetailView(plantId: plant.id)
                             } label: {
                                 LabeledContent {
-                                    HStack(spacing: 12) {
+                                    HStack(spacing: 8) {
                                         Group {
                                             if let scene = viewModel.scene {
                                                 PlantScene(scene: scene, yPadding: -0.1)
@@ -149,12 +236,6 @@ struct TaskDetailView: View {
                             } label: {
                                 Text("Garden")
                             }
-                        }
-                        
-                        LabeledContent {
-                            Text(task.instructions)
-                        } label: {
-                            Text("Instructions")
                         }
                     } header: {
                         Text("Details")

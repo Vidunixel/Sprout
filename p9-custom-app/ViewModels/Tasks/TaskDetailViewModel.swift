@@ -49,6 +49,20 @@ import SceneKit
         }
     }
     
+    func formatTaskDueDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+    
+    func formatTaskLogDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+    
     func loadModel(for plant: Plant) async {
         guard scene == nil, !isLoadingModel else { return }
         

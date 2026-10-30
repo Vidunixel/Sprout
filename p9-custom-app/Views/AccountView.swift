@@ -86,7 +86,7 @@ struct AccountView: View {
             .listRowBackground(Color.primary.opacity(0.05))
             
             Section {
-                NavigationLink(destination: Text("Personal details coming soon...")) {
+                NavigationLink(destination: EditProfileView(currentName: displayName)) {
                     Label {
                         Text("Personal details")
                     } icon: {
@@ -127,15 +127,12 @@ struct AccountView: View {
             .listRowBackground(Color.primary.opacity(0.05))
             
             Section {
-                Button(action: { viewModel.signOut(authService: authService) }) {
-                    HStack {
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .padding(.trailing, 8)
-                        }
-                        Text("Sign out")
-                            .foregroundStyle(.red)
-                    }
+                Button(action: {
+                    viewModel.signOut(authService: authService)
+                }) {
+                    Label("Sign out", systemImage: "rectangle.portrait.and.arrow.forward")
+                        .tint(.red)
+                        .foregroundStyle(.red)
                 }
                 .disabled(viewModel.isLoading)
             }

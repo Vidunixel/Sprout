@@ -235,12 +235,18 @@ struct PlantDetailPanelView: View {
                     .tint(nil)
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.showDeletePlantConfirmation = true
+                    Menu {
+                        Button(role: .destructive) {
+                            viewModel.showDeletePlantConfirmation = true
+                        } label: {
+                            Label("Delete Plant", systemImage: "trash")
+                                .tint(.red)
+                                .foregroundStyle(.red)
+                        }
+                        .disabled(viewModel.isLoading)
                     } label: {
-                        Image(systemName: "trash").fontWeight(.semibold)
+                        Image(systemName: "ellipsis")
                     }
-                    .disabled(viewModel.isLoading)
                     .confirmationDialog(
                         "Delete Plant",
                         isPresented: $viewModel.showDeletePlantConfirmation,

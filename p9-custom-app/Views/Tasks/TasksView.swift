@@ -72,6 +72,7 @@ struct TasksView: View {
                             }
                         }
                         .listRowBackground(Color.primary.opacity(0.05))
+                        .navigationLinkIndicatorVisibility(.hidden)
                     }
                     
                     if !upcoming.isEmpty {
@@ -120,6 +121,7 @@ struct TasksView: View {
                             }
                         }
                         .listRowBackground(Color.primary.opacity(0.05))
+                        .navigationLinkIndicatorVisibility(.hidden)
                     }
                 }
                 .listRowSeparator(.hidden)
