@@ -138,10 +138,6 @@ struct GardenView: View {
                     }
                     
                 }
-            } else {
-                Text("Garden not found.")
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .sheet(isPresented: $viewModel.showAddPlantView) {
