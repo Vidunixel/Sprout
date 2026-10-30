@@ -19,23 +19,23 @@ import SceneKit
     var isLoadingModel = false
     private let storageService = StorageService()
     
-    func logTask(task: TaskModel, taskLogStore: TaskLogStore, taskStore: TaskStore) {
+    func logTask(task: TaskModel, dueDate: Date?, taskLogStore: TaskLogStore, taskStore: TaskStore) {
         isLoading = true
         Task {
             defer { isLoading = false }
             errors = []
             
+            guard let dueDate else {
+                errors.append(AppError("Task does not have a due date.", showAlert: true))
+                return
+            }
+            
             do {
                 // Log the completed cycle.
                 _ = try await taskLogStore.createLog(
                     taskId: task.id,
-                    cycle: task.currentCycle
-                )
-                
-                // Increment the current cycle on the task.
-                try await taskStore.incrementTaskCycle(
-                    taskId: task.id,
-                    currentCycle: task.currentCycle
+                    cycle: task.currentCycle,
+                    dueDate: dueDate
                 )
             } catch let error as AppError {
                 errors.append(error)

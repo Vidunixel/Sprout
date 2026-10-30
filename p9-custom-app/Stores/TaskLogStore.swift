@@ -31,10 +31,11 @@ final class TaskLogStore: ObservableObject {
         }
     }
     
-    func createLog(taskId: Int, cycle: Int) async throws -> TaskLog {
+    func createLog(taskId: Int, cycle: Int, dueDate: Date) async throws -> TaskLog {
         let newLog = TaskLogInsert(
             taskId: taskId,
-            cycle: cycle
+            cycle: cycle,
+            dueDate: dueDate
         )
         
         let response: TaskLog = try await supabase

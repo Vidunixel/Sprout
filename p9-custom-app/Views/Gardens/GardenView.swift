@@ -97,13 +97,6 @@ struct GardenView: View {
                                     }
                                     .buttonStyle(.plain)
                                     .contextMenu {
-                                        Button {
-                                            
-                                        } label: {
-                                            Label("Edit", systemImage: "pencil")
-                                        }
-                                        .tint(nil)
-                                        
                                         Button(role: .destructive) {
                                             viewModel.plantToDelete = plant
                                             viewModel.showDeletePlantConfirmation = true

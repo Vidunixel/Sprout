@@ -21,7 +21,6 @@ struct HistoryView: View {
             if logs.isEmpty {
                 Text("No completed tasks yet.")
                     .foregroundStyle(.secondary)
-                    .listRowBackground(Color.clear)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
@@ -35,6 +34,8 @@ struct HistoryView: View {
                     }
                     .listRowBackground(Color.primary.opacity(0.05))
                 }
+                .listRowSeparator(.hidden)
+                .listRowSpacing(12)
             }
         }
         .scrollContentBackground(.hidden)
@@ -49,13 +50,49 @@ struct HistoryRowView: View {
     let plant: Plant
     let viewModel: HistoryViewModel
     
+    private var completionStatus: (text: String, color: Color) {
+        let calendar = Calendar.current
+        let dueStart = calendar.startOfDay(for: log.dueDate)
+        let completedStart = calendar.startOfDay(for: log.createdAt)
+        
+        let diff = calendar.dateComponents([.day], from: dueStart, to: completedStart).day ?? 0
+        
+        if diff < 0 {
+            return ("Early", .orange)
+        } else if diff > 0 {
+            return ("Late", .red)
+        } else {
+            return ("On time", .green)
+        }
+    }
+    
     var body: some View {
         HStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(task.symbolColor.opacity(0.15))
+                    .frame(width: 40, height: 40)
+                
+                Image(systemName: task.sfSymbol ?? "leaf.fill")
+                    .font(.title3)
+                    .foregroundStyle(task.symbolColor)
+                    .brightness(-0.1)
+            }
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(task.name)
                     .font(.headline)
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
+                
+                Text("Cycle \(log.cycle)")
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(Color.secondary.opacity(0.15))
+                    .foregroundColor(.secondary)
+                    .clipShape(Capsule())
                 
                 Text(plant.name)
                     .font(.subheadline)
@@ -67,19 +104,21 @@ struct HistoryRowView: View {
             
             VStack(alignment: .trailing, spacing: 6) {
                 Text(viewModel.formatDate(log.createdAt))
-                    .font(.subheadline)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.trailing)
                     .lineLimit(2)
                 
-                Text("Cycle \(log.cycle)")
-                    .font(.caption.bold())
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 3)
-                    .background(Color.secondary.opacity(0.15))
-                    .foregroundColor(.secondary)
-                    .clipShape(Capsule())
+                Group {
+                    Text(completionStatus.text)
+                        .brightness(-0.1)
+                }
+                .font(.caption.bold())
+                .foregroundStyle(completionStatus.color)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 3)
+                .background(completionStatus.color.opacity(0.15))
+                .clipShape(Capsule())
             }
             .lineLimit(1)
         }

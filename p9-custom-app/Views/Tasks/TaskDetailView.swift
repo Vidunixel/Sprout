@@ -202,6 +202,7 @@ struct TaskDetailView: View {
                         if let currentTask = task {
                             viewModel.logTask(
                                 task: currentTask,
+                                dueDate: currentTask.dueDate(latitude: latitude),
                                 taskLogStore: taskLogStore,
                                 taskStore: taskStore
                             )

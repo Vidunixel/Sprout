@@ -236,12 +236,6 @@ struct PlantDetailPanelView: View {
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
-                        
-                    } label: {
-                        Image(systemName: "pencil").fontWeight(.semibold)
-                    }
-                    
-                    Button {
                         viewModel.showDeletePlantConfirmation = true
                     } label: {
                         Image(systemName: "trash").fontWeight(.semibold)

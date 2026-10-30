@@ -51,23 +51,30 @@ class TasksViewModel {
         }
     }
     
-    func logTask(task: TaskModel, taskLogStore: TaskLogStore, taskStore: TaskStore) {
+    func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+    
+    func logTask(task: TaskModel, dueDate: Date?, taskLogStore: TaskLogStore, taskStore: TaskStore) {
         isLoading = true
         Task {
             defer { isLoading = false }
             errors = []
             
+            guard let dueDate else {
+                errors.append(AppError("Task does not have a due date.", showAlert: true))
+                return
+            }
+            
             do {
                 // Log the completed cycle.
                 _ = try await taskLogStore.createLog(
                     taskId: task.id,
-                    cycle: task.currentCycle
-                )
-                
-                // Increment the current cycle on the task.
-                try await taskStore.incrementTaskCycle(
-                    taskId: task.id,
-                    currentCycle: task.currentCycle
+                    cycle: task.currentCycle,
+                    dueDate: dueDate
                 )
             } catch let error as AppError {
                 errors.append(error)

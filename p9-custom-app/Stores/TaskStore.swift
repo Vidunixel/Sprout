@@ -34,6 +34,8 @@ final class TaskStore: ObservableObject {
     func createTask(
         plantId: Int,
         name: String,
+        sfSymbol: String? = nil,
+        sfSymbolColour: String? = nil,
         instructions: String,
         springIntervalDays: Int? = nil,
         summerIntervalDays: Int? = nil,
@@ -44,6 +46,8 @@ final class TaskStore: ObservableObject {
         let newTask = TaskInsert(
             plantId: plantId,
             name: name,
+            sfSymbol: sfSymbol,
+            sfSymbolColour: sfSymbolColour,
             instructions: instructions,
             springIntervalDays: springIntervalDays,
             summerIntervalDays: summerIntervalDays,
@@ -61,13 +65,5 @@ final class TaskStore: ObservableObject {
             .value
         
         return response
-    }
-    
-    func incrementTaskCycle(taskId: Int, currentCycle: Int) async throws {
-        try await supabase
-            .from("tasks")
-            .update(["current_cycle": currentCycle + 1])
-            .eq("id", value: taskId)
-            .execute()
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum Season {
     case spring, summer, autumn, winter
@@ -32,6 +33,8 @@ struct TaskModel: Codable, Identifiable, Hashable {
     let plantId: Int
     let createdAt: Date
     let name: String
+    var sfSymbol: String?
+    var sfSymbolColour: String?
     let instructions: String
     var springIntervalDays: Int?
     var summerIntervalDays: Int?
@@ -46,6 +49,8 @@ struct TaskModel: Codable, Identifiable, Hashable {
         case plantId = "plant_id"
         case createdAt = "created_at"
         case name
+        case sfSymbol = "sf_symbol"
+        case sfSymbolColour = "sf_symbol_colour"
         case instructions
         case springIntervalDays = "spring_interval_days"
         case summerIntervalDays = "summer_interval_days"
@@ -54,6 +59,25 @@ struct TaskModel: Codable, Identifiable, Hashable {
         case currentCycle = "current_cycle"
         case weatherAdjustments = "weather_adjustments"
         case taskLogs = "tasks_log"
+    }
+    
+    var symbolColor: Color {
+        switch sfSymbolColour?.lowercased() {
+        case "blue": return .blue
+        case "brown": return .brown
+        case "cyan": return .cyan
+        case "gray": return .gray
+        case "green": return .green
+        case "indigo": return .indigo
+        case "mint": return .mint
+        case "orange": return .orange
+        case "pink": return .pink
+        case "purple": return .purple
+        case "red": return .red
+        case "teal": return .teal
+        case "yellow": return .yellow
+        default: return .green // Fallback color
+        }
     }
     
     func intervalDays(for date: Date = .now, latitude: Double? = nil) -> Int? {
@@ -157,6 +181,8 @@ struct TaskModel: Codable, Identifiable, Hashable {
 struct TaskInsert: Encodable {
     let plantId: Int
     let name: String
+    var sfSymbol: String?
+    var sfSymbolColour: String?
     let instructions: String
     var springIntervalDays: Int?
     var summerIntervalDays: Int?
@@ -167,6 +193,8 @@ struct TaskInsert: Encodable {
     enum CodingKeys: String, CodingKey {
         case plantId = "plant_id"
         case name
+        case sfSymbol = "sf_symbol"
+        case sfSymbolColour = "sf_symbol_colour"
         case instructions
         case springIntervalDays = "spring_interval_days"
         case summerIntervalDays = "summer_interval_days"

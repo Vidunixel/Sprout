@@ -12,10 +12,10 @@ class OpenAiService {
     // Construct the URL directly from your central AppConfig
     private let baseURL = AppConfig.supabaseURL.appendingPathComponent("functions/v1/plants")
     
-    // Custom session with 3 minute timeout.
+    // Custom session with 5 minute timeout.
     private let session: Session = {
         let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 180
+        configuration.timeoutIntervalForRequest = 300
         return Session(configuration: configuration)
     }()
     

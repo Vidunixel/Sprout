@@ -244,7 +244,7 @@ private struct SpeciesPage: View {
                                         
                                     case .empty:
                                         ProgressView()
-                                            .frame(width: 100, height: 100)
+                                            .frame(width: 70, height: 70)
                                         
                                     case .failure:
                                         coverPlaceholder
@@ -341,15 +341,70 @@ private struct LocationLightPage: View {
     var body: some View {
         PageView(pageNumber: 4, pageTitle: "Your plant’s environment?") {
             VStack(alignment: .leading, spacing: 14) {
-                Section() {
-                    Picker("Location", selection: $viewModel.isIndoors) {
-                        Text("Indoors").tag(true)
-                        Text("Outdoors").tag(false)
+                Section {
+                    HStack(spacing: 16) {
+                        // Indoors Option
+                        Button(action: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                viewModel.isIndoors = true
+                            }
+                        }) {
+                            VStack(spacing: 12) {
+                                Image(uiImage: .house)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 80)
+                                    .scaleEffect(viewModel.isIndoors ? 1.15 : 1.0)
+                                
+                                Text("Indoors")
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(viewModel.isIndoors ? .primary : .secondary)
+                                
+                                Image(systemName: viewModel.isIndoors ? "checkmark.circle.fill" : "circle")
+                                    .font(.title3)
+                                    .foregroundStyle(viewModel.isIndoors ? Color.accentColor : Color.secondary)
+                                    .padding(.top, 4)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .contentShape(Rectangle()) // Ensures the whole area is tappable
+                        }
+                        .buttonStyle(.plain)
+                        
+                        // Outdoors Option
+                        Button(action: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                viewModel.isIndoors = false
+                            }
+                        }) {
+                            VStack(spacing: 12) {
+                                Image(uiImage: .park)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 80)
+                                    .scaleEffect(!viewModel.isIndoors ? 1.15 : 1.0)
+                                
+                                Text("Outdoors")
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(!viewModel.isIndoors ? .primary : .secondary)
+                                
+                                Image(systemName: !viewModel.isIndoors ? "checkmark.circle.fill" : "circle")
+                                    .font(.title3)
+                                    .foregroundStyle(!viewModel.isIndoors ? Color.accentColor : Color.secondary)
+                                    .padding(.top, 4)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .pickerStyle(.segmented)
+                    .padding(.vertical, 16)
+                } header: {
+                    Text("Location")
+                        .font(.headline.bold())
+                        .foregroundStyle(.secondary)
                 }
                 
-                Divider().padding(.vertical, 8)
+                Divider()
                 
                 Section() {
                     Picker("Light Exposure", selection: $viewModel.lightExposure) {

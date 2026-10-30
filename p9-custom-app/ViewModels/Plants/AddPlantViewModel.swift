@@ -171,6 +171,8 @@ class AddPlantViewModel {
                     let task = try await taskStore.createTask(
                         plantId: plant.id,
                         name: openAiTask.taskName,
+                        sfSymbol: openAiTask.sfSymbol,
+                        sfSymbolColour: openAiTask.sfSymbolColour,
                         instructions: openAiTask.instructions,
                         springIntervalDays: openAiTask.schedule.springIntervalDays,
                         summerIntervalDays: openAiTask.schedule.summerIntervalDays,

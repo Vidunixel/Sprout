@@ -13,6 +13,8 @@ nonisolated struct PlantAnalysisResult: Decodable, Sendable {
 
 nonisolated struct PlantCareTask: Decodable, Sendable {
     let taskName: String
+    let sfSymbol: String?
+    let sfSymbolColour: String?
     let instructions: String
     let schedule: TaskSchedule
     let weatherAdjustments: WeatherAdjustments
