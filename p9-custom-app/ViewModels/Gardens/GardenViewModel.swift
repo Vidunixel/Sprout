@@ -25,10 +25,17 @@ class GardenViewModel {
     var errors: [AppError] = []
     var feedbackTrigger = false
     
+    var showDeleteGardenConfirmation = false
     private var storageService = StorageService()
     
     var plantScenes: [Int: SCNScene] = [:]
     var plantLoadingStates: [Int: Bool] = [:]
+    
+    var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE d MMMM"
+        return formatter.string(from: Date())
+    }
     
     func loadPlantModel(for plant: Plant, userId: UUID) async {
         // Prevent re-downloading if already loaded or is currently loading.
@@ -63,6 +70,27 @@ class GardenViewModel {
             
             do {
                 try await plantStore.deletePlant(plantId: plant.id)
+            } catch let error as AppError {
+                errors.append(error)
+            } catch {
+                errors.append(AppError(error.localizedDescription, showAlert: true))
+            }
+            
+            if !errors.isEmpty {
+                feedbackTrigger.toggle()
+            }
+        }
+    }
+        
+    func deleteGarden(gardenId: Int, gardenStore: GardenStore) {
+        isLoading = true
+        Task {
+            defer { isLoading = false }
+            errors = []
+            
+            do {
+                try await gardenStore.deleteGarden(gardenId: gardenId)
+                selectedGardenId = nil
             } catch let error as AppError {
                 errors.append(error)
             } catch {

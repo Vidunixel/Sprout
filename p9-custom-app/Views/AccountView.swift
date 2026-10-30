@@ -70,7 +70,7 @@ struct AccountView: View {
                         }
                         
                         HStack(spacing: 8) {
-                            Text("\(plantStore.plants.count) plants")
+                            Text("\(plantStore.plants.count) \(plantStore.plants.count == 1 ? "plant" : "plants")")
                                 .brightness(-0.1)
                                 .font(.caption.bold())
                         }
@@ -144,7 +144,7 @@ struct AccountView: View {
             Section {
                 HStack {
                     Spacer()
-                    Text("Sprout v1 · Made with 💚 by Vidun Herath")
+                    Text("Sprout v1 · Made with ❤️ by Vidun Herath")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Spacer()

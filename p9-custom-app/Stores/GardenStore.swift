@@ -48,4 +48,12 @@ final class GardenStore: ObservableObject {
         
         return response
     }
+    
+    func deleteGarden(gardenId: Int) async throws {
+        try await supabase
+            .from("gardens")
+            .delete()
+            .eq("id", value: gardenId)
+            .execute()
+    }
 }

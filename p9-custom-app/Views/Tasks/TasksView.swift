@@ -129,6 +129,7 @@ struct TasksView: View {
         }
         .scrollContentBackground(.hidden)
         .navigationTitle("Tasks")
+        .navigationSubtitle("Manage your scheduled plant care activities.")
         .appBackground()
         .sensoryFeedback(.error, trigger: viewModel.feedbackTrigger)
         .alert("Error", isPresented: errorIsPresented) {

@@ -151,6 +151,7 @@ struct GardenView: View {
             AddGardenView()
         }
         .navigationTitle(selectedGarden?.city ?? "")
+        .navigationSubtitle(viewModel.formattedDate)
         .toolbar {
             if !gardenStore.gardens.isEmpty {
                 ToolbarItem(placement: .topBarLeading) {
@@ -183,7 +184,34 @@ struct GardenView: View {
                 }
             }
             
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if selectedGarden != nil {
+                    Menu {
+                        Button(role: .destructive) {
+                            viewModel.showDeleteGardenConfirmation = true
+                        } label: {
+                            Label("Delete Garden", systemImage: "trash")
+                                .tint(.red)
+                                .foregroundStyle(.red)
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                    }
+                    .confirmationDialog(
+                        "Delete Garden",
+                        isPresented: $viewModel.showDeleteGardenConfirmation,
+                        titleVisibility: .visible
+                    ) {
+                        Button("Delete Garden", role: .destructive) {
+                            if let gardenId = viewModel.selectedGardenId {
+                                viewModel.deleteGarden(gardenId: gardenId, gardenStore: gardenStore)
+                            }
+                        }
+                    } message: {
+                        Text("Are you sure you want to delete this garden? All plants and tasks inside will be lost.")
+                    }
+                }
+                
                 Button(action: { viewModel.showAddPlantView = true }) {
                     Image(systemName: "plus")
                 }

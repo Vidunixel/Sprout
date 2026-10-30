@@ -40,6 +40,7 @@ struct HistoryView: View {
         }
         .scrollContentBackground(.hidden)
         .navigationTitle("History")
+        .navigationSubtitle("A record of your past plant care tasks.")
         .appBackground()
     }
 }

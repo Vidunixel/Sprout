@@ -198,7 +198,7 @@ private struct PhotoPage: View {
                     Label("Take Photo", systemImage: "camera.fill")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .disabled(viewModel.isLoading)
                 
@@ -207,7 +207,6 @@ private struct PhotoPage: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
-                .tint(.secondary)
                 .controlSize(.large)
                 .onChange(of: photoItem) { _, newItem in
                     Task {
