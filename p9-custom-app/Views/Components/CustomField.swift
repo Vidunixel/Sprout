@@ -49,13 +49,13 @@ struct CustomField<Content: View>: View {
             .frame(minHeight: 32)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(10)
-            .background(Color(uiColor: .systemBackground))
+            .background(Color.primary.opacity(0.03))
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                 // Toggle border colour and width based on activeError.
                     .stroke(
-                        activeError != nil ? Color(uiColor: .systemRed) : Color(uiColor: .systemGray4),
+                        activeError != nil ? Color(uiColor: .systemRed) : Color.primary.opacity(0.05),
                         lineWidth: activeError != nil ? 2 : 1
                     )
             )

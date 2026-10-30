@@ -11,12 +11,13 @@ final class AuthService: ObservableObject {
     
     init() {
         Task {
-            for await (event, session) in supabase.auth.authStateChanges {
+            // Fetch session directly.
+            self.session = try? await supabase.auth.session
+            self.isInitialising = false
+            
+            // Listen for future changes.
+            for await (_, session) in supabase.auth.authStateChanges {
                 self.session = session
-                
-                if event == .initialSession {
-                    self.isInitialising = false
-                }
             }
         }
     }

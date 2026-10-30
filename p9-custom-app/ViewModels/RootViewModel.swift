@@ -46,12 +46,14 @@ class RootViewModel {
         isBooting = true
         defer { isBooting = false }
         
-        await gardenStore.fetchGardens(for: userId)
-        await plantStore.fetchPlants(for: userId)
-        await taskLogStore.fetchLogs(for: userId)
-        await taskStore.fetchTasks(for: userId)
-        await weatherAdjustmentStore.fetchAdjustments(for: userId)
-        await weatherAdjustmentTimelineStore.fetchTimelines(for: userId)
+        async let fetchGardens: () = gardenStore.fetchGardens(for: userId)
+        async let fetchPlants: () = plantStore.fetchPlants(for: userId)
+        async let fetchLogs: () = taskLogStore.fetchLogs(for: userId)
+        async let fetchTasks: () = taskStore.fetchTasks(for: userId)
+        async let fetchAdjustments: () = weatherAdjustmentStore.fetchAdjustments(for: userId)
+        async let fetchTimelines: () = weatherAdjustmentTimelineStore.fetchTimelines(for: userId)
+
+        _ = await (fetchGardens, fetchPlants, fetchLogs, fetchTasks, fetchAdjustments, fetchTimelines)
         
         // Handle initial notification permissions if no userdefault is set.
         if UserDefaults.standard.object(forKey: "isTaskRemindersEnabled") == nil {
