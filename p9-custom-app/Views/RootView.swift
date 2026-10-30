@@ -77,19 +77,23 @@ struct RootView: View {
             viewModel.handleOpenURL(url)
         }
         .onChange(of: authService.session) { _, newSession in
-            // If the session is nil, the user just logged out.
             if newSession == nil {
-                Task {
-                    await viewModel.cleanup()
-                }
+                Task { await viewModel.cleanup() }
             }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active && !viewModel.isBooting {
                 if let userId = authService.session?.user.id {
                     Task {
-                        // Evaluate weather adjustments and sync notifications.
-                        await viewModel.evaluateWeatherAndSyncNotifications(userId: userId, gardenStore: gardenStore, plantStore: plantStore, taskStore: taskStore)
+                        await viewModel.syncAllData(
+                            userId: userId,
+                            gardenStore: gardenStore,
+                            plantStore: plantStore,
+                            taskLogStore: taskLogStore,
+                            taskStore: taskStore,
+                            weatherAdjustmentStore: weatherAdjustmentStore,
+                            weatherAdjustmentTimelineStore: weatherAdjustmentTimelineStore
+                        )
                     }
                 }
             }
