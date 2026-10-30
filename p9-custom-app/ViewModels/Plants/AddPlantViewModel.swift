@@ -121,6 +121,10 @@ class AddPlantViewModel {
         taskStore: TaskStore,
         weatherAdjustmentStore: WeatherAdjustmentStore
     ) async throws {
+        // Keep screen awake.
+        UIApplication.shared.isIdleTimerDisabled = true
+        defer { UIApplication.shared.isIdleTimerDisabled = false }
+        
         let species = selectedSpecies?.species.scientificNameWithoutAuthor ?? self.species
         
         if let garden = garden, let userId = authService.session?.user.id {
