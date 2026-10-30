@@ -55,7 +55,7 @@ struct CustomField<Content: View>: View {
                 RoundedRectangle(cornerRadius: 16)
                 // Toggle border colour and width based on activeError.
                     .stroke(
-                        activeError != nil ? Color(uiColor: .systemRed) : Color.primary.opacity(0.05),
+                        activeError != nil ? Color(uiColor: .systemRed) : Color.primary.opacity(0.08),
                         lineWidth: activeError != nil ? 2 : 1
                     )
             )
