@@ -113,13 +113,6 @@ struct AddPlantView: View {
             }
             .onChange(of: viewModel.dismissView) { _, newValue in
                 if newValue {
-                    if let userId = authService.session?.user.id {
-                        Task {
-                            await gardenStore.fetchGardens(for: userId)
-                            _ = await viewModel.weatherEvaluationService.evaluateAndSync(gardens: gardenStore.gardens)
-                        }
-                    }
-                    
                     dismiss()
                 }
             }

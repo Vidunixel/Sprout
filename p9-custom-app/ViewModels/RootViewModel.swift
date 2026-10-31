@@ -13,6 +13,7 @@ import Supabase
 class RootViewModel {
     var showUpdatePasswordView = false
     var isBooting = true
+    var hasNetworkError = false
     private let weatherEvaluationService = WeatherEvaluationService()
     private var realtimeService: RealtimeService?
     
@@ -42,7 +43,7 @@ class RootViewModel {
         taskStore: TaskStore,
         weatherAdjustmentStore: WeatherAdjustmentStore,
         weatherAdjustmentTimelineStore: WeatherAdjustmentTimelineStore
-    ) async {
+    ) async throws {
         // Fetch all data concurrently.
         async let fetchGardens: () = gardenStore.fetchGardens(for: userId)
         async let fetchPlants: () = plantStore.fetchPlants(for: userId)
@@ -50,7 +51,7 @@ class RootViewModel {
         async let fetchTasks: () = taskStore.fetchTasks(for: userId)
         async let fetchAdjustments: () = weatherAdjustmentStore.fetchAdjustments(for: userId)
         async let fetchTimelines: () = weatherAdjustmentTimelineStore.fetchTimelines(for: userId)
-        _ = await (fetchGardens, fetchPlants, fetchLogs, fetchTasks, fetchAdjustments, fetchTimelines)
+        _ = try await (fetchGardens, fetchPlants, fetchLogs, fetchTasks, fetchAdjustments, fetchTimelines)
         
         // Evaluate weather and sync notifications based on fresh data.
         _ = await weatherEvaluationService.evaluateAndSync(gardens: gardenStore.gardens)
@@ -72,6 +73,7 @@ class RootViewModel {
         weatherAdjustmentTimelineStore: WeatherAdjustmentTimelineStore
     ) async {
         isBooting = true
+        hasNetworkError = false
         defer { isBooting = false }
         
         // Setup initial notification permissions if missing.
@@ -84,20 +86,28 @@ class RootViewModel {
             }
         }
         
-        // Setup Realtime.
-        realtimeService = RealtimeService(
-            userId: userId, gardenStore: gardenStore, plantStore: plantStore,
-            taskLogStore: taskLogStore, taskStore: taskStore,
-            weatherAdjustmentStore: weatherAdjustmentStore, weatherAdjustmentTimelineStore: weatherAdjustmentTimelineStore
-        )
-        await realtimeService?.startListening()
-        
-        // Initial fetch and sync.
-        await syncAllData(
-            userId: userId, gardenStore: gardenStore, plantStore: plantStore,
-            taskLogStore: taskLogStore, taskStore: taskStore,
-            weatherAdjustmentStore: weatherAdjustmentStore, weatherAdjustmentTimelineStore: weatherAdjustmentTimelineStore
-        )
+        do {
+            // Initial fetch and sync.
+            try await syncAllData(
+                userId: userId, gardenStore: gardenStore, plantStore: plantStore,
+                taskLogStore: taskLogStore, taskStore: taskStore,
+                weatherAdjustmentStore: weatherAdjustmentStore, weatherAdjustmentTimelineStore: weatherAdjustmentTimelineStore
+            )
+            
+            // Setup Realtime.
+            realtimeService = RealtimeService(
+                userId: userId, gardenStore: gardenStore, plantStore: plantStore,
+                taskLogStore: taskLogStore, taskStore: taskStore,
+                weatherAdjustmentStore: weatherAdjustmentStore, weatherAdjustmentTimelineStore: weatherAdjustmentTimelineStore
+            )
+            
+            Task {
+                await realtimeService?.startListening()
+            }
+        } catch {
+            print("Boot failed: \(error.localizedDescription)")
+            hasNetworkError = true
+        }
     }
     
     

@@ -13,22 +13,17 @@ internal import Combine
 final class GardenStore: ObservableObject {
     @Published private(set) var gardens: [Garden] = []
     @Published private(set) var isLoading = false
-    @Published private(set) var errorMessage: String?
     
-    func fetchGardens(for userId: UUID) async {
+    func fetchGardens(for userId: UUID) async throws {
         isLoading = true
         defer { isLoading = false }
         
-        do {
-            self.gardens = try await supabase
-                .from("gardens")
-                .select("*, plants(*, tasks(*, tasks_log(*), weather_adjustments(*, weather_adjustments_timeline(*))))")
-                .eq("user_id", value: userId)
-                .execute()
-                .value
-        } catch {
-            self.errorMessage = error.localizedDescription
-        }
+        self.gardens = try await supabase
+            .from("gardens")
+            .select("*, plants(*, tasks(*, tasks_log(*), weather_adjustments(*, weather_adjustments_timeline(*))))")
+            .eq("user_id", value: userId)
+            .execute()
+            .value
     }
     
     func createGarden(name: String, city: String, geoLocation: [Double]) async throws -> Garden {

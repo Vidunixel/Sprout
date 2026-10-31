@@ -13,22 +13,17 @@ internal import Combine
 final class TaskLogStore: ObservableObject {
     @Published private(set) var logs: [TaskLog] = []
     @Published private(set) var isLoading = false
-    @Published private(set) var errorMessage: String?
     
-    func fetchLogs(for userId: UUID) async {
+    func fetchLogs(for userId: UUID) async throws {
         isLoading = true
         defer { isLoading = false }
         
-        do {
-            self.logs = try await supabase
-                .from("tasks_log")
-                .select("*, tasks!inner(plants!inner(user_id))")
-                .eq("tasks.plants.user_id", value: userId)
-                .execute()
-                .value
-        } catch {
-            self.errorMessage = error.localizedDescription
-        }
+        self.logs = try await supabase
+            .from("tasks_log")
+            .select("*, tasks!inner(plants!inner(user_id))")
+            .eq("tasks.plants.user_id", value: userId)
+            .execute()
+            .value
     }
     
     func createLog(taskId: Int, cycle: Int, dueDate: Date) async throws -> TaskLog {

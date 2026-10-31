@@ -26,7 +26,7 @@ struct RootView: View {
                 VStack(spacing: 16) {
                     ProgressView()
                         .controlSize(.large)
-                    Text("Loading...")
+                    Text("Loading Session...")
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -35,11 +35,43 @@ struct RootView: View {
             } else if authService.session != nil {
                 MainTabView()
                     .overlay {
-                        if viewModel.isBooting {
+                        if viewModel.hasNetworkError {
+                            VStack(spacing: 16) {
+                                Image(systemName: "wifi.slash")
+                                    .font(.system(size: 50))
+                                Text("Connection Error")
+                                    .font(.headline)
+                                Text("Please check your internet connection and try again.")
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, 32)
+                                
+                                Button("Refresh") {
+                                    if let userId = authService.session?.user.id {
+                                        Task {
+                                            await viewModel.performBootTasks(
+                                                userId: userId,
+                                                gardenStore: gardenStore,
+                                                plantStore: plantStore,
+                                                taskLogStore: taskLogStore,
+                                                taskStore: taskStore,
+                                                weatherAdjustmentStore: weatherAdjustmentStore,
+                                                weatherAdjustmentTimelineStore: weatherAdjustmentTimelineStore
+                                            )
+                                        }
+                                    }
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .padding(.top, 8)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(.background)
+                            .ignoresSafeArea()
+                        } else if viewModel.isBooting {
                             VStack(spacing: 16) {
                                 ProgressView()
                                     .controlSize(.large)
-                                Text("Loading...")
+                                Text("Loading Sprout...")
                                     .foregroundStyle(.secondary)
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -77,15 +109,17 @@ struct RootView: View {
             viewModel.handleOpenURL(url)
         }
         .onChange(of: authService.session) { _, newSession in
+            // Clean up realtime listener on logout.
             if newSession == nil {
                 Task { await viewModel.cleanup() }
             }
         }
         .onChange(of: scenePhase) { _, phase in
+            // When app is foregrounded, run syncAllData.
             if phase == .active && !viewModel.isBooting {
                 if let userId = authService.session?.user.id {
                     Task {
-                        await viewModel.syncAllData(
+                        try? await viewModel.syncAllData(
                             userId: userId,
                             gardenStore: gardenStore,
                             plantStore: plantStore,
@@ -99,6 +133,7 @@ struct RootView: View {
             }
         }
         .onChange(of: taskStore.tasks) { _, _ in
+            // Sync notifications on db changes.
             if !viewModel.isBooting {
                 NotificationService.shared.syncNotifications(
                     tasks: taskStore.tasks,

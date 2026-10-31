@@ -64,12 +64,12 @@ final class RealtimeService {
     private func handleChanges(_ stream: AsyncStream<AnyAction>) async {
         for await _ in stream {
             // Fetch all data for the user on any change.
-            await gardenStore?.fetchGardens(for: userId)
-            await plantStore?.fetchPlants(for: userId)
-            await taskLogStore?.fetchLogs(for: userId)
-            await taskStore?.fetchTasks(for: userId)
-            await weatherAdjustmentStore?.fetchAdjustments(for: userId)
-            await weatherAdjustmentTimelineStore?.fetchTimelines(for: userId)
+            try? await gardenStore?.fetchGardens(for: userId)
+            try? await plantStore?.fetchPlants(for: userId)
+            try? await taskLogStore?.fetchLogs(for: userId)
+            try? await taskStore?.fetchTasks(for: userId)
+            try? await weatherAdjustmentStore?.fetchAdjustments(for: userId)
+            try? await weatherAdjustmentTimelineStore?.fetchTimelines(for: userId)
         }
     }
 }

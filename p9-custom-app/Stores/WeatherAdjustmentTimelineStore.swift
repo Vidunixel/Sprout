@@ -13,22 +13,17 @@ internal import Combine
 final class WeatherAdjustmentTimelineStore: ObservableObject {
     @Published private(set) var timelines: [WeatherAdjustmentTimeline] = []
     @Published private(set) var isLoading = false
-    @Published private(set) var errorMessage: String?
     
-    func fetchTimelines(for userId: UUID) async {
+    func fetchTimelines(for userId: UUID) async throws {
         isLoading = true
         defer { isLoading = false }
         
-        do {
-            self.timelines = try await supabase
-                .from("weather_adjustments_timeline")
-                .select("*, weather_adjustments!inner(tasks!inner(plants!inner(user_id)))")
-                .eq("weather_adjustments.tasks.plants.user_id", value: userId)
-                .execute()
-                .value
-        } catch {
-            self.errorMessage = error.localizedDescription
-        }
+        self.timelines = try await supabase
+            .from("weather_adjustments_timeline")
+            .select("*, weather_adjustments!inner(tasks!inner(plants!inner(user_id)))")
+            .eq("weather_adjustments.tasks.plants.user_id", value: userId)
+            .execute()
+            .value
     }
     
     func createTimeline(weatherAdjustmentId: Int, cycle: Int) async throws -> WeatherAdjustmentTimeline {

@@ -13,22 +13,17 @@ internal import Combine
 final class TaskStore: ObservableObject {
     @Published private(set) var tasks: [TaskModel] = []
     @Published private(set) var isLoading = false
-    @Published private(set) var errorMessage: String?
     
-    func fetchTasks(for userId: UUID) async {
+    func fetchTasks(for userId: UUID) async throws {
         isLoading = true
         defer { isLoading = false }
         
-        do {
-            self.tasks = try await supabase
-                .from("tasks")
-                .select("*, tasks_log(*), weather_adjustments(*, weather_adjustments_timeline(*)), plants!inner(user_id)")
-                .eq("plants.user_id", value: userId)
-                .execute()
-                .value
-        } catch {
-            self.errorMessage = error.localizedDescription
-        }
+        self.tasks = try await supabase
+            .from("tasks")
+            .select("*, tasks_log(*), weather_adjustments(*, weather_adjustments_timeline(*)), plants!inner(user_id)")
+            .eq("plants.user_id", value: userId)
+            .execute()
+            .value
     }
     
     func createTask(
