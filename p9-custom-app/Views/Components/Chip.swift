@@ -22,6 +22,9 @@ struct Chip: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
+            .accessibilityLabel("Remove")
+            .accessibilityValue(title)
+            .accessibilityHint("Removes this item")
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 8)

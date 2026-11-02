@@ -26,6 +26,7 @@ struct RootView: View {
                 VStack(spacing: 16) {
                     ProgressView()
                         .controlSize(.large)
+                        .accessibilityLabel("Loading session")
                     Text("Loading Session...")
                         .foregroundStyle(.secondary)
                 }
@@ -39,6 +40,7 @@ struct RootView: View {
                             VStack(spacing: 16) {
                                 Image(systemName: "wifi.slash")
                                     .font(.system(size: 50))
+                                    .accessibilityHidden(true)
                                 Text("Connection Error")
                                     .font(.headline)
                                 Text("Please check your internet connection and try again.")
@@ -62,6 +64,7 @@ struct RootView: View {
                                     }
                                 }
                                 .buttonStyle(.borderedProminent)
+                                .accessibilityHint("Retries connecting and loading data")
                                 .padding(.top, 8)
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -71,6 +74,7 @@ struct RootView: View {
                             VStack(spacing: 16) {
                                 ProgressView()
                                     .controlSize(.large)
+                                    .accessibilityLabel("Loading Sprout")
                                 Text("Loading Sprout...")
                                     .foregroundStyle(.secondary)
                             }

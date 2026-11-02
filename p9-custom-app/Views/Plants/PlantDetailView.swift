@@ -28,14 +28,18 @@ struct PlantDetailView: View {
                             PlantScene(scene: scene, allowHorizontalRotation: true, autoRotate: true)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
+                                .accessibilityLabel("3D plant model")
+                                .accessibilityValue(plant.name)
                         } else if viewModel.isLoadingModel == true {
                             ProgressView()
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .accessibilityLabel("Loading 3D model")
                         } else {
                             Image(systemName: "leaf.fill")
                                 .font(.system(size: 100))
                                 .foregroundStyle(.tertiary)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .accessibilityHidden(true)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: geo.size.height * 0.5)
@@ -87,9 +91,11 @@ struct PlantDetailPanelView: View {
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 60, height: 60)
                                 .clipShape(Circle())
+                                .accessibilityHidden(true)
                         } else if viewModel.isLoadingImage {
                             ProgressView()
                                 .frame(width: 60, height: 60)
+                                .accessibilityHidden(true)
                         } else {
                             Image(systemName: "leaf.fill")
                                 .font(.system(size: 30))
@@ -97,6 +103,7 @@ struct PlantDetailPanelView: View {
                                 .frame(width: 60, height: 60)
                                 .background(Color(uiColor: .systemGray6))
                                 .clipShape(Circle())
+                                .accessibilityHidden(true)
                         }
                         
                         VStack(alignment: .leading, spacing: 4) {
@@ -111,6 +118,9 @@ struct PlantDetailPanelView: View {
                                 .lineLimit(1)
                         }
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(plant.name)
+                    .accessibilityValue(plant.species)
                 }
                 .listRowBackground(
                     Color.primary.opacity(0.05)
@@ -134,6 +144,7 @@ struct PlantDetailPanelView: View {
                                         HStack(spacing: 4) {
                                             Image(systemName: isOverdue ? "exclamationmark.circle.fill" : "clock.fill")
                                                 .brightness(-0.1)
+                                                .accessibilityHidden(true)
                                             Text(task.dueStatusText(latitude: latitude))
                                                 .brightness(-0.1)
                                         }
@@ -151,6 +162,10 @@ struct PlantDetailPanelView: View {
                                         .lineLimit(1)
                                 }
                             }
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(task.name)
+                            .accessibilityValue(task.dueStatusText(latitude: latitude))
+                            .accessibilityHint("Opens task details")
                         }
                     } else {
                         Text("None")
@@ -232,6 +247,8 @@ struct PlantDetailPanelView: View {
                     } label: {
                         Image(systemName: "xmark").fontWeight(.semibold)
                     }
+                    .accessibilityLabel("Close")
+                    .accessibilityHint("Dismisses plant details")
                     .tint(nil)
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
@@ -247,6 +264,8 @@ struct PlantDetailPanelView: View {
                     } label: {
                         Image(systemName: "ellipsis")
                     }
+                    .accessibilityLabel("Plant options")
+                    .accessibilityHint("Shows options to manage this plant")
                     .confirmationDialog(
                         "Delete Plant",
                         isPresented: $viewModel.showDeletePlantConfirmation,

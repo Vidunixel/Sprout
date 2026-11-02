@@ -35,6 +35,7 @@ struct SignUpView: View {
                             .textContentType(.name)
                             .autocorrectionDisabled()
                             .padding(.horizontal, 6)
+                            .accessibilityLabel("Full name")
                     }
                     
                     CustomField(
@@ -48,6 +49,7 @@ struct SignUpView: View {
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .padding(.horizontal, 6)
+                            .accessibilityLabel("Email address")
                     }
                     
                     CustomField(
@@ -59,6 +61,7 @@ struct SignUpView: View {
                         SecureField("Create a password", text: $viewModel.password)
                             .textContentType(.password)
                             .padding(.horizontal, 6)
+                            .accessibilityLabel("Password")
                     }
                     
                     CustomField(
@@ -69,16 +72,20 @@ struct SignUpView: View {
                         SecureField("Re-enter password", text: $viewModel.confirmPassword)
                             .textContentType(.password)
                             .padding(.horizontal, 6)
+                            .accessibilityLabel("Confirm password")
                     }
                 }
                 
                 VStack(spacing: 14) {
                     Button(action: { viewModel.signUp(authService: authService) }) {
                         HStack {
-                            if viewModel.isLoading { ProgressView().tint(.white) }
+                            if viewModel.isLoading { ProgressView().tint(.white).accessibilityHidden(true) }
                             Text("Create Account").frame(maxWidth: .infinity)
                         }
                     }
+                    .accessibilityLabel("Create Account")
+                    .accessibilityValue(viewModel.isLoading ? "In progress" : "")
+                    .accessibilityHint("Submits registration form to create an account")
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.isLoading)

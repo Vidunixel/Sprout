@@ -22,6 +22,7 @@ struct ForgotPassword: View {
                     Image(systemName: "lock.badge.clock.fill")
                         .font(.system(size: 70))
                         .foregroundStyle(.tint)
+                        .accessibilityHidden(true)
                     
                     VStack(spacing: 8) {
                         Text("Forgot Password")
@@ -50,12 +51,13 @@ struct ForgotPassword: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .padding(.horizontal, 6)
+                        .accessibilityLabel("Email address")
                 }
                 
                 VStack(spacing: 14) {
                     Button(action: { viewModel.sendPasswordResetEmail(authService: authService) }) {
                         HStack {
-                            if viewModel.isLoading { ProgressView().tint(.white) }
+                            if viewModel.isLoading { ProgressView().tint(.white).accessibilityHidden(true) }
                             Text(viewModel.hasSentEmail ? "Resend Email" : "Send Reset Link")
                                 .frame(maxWidth: .infinity)
                             
@@ -67,6 +69,9 @@ struct ForgotPassword: View {
                             }
                         }
                     }
+                    .accessibilityLabel(viewModel.hasSentEmail ? "Resend Reset Link" : "Send Reset Link")
+                    .accessibilityValue(viewModel.timeRemaining > 0 ? "\(viewModel.timeRemaining) seconds remaining" : (viewModel.isLoading ? "In progress" : ""))
+                    .accessibilityHint("Sends password reset instructions to your email")
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.timeRemaining > 0 || viewModel.isLoading)
@@ -76,6 +81,7 @@ struct ForgotPassword: View {
                             Text("Back to Log In").frame(maxWidth: .infinity)
                         }
                     }
+                    .accessibilityHint("Dismisses this screen and returns to log in")
                     .buttonStyle(.glass)
                     .controlSize(.large)
                 }

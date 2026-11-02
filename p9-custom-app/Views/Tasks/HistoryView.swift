@@ -26,6 +26,7 @@ struct HistoryView: View {
                         .frame(width: 100, height: 100)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .clipped()
+                        .accessibilityHidden(true)
                     
                     Text("No completed tasks yet.")
                         .foregroundStyle(.secondary)
@@ -41,6 +42,7 @@ struct HistoryView: View {
                                 NavigationLink(destination: TaskDetailView(taskId: task.id, plantId: plant.id, showPlantReference: true, taskLogId: log.id)) {
                                     HistoryRowView(log: log, task: task, plant: plant, viewModel: viewModel)
                                 }
+                                .accessibilityHint("Opens task completion log details")
                             }
                         }
                     }
@@ -91,6 +93,7 @@ struct HistoryRowView: View {
                     .font(.title3)
                     .foregroundStyle(task.symbolColor)
                     .brightness(-0.1)
+                    .accessibilityHidden(true)
             }
             
             VStack(alignment: .leading, spacing: 4) {
@@ -136,5 +139,8 @@ struct HistoryRowView: View {
             }
             .lineLimit(1)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(task.name), for \(plant.name)")
+        .accessibilityValue("Cycle \(log.cycle), completed \(viewModel.formatDate(log.createdAt)), \(completionStatus.text)")
     }
 }

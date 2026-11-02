@@ -38,6 +38,7 @@ struct GardenView: View {
                             .frame(width: 100, height: 100)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .clipped()
+                            .accessibilityHidden(true)
                         
                         Text("You don't have any gardens yet. Create one to get started.")
                             .foregroundStyle(.secondary)
@@ -49,6 +50,8 @@ struct GardenView: View {
                             Label("Create New", systemImage: "plus")
                                 .frame(maxWidth: .infinity)
                         }
+                        .accessibilityLabel("Create New Garden")
+                        .accessibilityHint("Opens screen to create a new garden")
                         .buttonStyle(.bordered)
                         .controlSize(.large)
                     }
@@ -67,6 +70,7 @@ struct GardenView: View {
                                     .frame(width: 100, height: 100)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                                     .clipped()
+                                    .accessibilityHidden(true)
                                 
                                 Text("This garden is empty. Start by adding a plant.")
                                     .foregroundStyle(.secondary)
@@ -78,6 +82,7 @@ struct GardenView: View {
                                     Label("Add a Plant", systemImage: "plus")
                                         .frame(maxWidth: .infinity)
                                 }
+                                .accessibilityHint("Opens screen to add a plant to this garden")
                                 .buttonStyle(.bordered)
                                 .controlSize(.large)
                             }
@@ -177,6 +182,9 @@ struct GardenView: View {
                         Image(systemName: "chevron.up.chevron.down")
                             .font(.caption)
                     }
+                    .accessibilityLabel("Garden")
+                    .accessibilityValue(selectedGarden?.name ?? "None selected")
+                    .accessibilityHint("Opens menu to switch or create gardens")
                 }
             }
             
@@ -193,6 +201,8 @@ struct GardenView: View {
                     } label: {
                         Image(systemName: "ellipsis")
                     }
+                    .accessibilityLabel("Garden options")
+                    .accessibilityHint("Shows options to manage the current garden")
                     .confirmationDialog(
                         "Delete Garden",
                         isPresented: $viewModel.showDeleteGardenConfirmation,
@@ -211,6 +221,8 @@ struct GardenView: View {
                 Button(action: { viewModel.showAddPlantView = true }) {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("Add Plant")
+                .accessibilityHint("Opens screen to add a new plant to this garden")
                 .buttonStyle(.glassProminent)
             }
         }
@@ -303,6 +315,10 @@ struct PlantCardView: View {
             .padding(.horizontal, 4)
         }
         .padding(.vertical, 10)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(plant.name)
+        .accessibilityValue(urgentTasksCount > 0 ? "\(plant.species), \(urgentTasksCount) urgent \(urgentTasksCount == 1 ? "task" : "tasks")" : plant.species)
+        .accessibilityHint("Opens plant details")
         .task {
             await viewModel.loadPlantModel(for: plant, userId: userId)
         }

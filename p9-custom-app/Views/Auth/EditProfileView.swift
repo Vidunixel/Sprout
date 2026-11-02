@@ -24,6 +24,7 @@ struct EditProfileView: View {
                     Image(systemName: "person.text.rectangle.fill")
                         .font(.system(size: 70))
                         .foregroundStyle(.tint)
+                        .accessibilityHidden(true)
                     
                     VStack(spacing: 8) {
                         Text("Personal Details")
@@ -41,16 +42,20 @@ struct EditProfileView: View {
                             .textContentType(.name)
                             .autocorrectionDisabled()
                             .padding(.horizontal, 6)
+                            .accessibilityLabel("Full name")
                     }
                 }
                 
                 VStack(spacing: 14) {
                     Button(action: { viewModel.updateProfile(authService: authService) }) {
                         HStack {
-                            if viewModel.isLoading { ProgressView().tint(.white) }
+                            if viewModel.isLoading { ProgressView().tint(.white).accessibilityHidden(true) }
                             Text("Save").frame(maxWidth: .infinity)
                         }
                     }
+                    .accessibilityLabel("Save")
+                    .accessibilityValue(viewModel.isLoading ? "In progress" : "")
+                    .accessibilityHint("Saves your updated name")
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.isLoading)

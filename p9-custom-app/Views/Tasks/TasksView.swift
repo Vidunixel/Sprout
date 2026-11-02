@@ -28,6 +28,7 @@ struct TasksView: View {
                         .frame(width: 100, height: 100)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .clipped()
+                        .accessibilityHidden(true)
                     
                     Text("No tasks currently available.")
                         .foregroundStyle(.secondary)
@@ -44,6 +45,7 @@ struct TasksView: View {
                                     NavigationLink(destination: TaskDetailView(taskId: task.id, plantId: plant.id, showPlantReference: true)) {
                                         TaskRowView(task: task, plant: plant, latitude: lat, viewModel: viewModel)
                                     }
+                                    .accessibilityHint("Opens task details")
                                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                         Button {
                                             viewModel.taskToComplete = task
@@ -52,6 +54,7 @@ struct TasksView: View {
                                             Label("Mark Complete", systemImage: "checkmark")
                                         }
                                         .tint(.green)
+                                        .accessibilityHint("Marks this task as complete for the current cycle")
                                     }
                                     .confirmationDialog(
                                         "Complete Task",
@@ -93,6 +96,7 @@ struct TasksView: View {
                                     NavigationLink(destination: TaskDetailView(taskId: task.id, plantId: plant.id, showPlantReference: true)) {
                                         TaskRowView(task: task, plant: plant, latitude: lat, viewModel: viewModel)
                                     }
+                                    .accessibilityHint("Opens task details")
                                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                         Button {
                                             viewModel.taskToComplete = task
@@ -101,6 +105,7 @@ struct TasksView: View {
                                             Label("Mark Complete", systemImage: "checkmark")
                                         }
                                         .tint(.green)
+                                        .accessibilityHint("Marks this task as complete for the current cycle")
                                     }
                                     .confirmationDialog(
                                         "Complete Task",
@@ -177,6 +182,7 @@ struct TaskRowView: View {
                     .font(.title3)
                     .foregroundStyle(task.symbolColor)
                     .brightness(-0.1)
+                    .accessibilityHidden(true)
             }
             
             VStack(alignment: .leading, spacing: 4) {
@@ -219,6 +225,7 @@ struct TaskRowView: View {
                     HStack(spacing: 4) {
                         Image(systemName: isOverdue ? "exclamationmark.circle.fill" : "clock.fill")
                             .brightness(-0.1)
+                            .accessibilityHidden(true)
                         Text(task.dueStatusText(latitude: latitude))
                             .brightness(-0.1)
                     }
@@ -238,6 +245,7 @@ struct TaskRowView: View {
                 if !task.activeAdjustments.isEmpty {
                     HStack(spacing: 3) {
                         Image(systemName: "clock.arrow.trianglehead.2.counterclockwise.rotate.90")
+                            .accessibilityHidden(true)
                         Text("Weather adjusted")
                     }
                     .font(.caption2.bold())
@@ -251,5 +259,12 @@ struct TaskRowView: View {
             }
             .lineLimit(1)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(task.name), for \(plant.name)")
+        .accessibilityValue([
+            "Cycle \(task.currentCycle)",
+            task.dueStatusText(latitude: latitude),
+            task.activeAdjustments.isEmpty ? nil : "Weather adjusted"
+        ].compactMap { $0 }.joined(separator: ", "))
     }
 }

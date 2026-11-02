@@ -25,6 +25,7 @@ struct AuthenticationView: View {
                                     .antialiased(true)
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 100, height: 100)
+                                    .accessibilityHidden(true)
                             }
                             
                             VStack(spacing: 8) {
@@ -42,6 +43,7 @@ struct AuthenticationView: View {
                                     Text("Log In").frame(maxWidth: .infinity)
                                 }
                             }
+                            .accessibilityHint("Opens the log in screen")
                             .buttonStyle(.glassProminent)
                             .controlSize(.large)
                             
@@ -50,6 +52,7 @@ struct AuthenticationView: View {
                                     Text("Create an Account").frame(maxWidth: .infinity)
                                 }
                             }
+                            .accessibilityHint("Opens the account creation screen")
                             .buttonStyle(.glass)
                             .controlSize(.large)
                         }

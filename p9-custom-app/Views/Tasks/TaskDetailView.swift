@@ -121,6 +121,7 @@ struct TaskDetailView: View {
                                     HStack(spacing: 4) {
                                         Image(systemName: isOverdue ? "exclamationmark.circle.fill" : "clock.fill")
                                             .brightness(-0.1)
+                                            .accessibilityHidden(true)
                                         Text(task.dueStatusText(latitude: latitude))
                                             .brightness(-0.1)
                                     }
@@ -172,6 +173,7 @@ struct TaskDetailView: View {
                                         .font(.subheadline)
                                         .foregroundStyle(task.symbolColor)
                                         .brightness(-0.1)
+                                        .accessibilityHidden(true)
                                 }
                                 
                                 Text(task.name)
@@ -197,14 +199,17 @@ struct TaskDetailView: View {
                                                 PlantScene(scene: scene, yPadding: -0.1)
                                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                                                     .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 5)
+                                                    .accessibilityHidden(true)
                                             } else if viewModel.isLoadingModel == true {
                                                 ProgressView()
                                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                    .accessibilityHidden(true)
                                             } else {
                                                 Image(systemName: "leaf.fill")
                                                     .font(.system(size: 30))
                                                     .foregroundStyle(.tertiary)
                                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                    .accessibilityHidden(true)
                                             }
                                         }
                                         .frame(width: 100, height: 100)
@@ -225,6 +230,10 @@ struct TaskDetailView: View {
                                     Text("Plant")
                                 }
                             }
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel("Plant")
+                            .accessibilityValue("\(plant.name), \(plant.species)")
+                            .accessibilityHint("Opens plant details")
                             .task {
                                 await viewModel.loadModel(for: plant)
                             }
@@ -277,6 +286,8 @@ struct TaskDetailView: View {
                 Button(action: { viewModel.showCompleteConfirmation = true }) {
                     Image(systemName: "checkmark")
                 }
+                .accessibilityLabel("Mark Complete")
+                .accessibilityHint("Marks this task as complete for the current cycle")
                 .buttonStyle(.glassProminent)
                 .confirmationDialog("Complete Task", isPresented: $viewModel.showCompleteConfirmation, titleVisibility: .visible) {
                     Button("Complete") {

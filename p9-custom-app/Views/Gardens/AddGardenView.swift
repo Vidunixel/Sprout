@@ -40,6 +40,7 @@ struct AddGardenView: View {
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .padding(.horizontal, 6)
+                            .accessibilityLabel("Garden name")
                     }
                     
                     VStack(alignment: .leading, spacing: 4) {
@@ -66,10 +67,13 @@ struct AddGardenView: View {
                                         .textContentType(.addressCity)
                                         .autocorrectionDisabled()
                                         .padding(.horizontal, 6)
+                                        .accessibilityLabel("City")
                                     
                                     Button(action: { viewModel.setCurrentCity() }) {
                                         Label("Current Location", systemImage: "location")
                                     }
+                                    .accessibilityLabel("Current location")
+                                    .accessibilityHint("Uses device GPS to detect and set current city")
                                     .buttonBorderShape(.circle)
                                     .controlSize(.regular)
                                     .labelStyle(.iconOnly)
@@ -100,6 +104,10 @@ struct AddGardenView: View {
                                             .frame(maxWidth: .infinity, alignment: .leading)
                                             .contentShape(Rectangle())
                                         }
+                                        .accessibilityElement(children: .ignore)
+                                        .accessibilityLabel(result.title)
+                                        .accessibilityValue(result.subtitle.isEmpty ? "" : result.subtitle)
+                                        .accessibilityHint("Selects this city")
                                         
                                         // Divider between rows
                                         if result != viewModel.cityResults.last {
@@ -124,10 +132,13 @@ struct AddGardenView: View {
                 VStack(spacing: 14) {
                     Button(action: { viewModel.createGarden(authService: authService, gardenStore: gardenStore) }) {
                         HStack {
-                            if viewModel.isLoading { ProgressView().tint(.white) }
+                            if viewModel.isLoading { ProgressView().tint(.white).accessibilityHidden(true) }
                             Text("Create").frame(maxWidth: .infinity)
                         }
                     }
+                    .accessibilityLabel("Create Garden")
+                    .accessibilityValue(viewModel.isLoading ? "In progress" : "")
+                    .accessibilityHint("Creates the garden with the specified details")
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.isLoading)

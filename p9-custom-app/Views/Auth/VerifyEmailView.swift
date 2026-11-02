@@ -26,6 +26,7 @@ struct VerifyEmail: View {
                     Image(systemName: "envelope.open.fill")
                         .font(.system(size: 70))
                         .foregroundStyle(.tint)
+                        .accessibilityHidden(true)
                     
                     VStack(spacing: 8) {
                         Text("Verify Email")
@@ -39,7 +40,7 @@ struct VerifyEmail: View {
                 VStack(spacing: 14) {
                     Button(action: { viewModel.resendVerificationEmail(authService: authService) }) {
                         HStack {
-                            if viewModel.isLoading { ProgressView().tint(.white) }
+                            if viewModel.isLoading { ProgressView().tint(.white).accessibilityHidden(true) }
                             Text("Resend Email").frame(maxWidth: .infinity)
                             
                             if (viewModel.timeRemaining > 0) {
@@ -50,6 +51,9 @@ struct VerifyEmail: View {
                             }
                         }
                     }
+                    .accessibilityLabel("Resend Email")
+                    .accessibilityValue(viewModel.timeRemaining > 0 ? "\(viewModel.timeRemaining) seconds remaining" : (viewModel.isLoading ? "In progress" : ""))
+                    .accessibilityHint("Resends verification email to your email address")
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.timeRemaining > 0)
@@ -62,6 +66,7 @@ struct VerifyEmail: View {
                             Text("Back to Log In").frame(maxWidth: .infinity)
                         }
                     }
+                    .accessibilityHint("Returns to the log in screen")
                     .buttonStyle(.glass)
                     .controlSize(.large)
                 }

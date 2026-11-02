@@ -56,6 +56,7 @@ struct AccountView: View {
                     }
                     .frame(width: 75, height: 75)
                     .clipShape(Circle())
+                    .accessibilityHidden(true)
                     
                     VStack(alignment: .leading, spacing: 8) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -82,6 +83,9 @@ struct AccountView: View {
                     }
                 }
                 .padding(.vertical, 8)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Profile")
+                .accessibilityValue("\(displayName), \(userEmail), \(plantStore.plants.count) \(plantStore.plants.count == 1 ? "plant" : "plants") tracked")
             }
             .listRowBackground(Color.primary.opacity(0.05))
             
@@ -93,6 +97,7 @@ struct AccountView: View {
                         Image(systemName: "person.fill")
                     }
                 }
+                .accessibilityHint("Opens screen to edit your name")
             } header: {
                 Text("Profile")
             }
@@ -106,6 +111,7 @@ struct AccountView: View {
                         Image(systemName: "bell.fill")
                     }
                 }
+                .accessibilityHint("Toggles task notifications on their due dates")
             } header: {
                 Text("Notifications")
             } footer: {
@@ -121,6 +127,7 @@ struct AccountView: View {
                         Image(systemName: "lock.fill")
                     }
                 }
+                .accessibilityHint("Opens screen to change your password")
             } header: {
                 Text("Security")
             }
@@ -134,6 +141,7 @@ struct AccountView: View {
                         .tint(.red)
                         .foregroundStyle(.red)
                 }
+                .accessibilityHint("Signs you out of your account")
                 .disabled(viewModel.isLoading)
             }
             .listRowBackground(Color.primary.opacity(0.05))
@@ -144,6 +152,7 @@ struct AccountView: View {
                     Text("Sprout v1 · Made with ❤️ by Vidun Herath")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .accessibilityLabel("Sprout version 1, Made with love by Vidun Herath")
                     Spacer()
                 }
             }

@@ -21,6 +21,7 @@ struct UpdatePasswordView: View {
                     Image(systemName: "key.horizontal.fill")
                         .font(.system(size: 70))
                         .foregroundStyle(.tint)
+                        .accessibilityHidden(true)
                     
                     VStack(spacing: 8) {
                         Text("Update Password")
@@ -38,6 +39,7 @@ struct UpdatePasswordView: View {
                         SecureField("Create a new password", text: $viewModel.password)
                             .textContentType(.password)
                             .padding(.horizontal, 6)
+                            .accessibilityLabel("New password")
                     }
                     
                     CustomField(
@@ -48,16 +50,20 @@ struct UpdatePasswordView: View {
                         SecureField("Re-enter new password", text: $viewModel.confirmPassword)
                             .textContentType(.password)
                             .padding(.horizontal, 6)
+                            .accessibilityLabel("Confirm new password")
                     }
                 }
                 
                 VStack(spacing: 14) {
                     Button(action: { viewModel.updatePassword(authService: authService) }) {
                         HStack {
-                            if viewModel.isLoading { ProgressView().tint(.white) }
+                            if viewModel.isLoading { ProgressView().tint(.white).accessibilityHidden(true) }
                             Text("Update").frame(maxWidth: .infinity)
                         }
                     }
+                    .accessibilityLabel("Update Password")
+                    .accessibilityValue(viewModel.isLoading ? "In progress" : "")
+                    .accessibilityHint("Submits your new password")
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.isLoading)

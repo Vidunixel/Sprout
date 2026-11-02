@@ -37,6 +37,7 @@ struct LogInView: View {
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .padding(.horizontal, 6)
+                            .accessibilityLabel("Email address")
                     }
                     
                     CustomField(
@@ -47,16 +48,20 @@ struct LogInView: View {
                         SecureField("Enter your password", text: $viewModel.password)
                             .textContentType(.password)
                             .padding(.horizontal, 6)
+                            .accessibilityLabel("Password")
                     }
                 }
                 
                 VStack(spacing: 14) {
                     Button(action: { viewModel.logIn(authService: authService) }) {
                         HStack {
-                            if viewModel.isLoading { ProgressView().tint(.white) }
+                            if viewModel.isLoading { ProgressView().tint(.white).accessibilityHidden(true) }
                             Text("Log In").frame(maxWidth: .infinity)
                         }
                     }
+                    .accessibilityLabel("Log In")
+                    .accessibilityValue(viewModel.isLoading ? "In progress" : "")
+                    .accessibilityHint("Logs into your account")
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(viewModel.isLoading)
@@ -66,6 +71,7 @@ struct LogInView: View {
                             Text("Forgot Password?")
                         }
                     }
+                    .accessibilityHint("Opens screen to recover your password")
                     .font(.body)
                     .underline()
                 }

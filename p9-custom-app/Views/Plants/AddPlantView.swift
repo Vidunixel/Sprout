@@ -60,6 +60,8 @@ struct AddPlantView: View {
                         value: Double(viewModel.currentStage.rawValue + 1),
                         total: Double(FormStage.allCases.count)
                     )
+                    .accessibilityLabel("Form progress")
+                    .accessibilityValue("Step \(viewModel.currentStage.rawValue + 1) of \(FormStage.allCases.count)")
                     .frame(width: 300, height: 6)
                 }
                 ToolbarItemGroup(placement: .bottomBar) {
@@ -69,6 +71,8 @@ struct AddPlantView: View {
                                 Image(systemName: "arrow.backward")
                             }
                         }
+                        .accessibilityLabel("Previous step")
+                        .accessibilityHint("Returns to the previous form step")
                         .disabled(viewModel.isLoading)
                     }
                     
@@ -88,16 +92,20 @@ struct AddPlantView: View {
                         }
                     }) {
                         HStack(spacing: 8) {
-                            if viewModel.isLoading { ProgressView().tint(.white) }
+                            if viewModel.isLoading { ProgressView().tint(.white).accessibilityHidden(true) }
                             if viewModel.currentStage == .garden {
                                 Text("Submit")
                             } else {
                                 Text("Next").frame(maxWidth: .infinity)
                                 Image(systemName: "arrow.forward")
+                                    .accessibilityHidden(true)
                             }
                         }
                         .frame(maxWidth: .infinity)
                     }
+                    .accessibilityLabel(viewModel.currentStage == .garden ? "Submit" : "Next step")
+                    .accessibilityValue(viewModel.isLoading ? "In progress" : "")
+                    .accessibilityHint(viewModel.currentStage == .garden ? "Submits the plant information" : "Proceeds to next step")
                     .buttonStyle(.glassProminent)
                     .disabled(viewModel.isLoading)
                     .padding(.horizontal, 8)
@@ -177,6 +185,7 @@ private struct PhotoPage: View {
                     .frame(width: 200, height: 200)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .clipped()
+                    .accessibilityLabel("Selected plant photo")
             } else {
                 Image(uiImage: .camera)
                     .resizable()
@@ -184,6 +193,7 @@ private struct PhotoPage: View {
                     .frame(width: 100, height: 100)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .clipped()
+                    .accessibilityHidden(true)
             }
             
             VStack(spacing: 14) {
@@ -191,6 +201,7 @@ private struct PhotoPage: View {
                     Label("Take Photo", systemImage: "camera.fill")
                         .frame(maxWidth: .infinity)
                 }
+                .accessibilityHint("Opens camera to take a photo of your plant")
                 .buttonStyle(.bordered)
                 .controlSize(.large)
                 .disabled(viewModel.isLoading)
@@ -199,6 +210,7 @@ private struct PhotoPage: View {
                     Label("Select Photo", systemImage: "photo.fill")
                         .frame(maxWidth: .infinity)
                 }
+                .accessibilityHint("Opens photo library to choose a plant photo")
                 .buttonStyle(.bordered)
                 .controlSize(.large)
                 .onChange(of: photoItem) { _, newItem in
@@ -270,6 +282,11 @@ private struct SpeciesPage: View {
                         }
                         .contentShape(Rectangle())
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(plant.species.scientificNameWithoutAuthor)
+                    .accessibilityValue(plant.species.commonNames.joined(separator: ", "))
+                    .accessibilityAddTraits(viewModel.selectedSpecies?.id == plant.id ? [.isSelected] : [])
+                    .accessibilityHint("Selects \(plant.species.scientificNameWithoutAuthor) as the species")
                     .buttonStyle(.plain)
                     
                     // Divider between rows
@@ -291,6 +308,7 @@ private struct SpeciesPage: View {
                                     }
                                 }
                                 .padding(.horizontal, 6)
+                                .accessibilityLabel("Other species name")
                         }
                         
                         Image(systemName: !viewModel.species.isEmpty ? "checkmark.circle.fill" : "circle")
@@ -306,6 +324,7 @@ private struct SpeciesPage: View {
             .font(.system(size: 30))
             .foregroundStyle(Color(uiColor: .systemGray3))
             .frame(width: 50, height: 50)
+            .accessibilityHidden(true)
     }
 }
 
@@ -321,6 +340,7 @@ private struct NamePage: View {
                 ) {
                     TextField("Enter a name", text: $viewModel.name)
                         .padding(.horizontal, 6)
+                        .accessibilityLabel("Plant nickname")
                 }
             }
         }
@@ -347,6 +367,7 @@ private struct LocationLightPage: View {
                                     .scaledToFit()
                                     .frame(height: 80)
                                     .scaleEffect(viewModel.isIndoors ? 1.15 : 1.0)
+                                    .accessibilityHidden(true)
                                 
                                 Text("Indoors")
                                     .font(.subheadline.bold())
@@ -360,6 +381,10 @@ private struct LocationLightPage: View {
                             .frame(maxWidth: .infinity)
                             .contentShape(Rectangle()) // Ensures the whole area is tappable
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Indoors")
+                        .accessibilityAddTraits(viewModel.isIndoors ? [.isSelected] : [])
+                        .accessibilityHint("Sets plant environment to indoors")
                         .buttonStyle(.plain)
                         
                         // Outdoors Option
@@ -374,6 +399,7 @@ private struct LocationLightPage: View {
                                     .scaledToFit()
                                     .frame(height: 80)
                                     .scaleEffect(!viewModel.isIndoors ? 1.15 : 1.0)
+                                    .accessibilityHidden(true)
                                 
                                 Text("Outdoors")
                                     .font(.subheadline.bold())
@@ -387,6 +413,10 @@ private struct LocationLightPage: View {
                             .frame(maxWidth: .infinity)
                             .contentShape(Rectangle())
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Outdoors")
+                        .accessibilityAddTraits(!viewModel.isIndoors ? [.isSelected] : [])
+                        .accessibilityHint("Sets plant environment to outdoors")
                         .buttonStyle(.plain)
                     }
                     .padding(.vertical, 16)
@@ -478,6 +508,7 @@ private struct GardenPage: View {
                             .frame(width: 100, height: 100)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .clipped()
+                            .accessibilityHidden(true)
                         
                         Text("You don't have any gardens yet. Create one to get started.")
                             .foregroundStyle(.secondary)
@@ -508,6 +539,11 @@ private struct GardenPage: View {
                                 }
                                 .contentShape(Rectangle())
                             }
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(garden.name)
+                            .accessibilityValue(garden.city)
+                            .accessibilityAddTraits(viewModel.garden?.id == garden.id ? [.isSelected] : [])
+                            .accessibilityHint("Selects \(garden.name)")
                             .buttonStyle(.plain)
                             
                             // Divider between rows
@@ -519,6 +555,8 @@ private struct GardenPage: View {
                         Label("Create New", systemImage: "plus")
                             .frame(maxWidth: .infinity)
                     }
+                    .accessibilityLabel("Create New Garden")
+                    .accessibilityHint("Opens screen to create a new garden")
                     .buttonStyle(.bordered)
                     .controlSize(.large)
                 }

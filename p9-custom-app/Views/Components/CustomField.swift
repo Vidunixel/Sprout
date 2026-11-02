@@ -65,6 +65,8 @@ struct CustomField<Content: View>: View {
                 Text("*\(error.localizedDescription)")
                     .font(.caption.bold())
                     .foregroundColor(.red)
+                    .accessibilityLabel("Error")
+                    .accessibilityValue(error.localizedDescription)
             }
         }
     }
