@@ -14,6 +14,7 @@ Choose one of the following methods to install Sprout on your iOS device.
 |:---|:---|
 | **AltStore Classic** | [Install with AltStore](https://intradeus.github.io/http-protocol-redirector?r=altstore-classic://install?url=https://github.com/Vidunixel/Sprout/releases/download/v1.0.0/Sprout.ipa) |
 | **SideStore** | [Install with SideStore](https://intradeus.github.io/http-protocol-redirector?r=sidestore://install?url=https://github.com/Vidunixel/Sprout/releases/download/v1.0.0/Sprout.ipa) |
+| **LiveContainer** | [Install with LiveContainer](https://intradeus.github.io/http-protocol-redirector?r=livecontainer://install?url=https://github.com/Vidunixel/Sprout/releases/download/v1.0.0/Sprout.ipa) |
 | **Direct Download** | [Download IPA](https://github.com/Vidunixel/Sprout/releases/download/v1.0.0/Sprout.ipa) |
 
 ## Key Features
