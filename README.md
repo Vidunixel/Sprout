@@ -133,8 +133,6 @@ p9-custom-app/
    ```swift
    static let supabaseURL = "YOUR_SUPABASE_URL"
    static let supabaseKey = "YOUR_SUPABASE_ANON_KEY"
-   static let openAIKey = "YOUR_OPENAI_KEY"
-   static let plantNetKey = "YOUR_PLANTNET_KEY"
    ```
 
 4. Build and run the project using **Cmd + R** on a simulator or connected device.
